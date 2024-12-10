@@ -1,0 +1,8 @@
+node_modules
+package-lock.json
+.DS_Store
+.env
+uploads
+data/contract_templates
+data/excel_templates
+data/temp
