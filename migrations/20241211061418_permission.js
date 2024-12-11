@@ -4,9 +4,9 @@
  */
 export const up = function(knex) {
   return knex.schema
-    .createTable('product_brand', (table) => {
-      table.bigIncrements("id").primary();
-      table.string("name", 50).unique().notNullable();
+    .createTable('permission', (table) => {
+      table.bigIncrements('id').primary();
+      table.string('name', 50).notNullable();
     });
 };
 
@@ -15,5 +15,5 @@ export const up = function(knex) {
  * @returns { Promise<void> }
  */
 export const down = function(knex) {
-  return knex.schema.dropTable('product_brand');
+  return knex.schema.dropTable('permission');
 };

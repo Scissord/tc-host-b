@@ -7,11 +7,14 @@ export const up = function(knex) {
     .createTable('user', (table) => {
       table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
       table.string('login', 50).notNullable();
-      table.string('phone', 15).nullable();
-      table.string('email', 50).nullable();
       table.string('password', 255).notNullable();
-      table.tinyint('gender').notNullable();
       table.string('avatar', 255).nullable();
+      table.tinyint('position_id')
+        .unsigned()
+        .references('id')
+        .inTable('position')
+        .onDelete('CASCADE');
+
       table.timestamp('created_at').defaultTo(knex.fn.now());
       table.timestamp('updated_at').defaultTo(knex.fn.now());
       table.timestamp('deleted_at').nullable();

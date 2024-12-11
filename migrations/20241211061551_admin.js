@@ -4,9 +4,13 @@
  */
 export const up = function(knex) {
   return knex.schema
-    .createTable('product_tag', (table) => {
-      table.bigIncrements("id").primary();
-      table.string("name", 100).unique().notNullable();
+    .createTable('admin', (table) => {
+      table.bigIncrements('id').primary();
+      table.uuid('user_id')
+        .unsigned()
+        .references('id')
+        .inTable('user')
+        .onDelete('CASCADE');
     });
 };
 
@@ -15,5 +19,5 @@ export const up = function(knex) {
  * @returns { Promise<void> }
  */
 export const down = function(knex) {
-  return knex.schema.dropTable('product_tag');
+  return knex.schema.dropTable('admin');
 };

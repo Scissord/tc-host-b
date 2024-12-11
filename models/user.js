@@ -47,7 +47,6 @@ export const findByQuery = async function (query) {
   return await db('user')
    .select('*')
    .where('login', query)
-   .orWhere('phone', query)
    .first();
 };
 

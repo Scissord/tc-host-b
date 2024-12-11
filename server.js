@@ -6,6 +6,7 @@ import apiRoutes from '#routes/index.js';
 
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://192.168.0.148:5173',
   'https://tc-chat.pw',
 ];
 
