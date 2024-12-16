@@ -14,14 +14,23 @@ const io = new Server(server, {
 const onlineUsers = [];
 
 io.on("connection", (socket) => {
-  // console.log("A user connected", socket.id);
-  onlineUsers.push(socket.id);
+  const { user_id } = socket.handshake.query;
+  console.log("A user connected", user_id);
+  onlineUsers.push(user_id);
 
-  console.log(onlineUsers);
+  socket.on("sendStatus", (data) => {
+    console.log(`Received message from ${user_id}:`, data);
+
+    // Отправить сообщение всем пользователям, кроме отправителя
+    socket.broadcast.emit("receiveStatus", {
+      sender: socket.id,
+      data: data
+    });
+  });
 
   socket.on("disconnect", () => {
-    // console.log("A user disconnected", socket.id);
-    const index = onlineUsers.indexOf(socket.id);
+    console.log("A user disconnected", user_id);
+    const index = onlineUsers.indexOf(user_id);
     if (index !== -1) {
       onlineUsers.splice(index, 1);
     }
