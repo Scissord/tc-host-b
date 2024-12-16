@@ -1,27 +1,27 @@
 import repository from './repository.js';
 
-const userRepository = repository('user');
+const cityRepository = repository('city');
 
 export const get = async () => {
-  return await userRepository.getAll();
+  return await cityRepository.getAll();
 };
 
 export const create = async (data) => {
-  return await userRepository.create(data);
+  return await cityRepository.create(data);
 };
 
 export const update = async (id, data) => {
-  return await userRepository.update(id, data);
+  return await cityRepository.update(id, data);
 };
 
 export const hardDelete = async (id) => {
-  return await userRepository.hardDelete(id);
+  return await cityRepository.hardDelete(id);
 };
 
 export const find = async (id) => {
-  return await userRepository.find(id);
+  return await cityRepository.find(id);
 };
 
 export const findByQuery = async function (query) {
-  return await userRepository.findByQuery(query);
+  return await cityRepository.findByQuery(query);
 };

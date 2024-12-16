@@ -6,7 +6,7 @@ export const up = function(knex) {
   return knex.schema
     .createTable('permission', (table) => {
       table.bigIncrements('id').primary();
-      table.string('name', 50).notNullable();
+      table.string('name', 255).notNullable();
     });
 };
 

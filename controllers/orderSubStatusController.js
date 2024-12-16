@@ -1,7 +1,10 @@
-export const get = async (req, res) => {
-	try {
+import * as OrderSubStatuses from '#models/order_sub_status.js';
 
-		res.status(200).send({ message: 'ok', users });
+export const getOrderSubStatuses = async (req, res) => {
+	try {
+    const orderSubStatuses = await OrderSubStatuses.get();
+		
+		res.status(200).send({ message: 'ok', orderSubStatuses });
 	}	catch (err) {
 		console.log("Error in get user controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });

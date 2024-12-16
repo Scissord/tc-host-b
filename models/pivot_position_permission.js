@@ -1,9 +1,28 @@
 import knex from './knex.js';
+import repository from './repository.js';
 
 const db = knex();
 
-export const get = async function () {
-  return await db('pivot_position_permission').select('*')
+const pivotPositionPermissionRepository = repository('pivot_position_permission');
+
+export const get = async () => {
+  return await pivotPositionPermissionRepository.getAll();
+};
+
+export const create = async (data) => {
+  return await pivotPositionPermissionRepository.create(data);
+};
+
+export const update = async (id, data) => {
+  return await pivotPositionPermissionRepository.update(id, data);
+};
+
+export const hardDelete = async (id) => {
+  return await pivotPositionPermissionRepository.delete(id);
+};
+
+export const find = async (id) => {
+  return await pivotPositionPermissionRepository.find(id);
 };
 
 export const getPermissions = async function (position_id) {
@@ -13,28 +32,4 @@ export const getPermissions = async function (position_id) {
     .where('position_id', position_id);
     
   return permissions
-};
-
-export const create = async function (data) {
-  const [pivot_position_permission] = await db("pivot_position_permission")
-    .insert(data)
-    .returning("id")
-
-  data.id = pivot_position_permission.id;
-  return data;
-};
-
-export const update = async function (id, data) {
-  const [pivot_position_permission] = await db("pivot_position_permission")
-    .where('id', id)
-    .update(data)
-    .returning("*");
-
-  return pivot_position_permission;
-};
-
-export const destroy = async function (id) {
-  await db("pivot_position_permission")
-    .del()
-    .where("id", id)
 };

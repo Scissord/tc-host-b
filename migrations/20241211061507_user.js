@@ -6,7 +6,7 @@ export const up = function(knex) {
   return knex.schema
     .createTable('user', (table) => {
       table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
-      table.string('login', 50).notNullable();
+      table.string('login', 255).notNullable();
       table.string('password', 255).notNullable();
       table.string('avatar', 255).nullable();
       table.tinyint('position_id')

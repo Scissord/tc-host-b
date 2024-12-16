@@ -13,7 +13,7 @@ import { validateLogin } from "#services/auth/auth.js";
 //     password = password.trim();
 //     confirm = confirm.trim();
 
-// 		const user = await User.isExist(login);
+// 		const user = await User.findByQuery({ login });
 
 // 		if (password !== confirm) {
 // 			return res.status(400).send({ error: "Passwords don't match" });
@@ -89,7 +89,7 @@ export const login = async (req, res) => {
     const { accessToken, refreshToken } = generateTokens(user.id);
 
     // save refreshToken in DB
-    await UserToken.update(user.id, {
+    await UserToken.updateWhere({ user_id: user.id }, {
       refresh_token: refreshToken,
       expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 дней
     });

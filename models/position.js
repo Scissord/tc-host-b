@@ -1,38 +1,24 @@
-import knex from './knex.js';
+import repository from './repository.js';
 
-const db = knex();
+const positionRepository = repository('position');
 
-export const get = async function () {
-  return await db('position').select('*')
+export const get = async () => {
+  return await positionRepository.getAll();
 };
 
-export const create = async function (data) {
-  const [position] = await db("position")
-    .insert(data)
-    .returning("id")
-
-  data.id = position.id;
-  return data;
+export const create = async (data) => {
+  return await positionRepository.create(data);
 };
 
-export const update = async function (id, data) {
-  const [position] = await db("position")
-    .where('id', id)
-    .update(data)
-    .returning("*");
-
-  return position;
+export const update = async (id, data) => {
+  return await positionRepository.update(id, data);
 };
 
-export const destroy = async function (id) {
-  await db("position")
-    .del()
-    .where("id", id)
+export const hardDelete = async (id) => {
+  return await positionRepository.delete(id);
 };
 
-export const find = async function (id) {
-  return await db("position")
-    .select('*')
-    .where("id", id)
-    .first();
+export const find = async (id) => {
+  return await positionRepository.find(id);
 };
+

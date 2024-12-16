@@ -1,16 +1,15 @@
+import { app, server } from '#services/socket/socket.js';
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import apiRoutes from '#routes/index.js';
-
 const allowedOrigins = [
   'http://localhost:5173',
   'http://192.168.0.148:5173',
   'https://tc-chat.pw',
 ];
 
-const app = express();
 const PORT = process.env.PORT || 8080;
 
 dotenv.config();
@@ -33,6 +32,6 @@ app.use(cors({
 
 app.use('/api', apiRoutes);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
 	console.log(`Welcome to cv server, port ${PORT} ✅✅✅`);
 });

@@ -6,6 +6,7 @@ export const up = function(knex) {
   return knex.schema
     .createTable('operator', (table) => {
       table.bigIncrements('id').primary();
+      table.string('name', 255).nullable();
       table.uuid('user_id')
         .unsigned()
         .references('id')

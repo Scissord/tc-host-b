@@ -20,7 +20,7 @@ export const validateLogin = async (login, password) => {
   }
 
   // finding user in db
-  const user = await User.findByQuery(login);
+  const user = await User.findByQuery({ login });
 
   // 2. if user is not found
   if(!user) {
