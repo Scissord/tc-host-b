@@ -35,19 +35,21 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("sendEntryOrder", (order_id) => {
-    // console.log(`Order entry received from ${socket.id}:`, order_id);
-
+  socket.on("sendEntryOrder", (data) => {
     // Signal to all other connected clients
     socket.broadcast.emit("blockOrder", {
       message: "Message for everyone else.",
-      order_id: order_id,
+      order_id: data.order_id,
+      name: data.name
     });
-  
-    // Signal to the sender
-    socket.emit("receiveEntryOrder", {
-      message: "Message for entry order sender",
-      order_id: order_id,
+  });
+
+  socket.on("sendExitOrder", (data) => {
+    // unblock order for other connected clients
+    socket.broadcast.emit("openOrder", {
+      message: "Message for everyone else.",
+      order_id: data.order_id,
+      name: data.name
     });
   });
 

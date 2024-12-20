@@ -17,8 +17,8 @@ export const getUserRoles = async (user_id) => {
   for(const assigned_role of assigned_roles) {
     const role = await Role.find(assigned_role.role_id);
     if(role) {
-      roles.push(role);
-    }
+      roles.push(+role.id);
+    };
   };
 
   return roles;
@@ -27,11 +27,11 @@ export const getUserRoles = async (user_id) => {
 export const getUserPermissions = async (user_id) => {
   let permissions = [];
 
-  const roles = await getUserRoles(user_id);
+  const roles_ids = await getUserRoles(user_id);
 
-  if(roles.length > 0) {
-    for(const role of roles) {
-      const permissionsByRole = await Permission.getWhere({ entity_id: role.id, entity_type: 'role' });
+  if(roles_ids.length > 0) {
+    for(const role_id of roles_ids) {
+      const permissionsByRole = await Permission.getWhere({ entity_id: role_id, entity_type: 'role' });
       if(permissionsByRole) {
         permissions = [...permissions, ...permissionsByRole];
       };

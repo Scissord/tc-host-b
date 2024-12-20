@@ -8,6 +8,7 @@ export const up = function(knex) {
       table.bigIncrements('id').primary();
       table.string('login', 255).notNullable();
       table.string('password', 255).checkLength('>=', 6).notNullable();
+      table.string('name', 255).nullable();
 
       table.timestamp('created_at').defaultTo(knex.fn.now());
       table.timestamp('updated_at').defaultTo(knex.fn.now());
