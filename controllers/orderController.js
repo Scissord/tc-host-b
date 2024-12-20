@@ -1,10 +1,10 @@
 import * as Order from '#models/order.js';
-import * as OrderSubStatus from '#models/order_sub_status.js';
+import * as OrderSubStatus from '#root/models/sub_status.js';
 import * as Product from '#models/product.js';
 import * as Webmaster from '#models/webmaster.js';
 import * as Operator from '#models/operator.js';
 import * as City from '#models/city.js';
-import * as OSS from '#models/order_sub_status.js';
+import * as SubStatus from '#root/models/sub_status.js';
 
 export const getOrders = async (req, res) => {
 	try {
@@ -73,7 +73,7 @@ export const getOrders = async (req, res) => {
 		);
 
 		const [products, webmasters, operators, cities, subStatuses] = await Promise.all([
-			Product.get(), Webmaster.get(), Operator.get(), City.get(), OSS.get()
+			Product.get(), Webmaster.get(), Operator.get(), City.get(), SubStatus.get()
 		]);
 
 		const enhancedOrders = orders.map((order) => ({
@@ -103,12 +103,24 @@ export const getOrders = async (req, res) => {
 	};
 };
 
+export const getOrder = async (req, res) => {
+	try {
+		const { order_id } = req.params;
+		const order = await Order.find(order_id);
+
+		return res.status(200).send({ order })
+	}	catch (err) {
+		console.log("Error in get getOrder controller", err.message);
+		res.status(500).send({ error: "Internal Server Error" });
+	};
+};
+
 export const changeStatus = async (req, res) => {
 	try {
 		const { ids, sub_status_id } = req.body;
 
 		const subStatus = await OrderSubStatus.find(sub_status_id);
-		const orders = await Order.updateWhereIn(ids, { status_id: subStatus.order_status_id, sub_status_id });
+		const orders = await Order.updateWhereIn({ id: ids }, { status_id: subStatus.order_status_id, sub_status_id });
 
 		res.status(200).send({ 
 			message: 'ok', 

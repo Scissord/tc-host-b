@@ -1,27 +1,27 @@
 import repository from './repository.js';
 
-const cityRepository = repository('city');
+const roleRepository = repository('role');
 
 export const get = async () => {
-  return await cityRepository.getAll();
+  return await roleRepository.getAll();
 };
 
 export const create = async (data) => {
-  return await cityRepository.create(data);
+  return await roleRepository.create(data);
 };
 
 export const update = async (id, data) => {
-  return await cityRepository.update(id, data);
+  return await roleRepository.update(id, data);
 };
 
 export const hardDelete = async (id) => {
-  return await cityRepository.hardDelete(id);
+  return await roleRepository.hardDelete(id);
 };
 
 export const find = async (id) => {
-  return await cityRepository.find(id);
+  return await roleRepository.find(id);
 };
 
 export const findWhere = async function (query) {
-  return await cityRepository.findWhere(query);
+  return await roleRepository.findWhere(query);
 };

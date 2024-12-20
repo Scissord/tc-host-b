@@ -22,6 +22,6 @@ export const find = async (id) => {
   return await userRepository.find(id);
 };
 
-export const findByQuery = async function (query) {
-  return await userRepository.findByQuery(query);
+export const findWhere = async function (query) {
+  return await userRepository.findWhere(query);
 };

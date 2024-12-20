@@ -9,6 +9,15 @@ const repository = (tableName) => {
       return await db(tableName).select('*');
     },
 
+    // get by query
+    getWhere: async (query) => {
+      return await db(tableName).select('*').where(query);
+    },
+
+    getWhereIn: async (query) => {
+      return await db(tableName).select('*').whereIn(query)
+    },
+
     // create record
     create: async (data) => {
       const [createdRecord] = await db(tableName)
@@ -38,9 +47,9 @@ const repository = (tableName) => {
       return updatedRecord;
     },
 
-    updateWhereIn: async (ids, data) => {
+    updateWhereIn: async (query, data) => {
       const updatedRecords = await db(tableName)
-        .whereIn('id', ids)
+        .whereIn(query)
         .update(data)
         .returning('*');
 
@@ -77,7 +86,7 @@ const repository = (tableName) => {
     },
 
     // find by query
-    findByQuery: async(query) => {
+    findWhere: async(query) => {
       const record = await db(tableName)
         .select('*')
         .where(query)

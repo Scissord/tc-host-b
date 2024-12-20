@@ -1,8 +1,8 @@
+import * as User from "#models/user.js";
 import * as UserToken from "#models/user_token.js";
-import * as Position from "#models/position.js";
-import * as PPP from "#models/pivot_position_permission.js";
 import generateTokens from "#root/utils/generateTokens.js";
-import { validateLogin } from "#services/auth/auth.js";
+import { validateAuth } from "#root/services/auth/validate.js";
+import { getUserInfo } from "#services/auth/info.js";
 // import sha256 from 'js-sha256';
 
 // export const signup = async (req, res) => {
@@ -13,7 +13,7 @@ import { validateLogin } from "#services/auth/auth.js";
 //     password = password.trim();
 //     confirm = confirm.trim();
 
-// 		const user = await User.findByQuery({ login });
+// 		const user = await User.findWhere({ login });
 
 // 		if (password !== confirm) {
 // 			return res.status(400).send({ error: "Passwords don't match" });
@@ -75,15 +75,11 @@ export const login = async (req, res) => {
 		let { login, password } = req.body;
 
     // validation
-    const result = await validateLogin(login, password);
+    const result = await validateAuth(login, password);
     if(!result.isCorrect) return res.status(400).send({ message: result.message });
 
     // edit user 
-    const user = result.user;
-    user.position = await Position.find(user.position_id);
-    user.permissions = await PPP.getPermissions(user.position_id);
-    delete user.position_id;
-    delete user.password;
+    const user = await getUserInfo(result.user);
 
     // generate JWT TOKEN
     const { accessToken, refreshToken } = generateTokens(user.id);

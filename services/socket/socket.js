@@ -15,11 +15,18 @@ const onlineUsers = [];
 
 io.on("connection", (socket) => {
   const { user_id } = socket.handshake.query;
-  console.log("A user connected", user_id);
-  onlineUsers.push(user_id);
+  // console.log("A user connected", user_id);
+  const connection = {
+    socket_id: socket.id,
+    user_id
+  };
+
+  onlineUsers.push(connection);
+
+  // console.log(onlineUsers);
 
   socket.on("sendStatus", (data) => {
-    console.log(`Received message from ${user_id}:`, data);
+    console.log(`Received message from ${socket.id}:`, data);
 
     // Отправить сообщение всем пользователям, кроме отправителя
     socket.broadcast.emit("receiveStatus", {
@@ -28,12 +35,33 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("sendEntryOrder", (order_id) => {
+    // console.log(`Order entry received from ${socket.id}:`, order_id);
+
+    // Signal to all other connected clients
+    socket.broadcast.emit("blockOrder", {
+      message: "Message for everyone else.",
+      order_id: order_id,
+    });
+  
+    // Signal to the sender
+    socket.emit("receiveEntryOrder", {
+      message: "Message for entry order sender",
+      order_id: order_id,
+    });
+  });
+
   socket.on("disconnect", () => {
-    console.log("A user disconnected", user_id);
-    const index = onlineUsers.indexOf(user_id);
+    // console.log("A user disconnected", user_id);
+    const index = onlineUsers.findIndex(
+      (connection) => connection.socket_id === socket.id
+    );
+
     if (index !== -1) {
       onlineUsers.splice(index, 1);
     }
+
+    // console.log(onlineUsers);
   })
 })
 

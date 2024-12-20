@@ -25,8 +25,8 @@ export const find = async (id) => {
   return await orderRepository.find(id);
 };
 
-export const updateWhereIn = async (ids, data) => {
-  return await orderRepository.updateWhereIn(ids, data);
+export const updateWhereIn = async (query, data) => {
+  return await orderRepository.updateWhereIn(query, data);
 };
 
 export const getPaginated = async function (
