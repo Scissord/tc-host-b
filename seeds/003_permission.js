@@ -8,19 +8,13 @@ export const seed = async (knex) => {
     {
       id: 1, 
       ability_id: 1,
-      entity_id: 2,
+      entity_id: 4,
       entity_type: "role",
     },
     {
       id: 2, 
       ability_id: 2,
-      entity_id: 3,
-      entity_type: "role",
-    },
-    {
-      id: 3, 
-      ability_id: 3,
-      entity_id: 3,
+      entity_id: 4,
       entity_type: "role",
     },
     // superadmin 

@@ -5,23 +5,27 @@ import * as Ability from '#models/ability.js';
 
 export const getUserInfo = async (user) => {
   user.abilities = await getUserAbilities(user.id);
-  user.role = await getUserRole(user.id);
-  
+  // user.role = await getUserRole(user.id);
   return user;
 };
 
-export const getUserRole = async (user_id) => {
+export const getUserAssignedRole = async (user_id) => {
+  console.log(user_id);
   const assigned_role = await AssignedRole.findWhere({ entity_id: user_id, entity_type: 'user' });
-  return assigned_role.role_id;
+  if(assigned_role) {
+    return assigned_role;
+  } else {
+    return false;
+  }
 };
 
 export const getUserPermissions = async (user_id) => {
   // permissions for role
   let permissions = [];
 
-  const role_id = await getUserRole(user_id);
+  const assigned_role = await getUserAssignedRole(user_id);
 
-  const permissionsByRole = await Permission.getWhere({ entity_id: role_id, entity_type: 'role' });
+  const permissionsByRole = await Permission.getWhere({ entity_id: assigned_role.role_id, entity_type: 'role' });
   if(permissionsByRole) {
     permissions = [...permissions, ...permissionsByRole];
   };

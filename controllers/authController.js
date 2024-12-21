@@ -2,7 +2,7 @@ import * as User from "#models/user.js";
 import * as UserToken from "#models/user_token.js";
 import generateTokens from "#root/utils/generateTokens.js";
 import { validateAuth } from "#root/services/auth/validate.js";
-import { getUserInfo } from "#services/auth/info.js";
+import { getUserInfo, getUserAssignedRole } from "#services/auth/info.js";
 // import sha256 from 'js-sha256';
 
 // export const signup = async (req, res) => {
@@ -70,86 +70,31 @@ import { getUserInfo } from "#services/auth/info.js";
 // 	};
 // };
 
-export const adminSignIn = async (req, res) => {
+export const signin = async (req, res) => {
 	try {
-		let { login, password } = req.body;
+		let { login, password, entity } = req.body;
 
     // validation
-    const result = await validateAuth(login, password, 'admin');
+    const result = await validateAuth(login, password, entity);
     if(!result.isCorrect) return res.status(400).send({ message: result.message });
 
+    let user = null;
     // edit user 
-    const user = await getUserInfo(result.user);
-
-    // generate JWT TOKEN
-    const { accessToken, refreshToken } = generateTokens(user.id);
-
-    // save refreshToken in DB
-    await UserToken.updateWhere({ user_id: user.id }, {
-      refresh_token: refreshToken,
-      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 дней
-    });
-
-    // send cookie
-    res.cookie("refreshToken", refreshToken, {
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
-      httpOnly: true, // Защищает от XSS атак
-      sameSite: "strict", // Защита от CSRF атак
-      secure: process.env.NODE_ENV === "production" // Только в производственной среде
-    });
-
-		res.status(200).send({ message: "Successfully login", user, accessToken });
-	}	catch (err) {
-		console.log("Error in login controller", err.message);
-		res.status(500).send({ error: "Internal Server Error" });
-	}
-};
-
-export const webmasterSignIn = async (req, res) => {
-	try {
-		let { login, password } = req.body;
-
-    // validation
-    const result = await validateAuth(login, password, 'webmaster');
-    if(!result.isCorrect) return res.status(400).send({ message: result.message });
-
-    // edit user 
-    const user = await getUserInfo(result.user);
-
-    // generate JWT TOKEN
-    const { accessToken, refreshToken } = generateTokens(user.id);
-
-    // save refreshToken in DB
-    await UserToken.updateWhere({ user_id: user.id }, {
-      refresh_token: refreshToken,
-      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 дней
-    });
-
-    // send cookie
-    res.cookie("refreshToken", refreshToken, {
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
-      httpOnly: true, // Защищает от XSS атак
-      sameSite: "strict", // Защита от CSRF атак
-      secure: process.env.NODE_ENV === "production" // Только в производственной среде
-    });
-
-		res.status(200).send({ message: "Successfully login", user, accessToken });
-	}	catch (err) {
-		console.log("Error in login controller", err.message);
-		res.status(500).send({ error: "Internal Server Error" });
-	}
-};
-
-export const operatorSignIn = async (req, res) => {
-	try {
-		let { login, password } = req.body;
-
-    // validation
-    const result = await validateAuth(login, password, 'operator');
-    if(!result.isCorrect) return res.status(400).send({ message: result.message });
-
-    // edit user 
-    const user = await getUserInfo(result.user);
+    switch(entity) {
+      case 'user':
+        user = await getUserInfo(result.user);
+        break;
+      case 'webmaster':
+        user = await User.findWebmasterByLogin(login);
+        const assigned_role = await getUserAssignedRole(user.id);
+        if(assigned_role) {
+          user = await getUserInfo(user);
+        };
+        break;   
+      case 'operator':
+        user = await User.findOperatorByLogin(login);
+        break;
+    };
 
     // generate JWT TOKEN
     const { accessToken, refreshToken } = generateTokens(user.id);

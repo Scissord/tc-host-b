@@ -29,15 +29,7 @@ export const findWhere = async function (query) {
   return await userRepository.findWhere(query);
 };
 
-export const findAdminByLogin = async function (login) {
-  return await db('user as u')
-    .select('u.*', 'a.id as admin_id')
-    .leftJoin('admin as a', 'a.user_id', 'u.id')
-    .where('u.login', login)
-    .first();
-};
-
-export const findAdminByWebmaster = async function (login) {
+export const findWebmasterByLogin = async function (login) {
   return await db('user as u')
     .select('u.*', 'w.id as webmaster_id')
     .leftJoin('webmaster as w', 'w.user_id', 'u.id')
@@ -45,7 +37,7 @@ export const findAdminByWebmaster = async function (login) {
     .first();
 };
 
-export const findAdminByOperator = async function (login) {
+export const findOperatorByLogin = async function (login) {
   return await db('user as u')
     .select('u.*', 'o.id as operator_id')
     .leftJoin('operator as o', 'o.user_id', 'u.id')

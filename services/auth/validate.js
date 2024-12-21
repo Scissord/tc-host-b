@@ -22,14 +22,14 @@ export const validateAuth = async (login, password, entity) => {
   // finding user in db
   let user = null;
   switch(entity) {
-    case 'admin':
-      user = await User.findAdminByLogin(login);
+    case 'user':
+      user = await User.findWhere({ login });
       break;
     case 'webmaster':
-      user = await User.findAdminByWebmaster(login);
+      user = await User.findWebmasterByLogin(login);
       break;
     case 'operator':
-      user = await User.findAdminByOperator(login);
+      user = await User.findOperatorByLogin(login);
       break;
   };
 

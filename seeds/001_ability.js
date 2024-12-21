@@ -78,18 +78,13 @@ export const seed = async (knex) => {
   await knex('ability').insert([
     {
       id: 1,
-      name: 'webmaster_get_orders',
-      title: 'смотреть свои заказы',
+      name: 'webmaster_team_filter',
+      title: 'Фильтровать заказы по вебмастерам своей команды',
     },
     {
       id: 2,
-      name: 'webmaster_filter_team_statistic',
-      title: 'смотреть статистику команды',
-    },
-    {
-      id: 3,
-      name: 'webmaster_statistic',
-      title: 'смотреть свою статистику',
+      name: 'webmaster_team_statistic',
+      title: 'Смотреть статистику вебмастеров своей команды',
     },
   ]);
 };
