@@ -1,4 +1,7 @@
+import knex from './knex.js';
 import repository from './repository.js';
+
+const db = knex();
 
 const userRepository = repository('user');
 
@@ -24,4 +27,28 @@ export const find = async (id) => {
 
 export const findWhere = async function (query) {
   return await userRepository.findWhere(query);
+};
+
+export const findAdminByLogin = async function (login) {
+  return await db('user as u')
+    .select('u.*', 'a.id as admin_id')
+    .leftJoin('admin as a', 'a.user_id', 'u.id')
+    .where('u.login', login)
+    .first();
+};
+
+export const findAdminByWebmaster = async function (login) {
+  return await db('user as u')
+    .select('u.*', 'w.id as webmaster_id')
+    .leftJoin('webmaster as w', 'w.user_id', 'u.id')
+    .where('u.login', login)
+    .first();
+};
+
+export const findAdminByOperator = async function (login) {
+  return await db('user as u')
+    .select('u.*', 'o.id as operator_id')
+    .leftJoin('operator as o', 'o.user_id', 'u.id')
+    .where('u.login', login)
+    .first();
 };

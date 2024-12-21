@@ -59,23 +59,5 @@ export const seed = async (knex) => {
       refresh_token: '9',
       expires_at: new Date
     },
-    {
-      id: 10, 
-      user_id: 10, 
-      refresh_token: '10',
-      expires_at: new Date
-    },
-    {
-      id: 11, 
-      user_id: 11, 
-      refresh_token: '11',
-      expires_at: new Date
-    },
-    {
-      id: 12, 
-      user_id: 12, 
-      refresh_token: '12',
-      expires_at: new Date
-    },
   ]);
 };

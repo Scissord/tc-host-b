@@ -7,13 +7,7 @@ export const seed = async (knex) => {
   await knex('assigned_role').insert([
     // superadmin
     {
-      id: 13, 
-      role_id: 2,
-      entity_id: 1,
-      entity_type: "user",
-    },
-    {
-      id: 52, 
+      id: 1, 
       role_id: 1,
       entity_id: 1,
       entity_type: "user",
@@ -21,36 +15,37 @@ export const seed = async (knex) => {
     // admin
     {
       id: 2, 
-      role_id: 2,
+      role_id: 1,
       entity_id: 2,
       entity_type: "user",
     },
     {
       id: 3, 
-      role_id: 2,
+      role_id: 1,
       entity_id: 3,
       entity_type: "user",
     },
-    // supervisor
+    // webmaster
     {
       id: 4, 
-      role_id: 3,
+      role_id: 2,
       entity_id: 4,
       entity_type: "user",
     },
     {
       id: 5, 
-      role_id: 3,
+      role_id: 2,
       entity_id: 5,
       entity_type: "user",
     },
+    // webmaster_team_lead
     {
       id: 6, 
       role_id: 3,
       entity_id: 6,
       entity_type: "user",
     },
-    // webmaster
+    // operator
     {
       id: 7, 
       role_id: 4,
@@ -65,27 +60,8 @@ export const seed = async (knex) => {
     },
     {
       id: 9, 
-      role_id: 4,
+      role_id: 5,
       entity_id: 9,
-      entity_type: "user",
-    },
-    // operator
-    {
-      id: 10, 
-      role_id: 5,
-      entity_id: 10,
-      entity_type: "user",
-    },
-    {
-      id: 11, 
-      role_id: 5,
-      entity_id: 11,
-      entity_type: "user",
-    },
-    {
-      id: 12, 
-      role_id: 5,
-      entity_id: 12,
       entity_type: "user",
     },
   ]);

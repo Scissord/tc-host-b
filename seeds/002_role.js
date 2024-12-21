@@ -6,29 +6,34 @@ export const seed = async (knex) => {
   await knex('role').del()
   await knex('role').insert([
     {
-      id: 1, 
-      name: 'superadmin', 
-      title: 'Админ со всеми правами'
+      id: 1,
+      name: 'admin',
+      title: 'Админ',
+      entity_type: 'admin'
     },
     {
       id: 2,
-      name: 'admin',
-      title: 'Админы с большинством прав'
+      name: 'webmaster',
+      title: 'Вебмастер',
+      entity_type: 'webmaster'
     },
     {
       id: 3,
-      name: 'supervisor',
-      title: 'Начальник отдела, кастомные права'
+      name: 'webmaster_team_lead',
+      title: 'Вебмастер тимлид',
+      entity_type: 'webmaster'
     },
     {
       id: 4,
-      name: 'webmaster',
-      title: 'Медиа-баер/Арбитражник, работает со своими заказами'
+      name: 'operator',
+      title: 'Оператор, отрабатывает заказы, меняет им статусы',
+      entity_type: 'operator'
     },
     {
       id: 5,
-      name: 'operator',
-      title: 'Оператор, отрабатывает заказы, меняет им статусы'
+      name: 'supervisor',
+      title: 'Начальник отдела',
+      entity_type: 'operator'
     },
   ]);
 };

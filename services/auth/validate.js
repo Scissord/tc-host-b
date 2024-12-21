@@ -3,7 +3,7 @@ import * as User from '#models/user.js';
 import ERRORS from '#constants/errors.js';
 import SUCCESSES from '#constants/successes.js';
 
-export const validateAuth = async (login, password) => {
+export const validateAuth = async (login, password, entity) => {
   const result = {
     isCorrect: false,
     message: '',
@@ -17,10 +17,21 @@ export const validateAuth = async (login, password) => {
   if (!login || !password) {
     result.message = ERRORS.INVALID_CREDENTIALS;
     return result;
-  }
+  };
 
   // finding user in db
-  const user = await User.findWhere({ login });
+  let user = null;
+  switch(entity) {
+    case 'admin':
+      user = await User.findAdminByLogin(login);
+      break;
+    case 'webmaster':
+      user = await User.findAdminByWebmaster(login);
+      break;
+    case 'operator':
+      user = await User.findAdminByOperator(login);
+      break;
+  };
 
   // 2. if user is not found
   if(!user) {

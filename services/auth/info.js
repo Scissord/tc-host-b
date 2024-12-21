@@ -5,37 +5,25 @@ import * as Ability from '#models/ability.js';
 
 export const getUserInfo = async (user) => {
   user.abilities = await getUserAbilities(user.id);
-  user.roles = await getUserRoles(user.id);
-
+  user.role = await getUserRole(user.id);
+  
   return user;
 };
 
-export const getUserRoles = async (user_id) => {
-  let roles = [];
-
-  const assigned_roles = await AssignedRole.getWhere({ entity_id: user_id, entity_type: 'user' });
-  for(const assigned_role of assigned_roles) {
-    const role = await Role.find(assigned_role.role_id);
-    if(role) {
-      roles.push(+role.id);
-    };
-  };
-
-  return roles;
+export const getUserRole = async (user_id) => {
+  const assigned_role = await AssignedRole.findWhere({ entity_id: user_id, entity_type: 'user' });
+  return assigned_role.role_id;
 };
 
 export const getUserPermissions = async (user_id) => {
+  // permissions for role
   let permissions = [];
 
-  const roles_ids = await getUserRoles(user_id);
+  const role_id = await getUserRole(user_id);
 
-  if(roles_ids.length > 0) {
-    for(const role_id of roles_ids) {
-      const permissionsByRole = await Permission.getWhere({ entity_id: role_id, entity_type: 'role' });
-      if(permissionsByRole) {
-        permissions = [...permissions, ...permissionsByRole];
-      };
-    };
+  const permissionsByRole = await Permission.getWhere({ entity_id: role_id, entity_type: 'role' });
+  if(permissionsByRole) {
+    permissions = [...permissions, ...permissionsByRole];
   };
 
   const permissionsByUser = await Permission.getWhere({ entity_id: user_id, entity_type: 'user' });

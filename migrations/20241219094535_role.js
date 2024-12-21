@@ -8,6 +8,7 @@ export const up = function(knex) {
       table.bigIncrements('id').primary();
       table.string('name', 255).notNullable();
       table.string('title', 255).nullable();
+      table.string('entity_type', 255).nullable();
 
       table.timestamp('created_at').defaultTo(knex.fn.now());
       table.timestamp('updated_at').defaultTo(knex.fn.now());

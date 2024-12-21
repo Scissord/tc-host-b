@@ -70,12 +70,82 @@ import { getUserInfo } from "#services/auth/info.js";
 // 	};
 // };
 
-export const login = async (req, res) => {
+export const adminSignIn = async (req, res) => {
 	try {
 		let { login, password } = req.body;
 
     // validation
-    const result = await validateAuth(login, password);
+    const result = await validateAuth(login, password, 'admin');
+    if(!result.isCorrect) return res.status(400).send({ message: result.message });
+
+    // edit user 
+    const user = await getUserInfo(result.user);
+
+    // generate JWT TOKEN
+    const { accessToken, refreshToken } = generateTokens(user.id);
+
+    // save refreshToken in DB
+    await UserToken.updateWhere({ user_id: user.id }, {
+      refresh_token: refreshToken,
+      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 дней
+    });
+
+    // send cookie
+    res.cookie("refreshToken", refreshToken, {
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
+      httpOnly: true, // Защищает от XSS атак
+      sameSite: "strict", // Защита от CSRF атак
+      secure: process.env.NODE_ENV === "production" // Только в производственной среде
+    });
+
+		res.status(200).send({ message: "Successfully login", user, accessToken });
+	}	catch (err) {
+		console.log("Error in login controller", err.message);
+		res.status(500).send({ error: "Internal Server Error" });
+	}
+};
+
+export const webmasterSignIn = async (req, res) => {
+	try {
+		let { login, password } = req.body;
+
+    // validation
+    const result = await validateAuth(login, password, 'webmaster');
+    if(!result.isCorrect) return res.status(400).send({ message: result.message });
+
+    // edit user 
+    const user = await getUserInfo(result.user);
+
+    // generate JWT TOKEN
+    const { accessToken, refreshToken } = generateTokens(user.id);
+
+    // save refreshToken in DB
+    await UserToken.updateWhere({ user_id: user.id }, {
+      refresh_token: refreshToken,
+      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 дней
+    });
+
+    // send cookie
+    res.cookie("refreshToken", refreshToken, {
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
+      httpOnly: true, // Защищает от XSS атак
+      sameSite: "strict", // Защита от CSRF атак
+      secure: process.env.NODE_ENV === "production" // Только в производственной среде
+    });
+
+		res.status(200).send({ message: "Successfully login", user, accessToken });
+	}	catch (err) {
+		console.log("Error in login controller", err.message);
+		res.status(500).send({ error: "Internal Server Error" });
+	}
+};
+
+export const operatorSignIn = async (req, res) => {
+	try {
+		let { login, password } = req.body;
+
+    // validation
+    const result = await validateAuth(login, password, 'operator');
     if(!result.isCorrect) return res.status(400).send({ message: result.message });
 
     // edit user 

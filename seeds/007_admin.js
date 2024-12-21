@@ -3,19 +3,19 @@
  * @returns { Promise<void> } 
  */
 export const seed = async (knex) => {
-  await knex('operator').del()
-  await knex('operator').insert([
+  await knex('admin').del()
+  await knex('admin').insert([
     {
       id: 1, 
-      user_id: 10, 
+      user_id: 1, 
     },
     {
       id: 2, 
-      user_id: 11, 
+      user_id: 2, 
     },
     {
       id: 3, 
-      user_id: 12, 
+      user_id: 3, 
     },
   ]);
 };
