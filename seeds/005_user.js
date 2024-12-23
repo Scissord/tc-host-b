@@ -25,7 +25,7 @@ export const seed = async (knex) => {
       password: '$2a$10$2EnIIfRVe8jrTcjXtP7.suPkY0StD2yho/f9BRYvOfBBZlJBfoEWm',
       name: 'Абзал',
     },
-    // webmaster
+    // webmasters
     {
       id: 4,
       login: 'webmaster1',
@@ -58,12 +58,12 @@ export const seed = async (knex) => {
       password: '$2a$10$O0EPJzsUc5d/X./6uJ7BwOs0oISS/.Tcq4Hk2eSZd3BTLA6v1c3ga',
       name: 'Оператор 2',
     },
-    // operator_team_lead (supervisor)
+    // supervisor
     {
       id: 9,
-      login: 'operator3',
-      password: '$2a$10$cEZBuRTcdCP3RQdnSMA9gOUEd1zGoYrsImrG9dPkE.ihNYVgc.VtK',
-      name: 'Оператор 3',
+      login: 'supervisor',
+      password: '$2a$10$islcEUAAn2SW8w9w07xBG.gpKx916rCKopdvINYZVZ1kxeFR9ZOTm',
+      name: 'Начальник отдела',
     },
   ]);
 };

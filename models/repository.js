@@ -5,8 +5,18 @@ const db = knex();
 const repository = (tableName) => {
   return {
     // get all records
-    getAll: async () => {
-      return await db(tableName).select('*');
+    getAll: async (order_by = 'id', sort_order = 'asc') => {
+      return await db(tableName)
+        .select('*')
+        .orderBy(order_by, sort_order);
+    },
+
+    // get all records where deleted_at === null
+    getActive: async (order_by = 'id', sort_order = 'asc') => {
+      return await db(tableName)
+        .select('*')
+        .orderBy(order_by, sort_order)
+        .where('deleted_at', null);
     },
 
     // get by query

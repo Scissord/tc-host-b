@@ -7,6 +7,8 @@ export const up = function(knex) {
     .createTable('city', (table) => {
       table.bigIncrements('id').primary();
       table.string('name', 255).notNullable();
+
+      table.timestamp('deleted_at').defaultTo(null);
     });
 };
 

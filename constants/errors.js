@@ -3,6 +3,18 @@ const ERRORS = {
   INVALID_CREDENTIALS: 'Неверно введенные данные!',
   USER_NOT_FOUND: 'Пользователь не найден!',
   INVALID_PASSWORD: 'Неверный пароль!',
+  // tokens
+  TOKEN_EXPIRED: 'TokenExpiredError',
+  NO_ACCESS: 'Unauthorized - No Token Provided',
+  INVALID_ACCESS: 'Unauthorized - Invalid Access Token',
+  NO_REFRESH: 'Unauthorized - No Refresh Token Provided',
+  INVALID_REFRESH: 'Unauthorized - Invalid Refresh Token',
+  // roles 
+  IS_WEBMASTER: 'Данный пользователь является вебмастером!',
+  IS_OPERATOR: 'Данный пользователь является оператором!',
+  NOT_WEBMASTER: 'Данный пользователь не является вебмастером!',
+  NOT_OPERATOR: 'Данный пользователь не является оператором!',
+  INVALID_ROLE: 'Неизвестная роль пользователя!'
 };
 
 export default ERRORS;

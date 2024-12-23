@@ -6,7 +6,7 @@ export const seed = async (knex) => {
   await knex('order').del();
 
   const webmasters = [1, 2, 3];
-  const operators = [1, 2, 3];
+  const operators = [1, 2];
   const cities = [1, 2, 3];
   const statuses = [1, 2, 3, 4, 5, 6, 7];
   const sub_statuses = {

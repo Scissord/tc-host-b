@@ -2,7 +2,7 @@ import * as User from "#models/user.js";
 import * as UserToken from "#models/user_token.js";
 import generateTokens from "#root/utils/generateTokens.js";
 import { validateAuth } from "#root/services/auth/validate.js";
-import { getUserInfo, getUserAssignedRole } from "#services/auth/info.js";
+import { getUserInfo, getUserAssignedRole, getUserAbilities } from "#services/auth/info.js";
 // import sha256 from 'js-sha256';
 
 // export const signup = async (req, res) => {
@@ -85,14 +85,22 @@ export const signin = async (req, res) => {
         user = await getUserInfo(result.user);
         break;
       case 'webmaster':
-        user = await User.findWebmasterByLogin(login);
-        const assigned_role = await getUserAssignedRole(user.id);
-        if(assigned_role) {
-          user = await getUserInfo(user);
-        };
+        user = await User.findWebmaster(result.user.id);
+        const webmaster_assigned_role = await getUserAssignedRole(user.id);
+        
+        user.abilities = webmaster_assigned_role 
+          ? await getUserAbilities(user.id)
+          : [];
+        
         break;   
       case 'operator':
-        user = await User.findOperatorByLogin(login);
+        user = await User.findOperator(result.user.id);
+        const operator_assigned_role = await getUserAssignedRole(user.id);
+        
+        user.abilities = operator_assigned_role 
+          ? await getUserAbilities(user.id)
+          : [];
+
         break;
     };
 

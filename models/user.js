@@ -29,18 +29,18 @@ export const findWhere = async function (query) {
   return await userRepository.findWhere(query);
 };
 
-export const findWebmasterByLogin = async function (login) {
+export const findWebmaster = async function (user_id) {
   return await db('user as u')
     .select('u.*', 'w.id as webmaster_id')
     .leftJoin('webmaster as w', 'w.user_id', 'u.id')
-    .where('u.login', login)
+    .where('u.id', user_id)
     .first();
 };
 
-export const findOperatorByLogin = async function (login) {
+export const findOperator = async function (user_id) {
   return await db('user as u')
     .select('u.*', 'o.id as operator_id')
     .leftJoin('operator as o', 'o.user_id', 'u.id')
-    .where('u.login', login)
+    .where('u.id', user_id)
     .first();
 };

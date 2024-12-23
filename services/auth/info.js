@@ -5,12 +5,10 @@ import * as Ability from '#models/ability.js';
 
 export const getUserInfo = async (user) => {
   user.abilities = await getUserAbilities(user.id);
-  // user.role = await getUserRole(user.id);
   return user;
 };
 
 export const getUserAssignedRole = async (user_id) => {
-  console.log(user_id);
   const assigned_role = await AssignedRole.findWhere({ entity_id: user_id, entity_type: 'user' });
   if(assigned_role) {
     return assigned_role;
@@ -20,7 +18,6 @@ export const getUserAssignedRole = async (user_id) => {
 };
 
 export const getUserPermissions = async (user_id) => {
-  // permissions for role
   let permissions = [];
 
   const assigned_role = await getUserAssignedRole(user_id);

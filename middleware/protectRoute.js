@@ -1,51 +1,69 @@
 import jwt from 'jsonwebtoken';
 import * as User from '#models/user.js';
-import * as Role from '#models/role.js';
+import ERRORS from '#constants/errors.js';
 
 const protectRoute = async (req, res, next) => {
+  // 401 - refresh access and refresh tokens
+  // 402 - throw away user from app
   try {
+    // 1. Make sure you have accessToken;
     const token = req.headers['authorization'];
-    if (!token) return res.status(401).send({ error: "Unauthorized - No Token Provided" });
+    if (!token) return res.status(401).send({ 
+      message: ERRORS.NO_ACCESS 
+    });
 
+    // 2. Delete Bearer
     const accessToken = token.startsWith('Bearer ') ? token.slice(7) : token;
 
+    // 3. Try to decode token
     let decoded;
     try {
+      // 4. If ok continue;
       decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
     } catch (err) {
-      if (err.name === 'TokenExpiredError') {
+      // 5. Else mean accessToken is expired
+      if (err.name === ERRORS.TOKEN_EXPIRED) {
+
+        // 6. Taking refreshToken from cookies
         const refreshToken = req.cookies.refreshToken;
-        if (!refreshToken) return res.status(401).send({
-          error: "Unauthorized - No Refresh Token Provided"
+        if (!refreshToken) return res.status(402).send({
+          message: ERRORS.NO_REFRESH
         });
+
         try {
+          // 7. Try to decode refreshToken
           const decodedRefresh = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
+          // 8. Check if user exist
           const user = await User.find(decodedRefresh.userId);
-          if (!user) return res.status(401).send({ error: "User not found" });
+          if (!user) return res.status(402).send({ 
+            message: ERRORS.USER_NOT_FOUND 
+          });
 
-          const newAccessToken = jwt.sign(
-            { userId: user.id },
-            process.env.JWT_ACCESS_SECRET,
-            { expiresIn: process.env.JWT_ACCESS_LIFE_TIME }
-          );
-
-          decoded = jwt.verify(newAccessToken, process.env.JWT_ACCESS_SECRET);
-
-          return res.status(401).send({ accessToken: newAccessToken });
+          // 9. refreshToken is valid, but need new accessToken
+          return res.status(401).send({ 
+            message: ERRORS.INVALID_ACCESS
+          });
         } catch (refreshError) {
-          return res.status(401).send({ error: "Unauthorized - Invalid Refresh Token" });
-        }
+          // 10. If refreshToken invalid too
+          return res.status(402).send({ 
+            message: ERRORS.INVALID_REFRESH 
+          });
+        };
       } else {
-        return res.status(401).send({ error: "Unauthorized - Invalid Token" });
-      }
-    }
+        // 11. If token is not expired, but other error
+        return res.status(401).send({ 
+          message: ERRORS.INVALID_ACCESS
+        });
+      };
+    };
+
+    console.log(decoded)
 
     const user = await User.find(decoded.userId);
-    if (!user) return res.status(401).send({ error: "User not found" });
-
-    const role = await Role.getForUser(user.role);
-    user.role = role;
+    if (!user) return res.status(402).send({ 
+      message: ERRORS.USER_NOT_FOUND 
+    });
 
     req.user = user;
 

@@ -1,7 +1,7 @@
 export const get = async (req, res) => {
 	try {
 
-		res.status(200).send({ message: 'ok', users });
+		res.status(200).send({ message: 'ok' });
 	}	catch (err) {
 		console.log("Error in get user controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
@@ -28,12 +28,12 @@ export const update = async (req, res) => {
 	}
 };
 
-export const destroy = async (req, res) => {
+export const softDelete = async (req, res) => {
   try {
 
 		res.status(200).send({ message: 'ok' });
 	}	catch (err) {
-		console.log("Error in destroy user controller", err.message);
+		console.log("Error in softDelete user controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
 	}
 };

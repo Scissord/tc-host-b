@@ -1,5 +1,7 @@
 import bcrypt from 'bcryptjs';
 import * as User from '#models/user.js';
+import * as Webmaster from '#models/webmaster.js'; 
+import * as Operator from '#models/operator.js'; 
 import ERRORS from '#constants/errors.js';
 import SUCCESSES from '#constants/successes.js';
 
@@ -13,45 +15,70 @@ export const validateAuth = async (login, password, entity) => {
   login = login.trim();
   password = password.trim();
 
-  // 1. is login and password exits
+  // 1. Check if login and password exist
   if (!login || !password) {
     result.message = ERRORS.INVALID_CREDENTIALS;
     return result;
   };
 
-  // finding user in db
-  let user = null;
-  switch(entity) {
-    case 'user':
-      user = await User.findWhere({ login });
-      break;
-    case 'webmaster':
-      user = await User.findWebmasterByLogin(login);
-      break;
-    case 'operator':
-      user = await User.findOperatorByLogin(login);
-      break;
-  };
+  // 2. Find user in database
+  const user = await User.findWhere({ login });
 
-  // 2. if user is not found
+  // 3. If user is not found
   if(!user) {
     result.message = ERRORS.USER_NOT_FOUND;
     return result;
   };
 
-  // 3. if password is incorrect
+  // 4. Check if password is correct
   const isPasswordCorrect = await bcrypt.compare(password, user?.password || "");
   if(!isPasswordCorrect) {
     result.message = ERRORS.INVALID_PASSWORD;
     return result;
   };
 
-  // 4. if all correct
+  // 5. Check for role
+  switch (entity) {
+    case 'user': {
+      const webmaster = await Webmaster.findWhere({ user_id: user.id });
+      if (webmaster) {
+        result.message = ERRORS.IS_WEBMASTER;
+        return result;
+      }
+      const operator = await Operator.findWhere({ user_id: user.id });
+      if (operator) {
+        result.message = ERRORS.IS_OPERATOR;
+        return result;
+      }
+      break;
+    }
+    case 'webmaster': {
+      const webmaster = await Webmaster.findWhere({ user_id: user.id });
+      if (!webmaster) {
+        result.message = ERRORS.NOT_WEBMASTER;
+        return result;
+      }
+      break;
+    }
+    case 'operator': {
+      const operator = await Operator.findWhere({ user_id: user.id });
+      if (!operator) {
+        result.message = ERRORS.NOT_OPERATOR;
+        return result;
+      }
+      break;
+    }
+    default:
+      result.message = ERRORS.INVALID_ROLE;
+      return result;
+  }
+
+  // 6. If all is correct
   result.isCorrect = true;
   result.message = SUCCESSES.USER_FOUND;
   result.user = user;
 
-  // 5. delete user password
+  // 7. Delete user password
   delete result.user.password;
 
   return result;

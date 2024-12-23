@@ -13,9 +13,5 @@ export const seed = async (knex) => {
       id: 2, 
       user_id: 8, 
     },
-    {
-      id: 3, 
-      user_id: 9, 
-    },
   ]);
 };

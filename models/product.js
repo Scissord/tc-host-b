@@ -3,7 +3,7 @@ import repository from './repository.js';
 const productRepository = repository('product');
 
 export const get = async () => {
-  return await productRepository.getAll();
+  return await productRepository.getActive();
 };
 
 export const create = async (data) => {
@@ -12,6 +12,10 @@ export const create = async (data) => {
 
 export const update = async (id, data) => {
   return await productRepository.update(id, data);
+};
+
+export const softDelete = async (id) => {
+  return await productRepository.softDelete(id);
 };
 
 export const hardDelete = async (id) => {
