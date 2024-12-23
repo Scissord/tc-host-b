@@ -1,10 +1,22 @@
 import * as AssignedRole from '#models/assigned_role.js';
-import * as Role from '#models/role.js';
 import * as Permission from '#models/permission.js';
 import * as Ability from '#models/ability.js';
 
+export const can = async (user_id, ability_name) => {
+  // 1. check if user has role_id, cuz if not, he don't have abilities
+  const assigned_role = await getUserAssignedRole(user_id);
+  if(!assigned_role) return false;
+  // 2. find abilities
+  const user_abilities = await getUserAbilitiesName(user_id);
+  if(user_abilities.includes(ability_name)) {
+    return true;
+  };
+  
+  return false;
+};
+
 export const getUserInfo = async (user) => {
-  user.abilities = await getUserAbilities(user.id);
+  user.abilities = await getUserAbilitiesId(user.id);
   return user;
 };
 
@@ -35,7 +47,7 @@ export const getUserPermissions = async (user_id) => {
   return permissions;
 };
 
-export const getUserAbilities = async (user_id) => {
+export const getUserAbilitiesId = async (user_id) => {
   let abilities = [];
 
   const permissions = await getUserPermissions(user_id)
@@ -43,6 +55,19 @@ export const getUserAbilities = async (user_id) => {
   for(const permission of permissions) {
     const ability = await Ability.find(permission.ability_id);
     abilities.push(+ability.id);
+  };
+
+  return abilities;
+};
+
+export const getUserAbilitiesName = async (user_id) => {
+  let abilities = [];
+
+  const permissions = await getUserPermissions(user_id)
+
+  for(const permission of permissions) {
+    const ability = await Ability.find(permission.ability_id);
+    abilities.push(ability.name);
   };
 
   return abilities;

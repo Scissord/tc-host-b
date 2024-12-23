@@ -12,6 +12,7 @@ const io = new Server(server, {
 });
 
 const onlineUsers = [];
+let reservedOrders = [];
 
 io.on("connection", (socket) => {
   const { user_id } = socket.handshake.query;
@@ -36,6 +37,13 @@ io.on("connection", (socket) => {
   });
 
   socket.on("sendEntryOrder", (data) => {
+    // if(reservedOrders.includes(+data.order_id)) {
+    //   socket.emit('reservedOrder', {
+    //     order_id: data.order_id,
+    //   });
+    //   return;
+    // };
+    // reservedOrders.push(+data.order_id);
     // Signal to all other connected clients
     socket.broadcast.emit("blockOrder", {
       message: "Message for everyone else.",
@@ -46,6 +54,9 @@ io.on("connection", (socket) => {
 
   socket.on("sendExitOrder", (data) => {
     // unblock order for other connected clients
+    // if(reservedOrders.includes(+data.order_id)) {
+    //   reservedOrders = reservedOrders.filter((ro) => +ro.id !== data.order_id);
+    // };
     socket.broadcast.emit("openOrder", {
       message: "Message for everyone else.",
       order_id: data.order_id,

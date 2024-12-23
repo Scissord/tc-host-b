@@ -57,8 +57,6 @@ const protectRoute = async (req, res, next) => {
       };
     };
 
-    console.log(decoded.userId);
-
     const user = await User.find(decoded.userId);
     if (!user) return res.status(401).send({ 
       message: ERRORS.USER_NOT_FOUND 

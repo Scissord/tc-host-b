@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import * as User from "#models/user.js";
 import * as UserToken from "#models/user_token.js";
 import { validateAuth } from "#services/auth/validate.js";
-import { getUserInfo, getUserAssignedRole, getUserAbilities } from "#services/auth/info.js";
+import { getUserInfo, getUserAssignedRole, getUserAbilitiesId } from "#services/ability/user.js";
 import generateTokens from "#utils/generateTokens.js";
 import ERRORS from "#constants/errors.js";
 // import sha256 from 'js-sha256';
@@ -91,7 +91,7 @@ export const signin = async (req, res) => {
         const webmaster_assigned_role = await getUserAssignedRole(user.id);
         
         user.abilities = webmaster_assigned_role 
-          ? await getUserAbilities(user.id)
+          ? await getUserAbilitiesId(user.id)
           : [];
         
         break;   
@@ -100,7 +100,7 @@ export const signin = async (req, res) => {
         const operator_assigned_role = await getUserAssignedRole(user.id);
         
         user.abilities = operator_assigned_role 
-          ? await getUserAbilities(user.id)
+          ? await getUserAbilitiesId(user.id)
           : [];
 
         break;
