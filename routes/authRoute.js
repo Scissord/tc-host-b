@@ -7,4 +7,6 @@ router.post("/login", controller.signin);
 
 router.post("/logout", controller.logout);
 
+router.post("/refresh", controller.refresh);
+
 export default router;

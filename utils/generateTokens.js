@@ -14,7 +14,7 @@ const generateTokens = (userId) => {
     { expiresIn: process.env.JWT_REFRESH_LIFE_TIME}
   );
 
-  return { refreshToken, accessToken };
+  return { accessToken, refreshToken };
 };
 
 export default generateTokens;

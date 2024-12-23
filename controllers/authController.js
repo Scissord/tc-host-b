@@ -1,8 +1,10 @@
+import jwt from 'jsonwebtoken';
 import * as User from "#models/user.js";
 import * as UserToken from "#models/user_token.js";
-import generateTokens from "#root/utils/generateTokens.js";
-import { validateAuth } from "#root/services/auth/validate.js";
+import { validateAuth } from "#services/auth/validate.js";
 import { getUserInfo, getUserAssignedRole, getUserAbilities } from "#services/auth/info.js";
+import generateTokens from "#utils/generateTokens.js";
+import ERRORS from "#constants/errors.js";
 // import sha256 from 'js-sha256';
 
 // export const signup = async (req, res) => {
@@ -74,12 +76,12 @@ export const signin = async (req, res) => {
 	try {
 		let { login, password, entity } = req.body;
 
-    // validation
+    // 1. validation
     const result = await validateAuth(login, password, entity);
     if(!result.isCorrect) return res.status(400).send({ message: result.message });
 
     let user = null;
-    // edit user 
+    // 2. edit user by role
     switch(entity) {
       case 'user':
         user = await getUserInfo(result.user);
@@ -104,16 +106,16 @@ export const signin = async (req, res) => {
         break;
     };
 
-    // generate JWT TOKEN
+    // 3. generate JWT TOKEN
     const { accessToken, refreshToken } = generateTokens(user.id);
 
-    // save refreshToken in DB
+    // 4. save refreshToken in DB
     await UserToken.updateWhere({ user_id: user.id }, {
       refresh_token: refreshToken,
       expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 дней
     });
 
-    // send cookie
+    // 5. send cookie
     res.cookie("refreshToken", refreshToken, {
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
       httpOnly: true, // Защищает от XSS атак
@@ -121,20 +123,74 @@ export const signin = async (req, res) => {
       secure: process.env.NODE_ENV === "production" // Только в производственной среде
     });
 
-		res.status(200).send({ message: "Successfully login", user, accessToken });
+		res.status(200).send({ message: "ok", user, accessToken });
 	}	catch (err) {
-		console.log("Error in login controller", err.message);
+		console.log("Error in login auth controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
 	}
 };
 
-export const logout = (req, res) => {
+export const logout = async (req, res) => {
 	try {
     res.cookie("refreshToken", "", { maxAge: 0 })
     console.log('logout successfully')
-		res.status(200).send({ status: "ok", message: "Successfully logout" });
+		res.status(200).send({ message: "ok" });
 	}	catch (err) {
-		console.log("Error in logout controller", err.message);
+		console.log("Error in logout auth controller", err.message);
+		res.status(500).send({ error: "Internal Server Error" });
+	}
+};
+
+export const refresh = async (req, res) => {
+  try {
+    // 1. check for refreshToken
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) return res.status(401).send({
+      message: ERRORS.NO_REFRESH
+    });
+
+    // 2. Try to decode refreshToken
+    try {
+      const decodedRefresh = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
+      // 3. Check if user exist
+      const user = await User.find(decodedRefresh.userId);
+      if (!user) return res.status(401).send({ 
+        message: ERRORS.USER_NOT_FOUND 
+      });
+
+      // 4. if user exist and we get decodedRefresh, we generate JWT TOKEN
+      const { 
+        accessToken: newAccessToken, 
+        refreshToken: newRefreshToken
+      } = generateTokens(user.id);
+
+      // 5. save refreshToken in DB
+      await UserToken.updateWhere({ user_id: user.id }, {
+        refresh_token: newRefreshToken,
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 дней
+      });
+
+      // 6. send cookie
+      res.cookie("refreshToken", newRefreshToken, {
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
+        httpOnly: true, // Защищает от XSS атак
+        sameSite: "strict", // Защита от CSRF атак
+        secure: process.env.NODE_ENV === "production" // Только в производственной среде
+      });
+
+      res.status(200).send({ 
+        message: "ok", 
+        newAccessToken
+      });
+    } catch(err) {
+      // session expired
+      res.status(401).send({
+        message: ERRORS.SESSION_EXPIRED
+      });
+    }
+	}	catch (err) {
+		console.log("Error in refresh auth controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
 	}
 };

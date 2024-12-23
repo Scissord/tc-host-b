@@ -9,6 +9,7 @@ const ERRORS = {
   INVALID_ACCESS: 'Unauthorized - Invalid Access Token',
   NO_REFRESH: 'Unauthorized - No Refresh Token Provided',
   INVALID_REFRESH: 'Unauthorized - Invalid Refresh Token',
+  SESSION_EXPIRED: 'Сессия истекла. Пожалуйста, войдите заново',
   // roles 
   IS_WEBMASTER: 'Данный пользователь является вебмастером!',
   IS_OPERATOR: 'Данный пользователь является оператором!',

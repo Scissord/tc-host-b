@@ -4,7 +4,7 @@ import express from "express";
 import authRoutes from './authRoute.js';
 import abilityRoutes from './abilityRoute.js';
 import orderRoutes from './orderRoute.js';
-import orderSubStatusRoutes from './orderSubStatus.js';
+import subStatusRoutes from './subStatusRoute.js';
 import orderColumnRoutes from './orderColumnRoute.js';
 import productRoutes from './productRoute.js';
 import departmentRoutes from './departmentRoute.js';
@@ -12,12 +12,12 @@ import departmentRoutes from './departmentRoute.js';
 const router = Router();
 
 router.use('/auth', authRoutes);
-router.use('/abilities', abilityRoutes);
-router.use('/orders', orderRoutes);
-router.use('/order_sub_statuses', orderSubStatusRoutes);
-router.use('/order_columns', orderColumnRoutes);
+router.use('/abilities', protectRoute, abilityRoutes);
+router.use('/orders', protectRoute, orderRoutes);
+router.use('/sub_statuses', protectRoute, subStatusRoutes);
+router.use('/order_columns', protectRoute, orderColumnRoutes);
 router.use('/products', protectRoute, productRoutes);
-router.use('/departments', departmentRoutes);
-router.use('/uploads', express.static('uploads'));
+router.use('/departments', protectRoute, departmentRoutes);
+router.use('/uploads', protectRoute, express.static('uploads'));
 
 export default router;

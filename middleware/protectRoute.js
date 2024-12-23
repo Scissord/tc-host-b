@@ -3,8 +3,7 @@ import * as User from '#models/user.js';
 import ERRORS from '#constants/errors.js';
 
 const protectRoute = async (req, res, next) => {
-  // 401 - refresh access and refresh tokens
-  // 402 - throw away user from app
+  // 401 - refresh access and refresh tokens, or throw away user from app
   try {
     // 1. Make sure you have accessToken;
     const token = req.headers['authorization'];
@@ -26,7 +25,7 @@ const protectRoute = async (req, res, next) => {
 
         // 6. Taking refreshToken from cookies
         const refreshToken = req.cookies.refreshToken;
-        if (!refreshToken) return res.status(402).send({
+        if (!refreshToken) return res.status(401).send({
           message: ERRORS.NO_REFRESH
         });
 
@@ -36,7 +35,7 @@ const protectRoute = async (req, res, next) => {
 
           // 8. Check if user exist
           const user = await User.find(decodedRefresh.userId);
-          if (!user) return res.status(402).send({ 
+          if (!user) return res.status(401).send({ 
             message: ERRORS.USER_NOT_FOUND 
           });
 
@@ -46,7 +45,7 @@ const protectRoute = async (req, res, next) => {
           });
         } catch (refreshError) {
           // 10. If refreshToken invalid too
-          return res.status(402).send({ 
+          return res.status(401).send({ 
             message: ERRORS.INVALID_REFRESH 
           });
         };
@@ -58,10 +57,10 @@ const protectRoute = async (req, res, next) => {
       };
     };
 
-    console.log(decoded)
+    console.log(decoded.userId);
 
     const user = await User.find(decoded.userId);
-    if (!user) return res.status(402).send({ 
+    if (!user) return res.status(401).send({ 
       message: ERRORS.USER_NOT_FOUND 
     });
 
