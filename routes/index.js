@@ -8,6 +8,7 @@ import subStatusRoutes from './subStatusRoute.js';
 import orderColumnRoutes from './orderColumnRoute.js';
 import productRoutes from './productRoute.js';
 import departmentRoutes from './departmentRoute.js';
+import cityRoute from './cityRoute'
 
 const router = Router();
 
@@ -17,6 +18,7 @@ router.use('/orders', protectRoute, orderRoutes);
 router.use('/sub_statuses', protectRoute, subStatusRoutes);
 router.use('/order_columns', protectRoute, orderColumnRoutes);
 router.use('/products', protectRoute, productRoutes);
+router.use('/cities', protectRoute, cityRoute);
 router.use('/departments', protectRoute, departmentRoutes);
 router.use('/uploads', protectRoute, express.static('uploads'));
 

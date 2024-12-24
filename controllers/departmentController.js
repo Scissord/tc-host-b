@@ -25,8 +25,10 @@ export const getDepartmentHeadAbility = async (req, res) => {
 
 export const create = async (req, res) => {
   try {
+	const data = req.body
+	const department = await Department.create(data)
 
-    return res.status(200).send({ message: 'ok' });
+    return res.status(200).send({ message: 'ok', department });
   }	catch (err) {
 		console.log("Error in create user controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
@@ -35,8 +37,11 @@ export const create = async (req, res) => {
 
 export const update = async (req, res) => {
   try {
+		const { department_id } = req.params
+		const data = req.body
+		const department = Department.update(department_id, data)
 
-		res.status(200).send({ message: 'ok' });
+		res.status(200).send({ message: 'ok' , department});
 	}	catch (err) {
 		console.log("Error in update user controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
@@ -45,7 +50,6 @@ export const update = async (req, res) => {
 
 export const destroy = async (req, res) => {
   try {
-
 		res.status(200).send({ message: 'ok' });
 	}	catch (err) {
 		console.log("Error in destroy user controller", err.message);
