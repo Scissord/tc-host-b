@@ -8,7 +8,11 @@ export const up = function(knex) {
       table.bigIncrements('id').primary();
       table.string('label', 255).notNullable();
       table.string('name', 255).notNullable();
-      table.boolean('is_visible').defaultTo(true);
+      table.integer('ability_id')
+      .unsigned()
+      .references('id')
+      .inTable('ability')
+      .onDelete('CASCADE');
     });
 };
 

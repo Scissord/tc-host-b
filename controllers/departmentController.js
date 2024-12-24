@@ -13,7 +13,7 @@ export const getDepartments = async (req, res) => {
 
 export const getDepartmentHeadAbility = async (req, res) => {
 	try {
-		const { department_id } = req.params;
+	const { department_id } = req.params;
     const head_ability_id = await Department.getDepartmentHeadAbility(department_id);
 		
 		res.status(200).send(head_ability_id);

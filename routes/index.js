@@ -8,8 +8,9 @@ import subStatusRoutes from './subStatusRoute.js';
 import orderColumnRoutes from './orderColumnRoute.js';
 import productRoutes from './productRoute.js';
 import departmentRoutes from './departmentRoute.js';
-import cityRoute from './cityRoute.js';
-
+import cityRoutes from './cityRoute.js';
+import roleRoutes from './roleRoute.js'
+import permissionRoute from './permissionRoute.js'
 const router = Router();
 
 router.use('/auth', authRoutes);
@@ -18,8 +19,10 @@ router.use('/orders', protectRoute, orderRoutes);
 router.use('/sub_statuses', protectRoute, subStatusRoutes);
 router.use('/order_columns', protectRoute, orderColumnRoutes);
 router.use('/products', protectRoute, productRoutes);
-router.use('/cities', protectRoute, cityRoute);
+router.use('/cities', protectRoute, cityRoutes);
 router.use('/departments', protectRoute, departmentRoutes);
+router.use('/roles', protectRoute, roleRoutes);
+router.use('/permissions', protectRoute, permissionRoute);
 router.use('/uploads', protectRoute, express.static('uploads'));
 
 export default router;

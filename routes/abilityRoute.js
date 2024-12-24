@@ -5,5 +5,5 @@ import checkAbility from "#middleware/checkAbility.js";
 const router = express.Router();
 
 router.get("/header", controller.getForHeader);
-
+router.post("/get_abilities_by_entity_type", withExtraData({ ability_name: 'get_abilities_by_entity_type' }, checkAbility), controller.getAbilitiesByEntityType);
 export default router;

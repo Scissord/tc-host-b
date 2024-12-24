@@ -1,4 +1,7 @@
+import knex from './knex.js';
 import repository from './repository.js';
+
+const db = knex();
 
 const abilityRepository = repository('ability');
 
@@ -29,3 +32,30 @@ export const find = async (id) => {
 export const findWhere = async function (query) {
   return await abilityRepository.findWhere(query);
 };
+
+export const getAbilitiesByPermission = async (entity_id, entity_type) => {
+	try {
+	  const abilities = await db('ability')
+		.leftJoin('permission', 'ability.id', 'permission.ability_id')
+		.select(
+		  'ability.id as ability_id',
+		  'ability.title as ability_title',
+		  'permission.id as permission_id',
+		  'permission.entity_id',
+		  'permission.entity_type',
+		  'permission.created_at',
+		  'permission.updated_at'
+		)
+		.where((builder) => {
+		  builder
+			.where('permission.entity_id', entity_id)
+			.andWhere('permission.entity_type', entity_type)
+			.orWhereNull('permission.entity_id');
+		});
+  
+	  return abilities;
+	} catch (err) {
+	  console.error('Error in getPermissionsWithAbility:', err.message);
+	  throw new Error('Failed to fetch records.');
+	}
+  };

@@ -83,6 +83,18 @@ const repository = (tableName) => {
 
       return id;
     },
+    // hard delete by array of ids
+    hardDeleteByIds: async (ids) => {
+      if (!Array.isArray(ids) || ids.length === 0) {
+        throw new Error('Invalid input: ids must be a non-empty array.');
+      }
+    
+      await db(tableName)
+        .whereIn('id', ids)
+        .del();
+    
+      return ids;
+    },
 
     // find record by id
     find: async(id) => {
