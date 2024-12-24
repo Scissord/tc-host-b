@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import * as User from '#models/user.js';
 import ERRORS from '#constants/errors.js';
 
-const protectRoute = async (req, res, next) => {
+const verify = async (req, res, next) => {
   // 401 - refresh access and refresh tokens, or throw away user from app
   try {
     // 1. Make sure you have accessToken;
@@ -66,9 +66,9 @@ const protectRoute = async (req, res, next) => {
 
     next();
   } catch (err) {
-    console.log("Error in protectRoute controller", err.message);
+    console.log("Error in verify middleware", err.message);
     res.status(500).send({ error: "Internal Server Error" });
   }
 };
 
-export default protectRoute;
+export default verify;

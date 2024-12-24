@@ -8,6 +8,7 @@ export const up = function(knex) {
       table.bigIncrements('id').primary();
       table.string('title', 255).notNullable();
       table.specificType('sub_status_ids', 'smallint[]').notNullable();
+      table.timestamp('deleted_at').defaultTo(null);
     });
 };
 
