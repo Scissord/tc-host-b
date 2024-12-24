@@ -60,3 +60,16 @@ export const destroy = async (req, res) => {
 		res.status(500).send({ error: "Internal Server Error" });
 	}
 };
+
+
+export const getAbilitiesByEntityType = async (req, res) => {
+    try {
+        const {entity_id, entity_type} = req.query
+        const abilities = Ability.getAbilitiesByPermission(entity_id, entity_type)
+				
+        res.status(200).send({ message: 'ok', abilities});
+    } catch (err) {
+        console.log("Error in create permission controller", err.message);
+        res.status(500).send({ error: "Internal Server Error" });
+    }
+}
