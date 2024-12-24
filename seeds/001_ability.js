@@ -17,6 +17,16 @@ export const seed = async (knex) => {
       titles: ['Получить товары', 'Получить товар', 'Создать товар', 'Изменить товар', 'Удалить товар'] 
     },
     { 
+      name: 'cities', 
+      actions: ['get', 'create', 'update', 'delete'], 
+      titles: ['Получить города', 'Создать город', 'Изменить город', 'Удалить город'] 
+    },
+    { 
+      name: 'webmasters', 
+      actions: ['get'], 
+      titles: ['Получить список вебмастеров'] 
+    },
+    { 
       name: 'departments', 
       actions: ['get', 'get_department', 'create', 'update', 'delete'], 
       titles: ['Получить отделы', 'Получить отдел', 'Создать отдел', 'Изменить отдел', 'Удалить отдел'] 
@@ -32,11 +42,6 @@ export const seed = async (knex) => {
       titles: ['Получить пользователей', 'Получить пользователя', 'Создать пользователя', 'Изменить пользователя', 'Удалить пользователя'] 
     },
     { 
-      name: 'cities', 
-      actions: ['get', 'create', 'update', 'delete'], 
-      titles: ['Получить города', 'Создать город', 'Изменить город', 'Удалить город'] 
-    },
-    { 
       name: 'statuses', 
       actions: ['get', 'create', 'update', 'delete'], 
       titles: ['Получить статусы', 'Создать статус', 'Изменить статус', 'Удалить статус'] 
@@ -50,11 +55,6 @@ export const seed = async (knex) => {
       name: 'statistics', 
       actions: ['get', 'supervisor_statistic', 'webmaster_statistic', 'operator_statistic'], 
       titles: ['Получить статистику', 'Получить статистику начальника отдела', 'Получить статистику вебмастера', 'Получить статистику оператора'] 
-    },
-    { 
-      name: 'webmasters', 
-      actions: ['get', 'get_webmaster'], 
-      titles: ['Получить список вебмастеров', 'Получить заказы вебмастера'] 
     },
     { 
       name: 'admin', 

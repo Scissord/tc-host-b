@@ -15,11 +15,15 @@ export const getForHeader = async (req, res) => {
 	try {
     const get_orders_ability = await Ability.findWhere({ name: 'get_orders' });
     const get_products_ability = await Ability.findWhere({ name: 'get_products' });
+		const get_cities_ability = await Ability.findWhere({ name: 'get_cities' });
+		const get_departments_ability = await Ability.findWhere({ name: 'get_departments' });
 
 		res.status(200).send({ 
       message: 'ok', 
       get_orders: +get_orders_ability.id,
-      get_products: +get_products_ability.id
+      get_products: +get_products_ability.id,
+			get_cities: +get_cities_ability.id,
+			get_departments: +get_departments_ability.id,
     });
 	}	catch (err) {
 		console.log("Error in get ability controller", err.message);

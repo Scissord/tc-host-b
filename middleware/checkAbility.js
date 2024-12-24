@@ -3,7 +3,7 @@ import ERRORS from '#constants/errors.js';
 
 const checkAbility = async (req, res, next, extraData) => {
   const is_available = await can(req.user.id, extraData.ability_name)
-  
+
   if(is_available) {
     next();
   } else {

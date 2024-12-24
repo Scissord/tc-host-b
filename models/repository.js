@@ -39,7 +39,6 @@ const repository = (tableName) => {
 
     // update record data by id
     update: async (id, data) => {
-      console.log(id, data);
       const [updatedRecord] = await db(tableName)
         .where('id', id)
         .update(data)
