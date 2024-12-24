@@ -1,11 +1,29 @@
 import * as Team from '#models/team.js';
+import * as Operator from '#models/operator.js';
 
-export const get = async (req, res) => {
+export const getByDepartment = async (req, res) => {
 	try {
     const { department_id } = req.params;
     const teams = await Team.get(department_id);
 
 		res.status(200).send({ message: 'ok', teams });
+	}	catch (err) {
+		console.log("Error in get team controller", err.message);
+		res.status(500).send({ error: "Internal Server Error" });
+	}
+};
+
+export const getByTeam = async (req, res) => {
+	try {
+    const { team_id } = req.params;
+    const team = await Team.find(team_id);
+    const operators = await Operator.getWhere({ team_id });
+
+		res.status(200).send({ 
+      message: 'ok', 
+      team, 
+      operators,
+    });
 	}	catch (err) {
 		console.log("Error in get team controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });

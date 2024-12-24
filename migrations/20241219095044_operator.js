@@ -11,6 +11,12 @@ export const up = function(knex) {
         .references('id')
         .inTable('user')
         .onDelete('CASCADE');
+
+      table.integer('team_id')
+        .unsigned()
+        .references('id')
+        .inTable('team')
+        .onDelete('CASCADE');
     });
 };
 

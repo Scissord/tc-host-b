@@ -8,6 +8,8 @@ export const up = function(knex) {
       table.bigIncrements('id').primary();
       table.string('name', 255).notNullable();
       table.string('color', 255).nullable();
+
+      table.timestamp('deleted_at').defaultTo(null);
     });
 };
 

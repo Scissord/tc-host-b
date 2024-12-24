@@ -1,9 +1,14 @@
+import knex from './knex.js';
 import repository from './repository.js';
 
+const db = knex();
 const webmasterRepository = repository('webmaster');
 
 export const get = async () => {
-  return await webmasterRepository.getAll();
+  return await db('webmaster as w')
+    .select('w.*', 'u.name as name')
+    .leftJoin('user as u', 'u.id', 'w.user_id')
+    .orderBy('id', 'asc');
 };
 
 export const create = async (data) => {

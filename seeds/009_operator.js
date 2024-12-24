@@ -8,10 +8,12 @@ export const seed = async (knex) => {
     {
       id: 1, 
       user_id: 7, 
+      team_id: 1,
     },
     {
       id: 2, 
       user_id: 8, 
+      team_id: 1,
     },
   ]);
 };

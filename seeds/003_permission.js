@@ -19,7 +19,15 @@ export const seed = async (knex) => {
         // departments
         41, 42, 43, 44, 45,
         // teams
-        51, 52, 53, 54, 55
+        51, 52, 53, 54, 55,
+        // operators
+        61, 62, 63, 64, 65,
+        // users
+        71, 72, 73, 74,
+        // statuses
+        81, 82, 83, 84,
+        // sub_statuses
+        91, 92, 93, 94,
       ],
       type: "role"
     },

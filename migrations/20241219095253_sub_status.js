@@ -11,9 +11,9 @@ export const up = function(knex) {
         .references('id')
         .inTable('status')
         .onDelete('CASCADE');
-        
       table.string('name', 255).notNullable();
-      table.string('color', 255).nullable();
+
+      table.timestamp('deleted_at').defaultTo(null);
     });
 };
 

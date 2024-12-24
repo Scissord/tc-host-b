@@ -73,18 +73,15 @@ export const getUserOrders = async (req, res) => {
 			updated_at, 
 		);
 
-		const [users, products, webmasters, operators, cities, subStatuses] = await Promise.all([
-			User.get(), Product.get(), Webmaster.get(), Operator.get(), City.get(), SubStatus.get()
+		const [products, webmasters, operators, cities, subStatuses] = await Promise.all([
+			Product.get(), Webmaster.get(), Operator.get(), City.get(), SubStatus.get()
 		]);
 
 		const enhancedOrders = orders.map((order) => {
-			const webmaster = webmasters.find((w) => +w.id === +order.webmaster_id) || null;
-			const operator = operators.find((o) => +o.id === +order.operator_id) || null;
-
 			return {
 				...order,
-				webmaster: users.find((u) => +u.id === +webmaster.user_id)?.name,
-				operator: users.find((u) => +u.id === +operator.user_id)?.name,
+				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name,
+				operator: operators.find((o) => +o.id === +order.operator_id)?.name,
 				city: cities.find((c) => +c.id === +order.city_id) || null,
 				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) || null,
 				items: order.items.map((item) => {
@@ -121,18 +118,15 @@ export const getWebmasterOrders = async (req, res) => {
 			req.webmaster.id
 		);
 
-		const [users, products, webmasters, operators, cities, subStatuses] = await Promise.all([
-			User.get(), Product.get(), Webmaster.get(), Operator.get(), City.get(), SubStatus.get()
+		const [products, webmasters, operators, cities, subStatuses] = await Promise.all([
+			Product.get(), Webmaster.get(), Operator.get(), City.get(), SubStatus.get()
 		]);
 
 		const enhancedOrders = orders.map((order) => {
-			const webmaster = webmasters.find((w) => +w.id === +order.webmaster_id) || null;
-			const operator = operators.find((o) => +o.id === +order.operator_id) || null;
-
 			return {
 				...order,
-				webmaster: users.find((u) => +u.id === +webmaster.user_id)?.name,
-				operator: users.find((u) => +u.id === +operator.user_id)?.name,
+				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name,
+				operator: operators.find((o) => +o.id === +order.operator_id)?.name,
 				city: cities.find((c) => +c.id === +order.city_id) || null,
 				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) || null,
 				items: order.items.map((item) => {
@@ -227,21 +221,23 @@ export const getOperatorOrders = async (req, res) => {
 			Product.get(), Webmaster.get(), Operator.get(), City.get(), SubStatus.get()
 		]);
 
-		const enhancedOrders = orders.map((order) => ({
-			...order,
-			webmaster: webmasters.find((w) => +w.id === +order.webmaster_id) || null,
-			operator: operators.find((o) => +o.id === +order.operator_id) || null,
-			city: cities.find((c) => +c.id === +order.city_id) || null,
-			status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) || null,
-			items: order.items.map((item) => {
-        const product = products.find((p) => +p.id === +item.product_id);
-        return {
-          ...item,
-          name: product ? product.name : null,
-          price: product ? product.price : null,
-        };
-      }),
-		}));
+		const enhancedOrders = orders.map((order) => {
+			return {
+				...order,
+				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name,
+				operator: operators.find((o) => +o.id === +order.operator_id)?.name,
+				city: cities.find((c) => +c.id === +order.city_id) || null,
+				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) || null,
+				items: order.items.map((item) => {
+					const product = products.find((p) => +p.id === +item.product_id);
+					return {
+						...item,
+						name: product ? product.name : null,
+						price: product ? product.price : null,
+					};
+				}),
+			}
+		});
 
 		res.status(200).send({ 
 			message: 'ok', 

@@ -17,6 +17,7 @@ export const getForHeader = async (req, res) => {
     const get_products_ability = await Ability.findWhere({ name: 'get_products' });
 		const get_cities_ability = await Ability.findWhere({ name: 'get_cities' });
 		const get_departments_ability = await Ability.findWhere({ name: 'get_departments' });
+		const get_statuses_ability = await Ability.findWhere({ name: 'get_statuses' });
 
 		res.status(200).send({ 
       message: 'ok', 
@@ -24,9 +25,10 @@ export const getForHeader = async (req, res) => {
       get_products: +get_products_ability.id,
 			get_cities: +get_cities_ability.id,
 			get_departments: +get_departments_ability.id,
+			get_statuses: +get_statuses_ability.id,
     });
 	}	catch (err) {
-		console.log("Error in get ability controller", err.message);
+		console.log("Error in getForHeader ability controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
 	}
 };

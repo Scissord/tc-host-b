@@ -1,9 +1,30 @@
+import knex from './knex.js';
 import repository from './repository.js';
 
+const db = knex();
 const operatorRepository = repository('operator');
 
 export const get = async () => {
-  return await operatorRepository.getAll();
+  return await db('operator as o')
+    .select('o.*', 'u.name as name')
+    .leftJoin('user as u', 'u.id', 'o.user_id')
+    .orderBy('id', 'asc');
+};
+
+export const getFree = async () => {
+  return await db('operator as o')
+    .select('o.*', 'u.name as name')
+    .leftJoin('user as u', 'u.id', 'o.user_id')
+    .where('team_id', null)
+    .orderBy('id', 'asc');
+};
+
+export const getWhere = async (query) => {
+  return await db('operator as o')
+    .select('o.*', 'u.name as name')
+    .leftJoin('user as u', 'u.id', 'o.user_id')
+    .where(query)
+    .orderBy('id', 'asc');
 };
 
 export const create = async (data) => {

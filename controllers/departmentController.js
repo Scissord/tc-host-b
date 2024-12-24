@@ -25,9 +25,9 @@ export const create = async (req, res) => {
 
 export const update = async (req, res) => {
   try {
-		const { department_id } = req.params
-		const data = req.body
-		const department = Department.update(department_id, data)
+		const { department_id } = req.params;
+		const data = req.body;
+		const department = Department.update(department_id, data);
 
 		res.status(200).send({ message: 'ok' , department});
 	}	catch (err) {
