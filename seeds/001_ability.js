@@ -13,8 +13,8 @@ export const seed = async (knex) => {
     },
     { 
       name: 'products', 
-      actions: ['get', 'get_product', 'create', 'update', 'delete'], 
-      titles: ['Получить товары', 'Получить товар', 'Создать товар', 'Изменить товар', 'Удалить товар'] 
+      actions: ['get', 'create', 'update', 'delete'], 
+      titles: ['Получить товары', 'Создать товар', 'Изменить товар', 'Удалить товар'] 
     },
     { 
       name: 'cities', 

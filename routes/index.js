@@ -8,7 +8,7 @@ import subStatusRoutes from './subStatusRoute.js';
 import orderColumnRoutes from './orderColumnRoute.js';
 import productRoutes from './productRoute.js';
 import departmentRoutes from './departmentRoute.js';
-import cityRoute from './cityRoute'
+import cityRoute from './cityRoute.js';
 
 const router = Router();
 

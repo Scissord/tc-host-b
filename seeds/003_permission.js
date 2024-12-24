@@ -9,7 +9,16 @@ export const seed = async (knex) => {
     // superadmin
     {
       entity_id: 1,
-      abilities: [1, 2, 3, 4, 11, 13, 14, 15, 21, 41, 42, 43, 44, 45],
+      abilities: [
+        // orders
+        1, 2, 3, 4,
+        // products
+        11, 12, 13, 14,
+        // cities
+        21, 22, 23, 24, 
+        // departments
+        41, 42, 43, 44, 45,
+      ],
       type: "role"
     },
     // admin
