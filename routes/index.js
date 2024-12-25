@@ -16,7 +16,7 @@ import roleRoutes from './roleRoute.js'
 import permissionRoutes from './permissionRoute.js'
 import cityRoute from './cityRoute.js';
 import userRoute from './userRoute.js';
-
+import statisticRoute from './statisticRoute.js'
 const router = Router();
 
 router.use('/auth', authRoutes);
@@ -35,5 +35,5 @@ router.use('/webmasters', verify, webmasterRoutes);
 router.use('/roles', verify, roleRoutes);
 router.use('/permissions', verify, permissionRoutes);
 router.use('/uploads', verify, express.static('uploads'));
-
+router.use('/statistic', statisticRoute)
 export default router;
