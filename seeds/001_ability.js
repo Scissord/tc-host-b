@@ -38,8 +38,8 @@ export const seed = async (knex) => {
     },
     { 
       name: 'operators', 
-      actions: ['get', 'get_without', 'get_free', 'create', 'update', 'delete'], 
-      titles: ['Получить всех операторов', 'Получить операторов без команды', 'Получить пользователей, у которых нет operator_id', 'Создать оператора', 'Изменить оператора', 'Удалить оператора'] 
+      actions: ['get', 'get_free', 'create', 'update', 'delete'], 
+      titles: ['Получить всех операторов', 'Получить пользователей, у которых нет operator_id', 'Создать оператора', 'Изменить оператора', 'Удалить оператора'] 
     },
     { 
       name: 'users', 

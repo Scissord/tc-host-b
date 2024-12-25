@@ -1,3 +1,4 @@
+import * as User from '#models/user.js';
 import * as Team from '#models/team.js';
 import * as Operator from '#models/operator.js';
 
@@ -74,6 +75,21 @@ export const softDelete = async (req, res) => {
     res.status(200).send({ message: 'ok', team });
   }	catch (err) {
     console.log("Error in softDelete team controller", err.message);
+    res.status(500).send({ error: "Internal Server Error" });
+  }
+};
+
+export const addOperator = async (req, res) => {
+  try {
+    const { user_id } = req.params;
+    const data = req.body;
+    const operator = await Operator.updateWhere({ user_id }, data);
+    const user = await User.find(operator.user_id);
+    operator.name = user.name;
+
+    res.status(200).send({ message: 'ok', operator });
+  }	catch (err) {
+    console.log("Error in addOperator team controller", err.message);
     res.status(500).send({ error: "Internal Server Error" });
   }
 };

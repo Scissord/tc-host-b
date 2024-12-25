@@ -23,17 +23,6 @@ export const getFree = async (req, res) => {
 	}
 };
 
-export const getWithout = async (req, res) => {
-	try {
-    const free_operators = await Operator.getWithout();
-
-		res.status(200).send({ message: 'ok', free_operators });
-	}	catch (err) {
-		console.log("Error in getFree operator controller", err.message);
-		res.status(500).send({ error: "Internal Server Error" });
-	}
-};
-
 export const create = async (req, res) => {
   try {
 		const data = req.body;

@@ -16,16 +16,9 @@ export const getFree = async () => {
   return await db('user as u')
     .select('u.id', 'u.name', 'o.team_id')
     .leftJoin('operator as o', 'o.user_id', 'u.id')
-    .where('o.id', null)
-    .orderBy('id', 'asc');
-};
-
-export const getWithout = async () => {
-  return await db('operator as o')
-    .select('o.*', 'u.name as name')
-    .leftJoin('user as u', 'u.id', 'o.user_id')
-    .where('o.team_id', null)
-    .andWhere('o.deleted_at', null)
+    .whereNull('o.id')
+    .orWhereNull('o.team_id')
+    .orWhereNotNull('o.deleted_at')
     .orderBy('id', 'asc');
 };
 
@@ -34,6 +27,7 @@ export const getWhere = async (query) => {
     .select('o.*', 'u.name as name')
     .leftJoin('user as u', 'u.id', 'o.user_id')
     .where(query)
+    .andWhere('o.deleted_at', null)
     .orderBy('id', 'asc');
 };
 
@@ -45,12 +39,16 @@ export const update = async (id, data) => {
   return await operatorRepository.update(id, data);
 };
 
+export const updateWhere = async (query, data) => {
+  return await operatorRepository.updateWhere(query, data);
+};
+
 export const softDelete = async (id) => {
-  return await userRepository.softDelete(id);
+  return await operatorRepository.softDelete(id);
 };
 
 export const hardDelete = async (id) => {
-  return await userRepository.delete(id);
+  return await operatorRepository.delete(id);
 };
 
 export const find = async (id) => {
