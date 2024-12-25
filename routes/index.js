@@ -11,6 +11,7 @@ import productRoutes from './productRoute.js';
 import departmentRoutes from './departmentRoute.js';
 import teamsRoutes from './teamRoute.js';
 import operatorRoutes from './operatorRoute.js';
+import webmasterRoutes from './webmasterRoute.js';
 import roleRoutes from './roleRoute.js'
 import permissionRoutes from './permissionRoute.js'
 import cityRoute from './cityRoute.js';
@@ -30,6 +31,7 @@ router.use('/cities', verify, cityRoute);
 router.use('/departments', verify, departmentRoutes);
 router.use('/teams', verify, teamsRoutes);
 router.use('/operators', verify, operatorRoutes);
+router.use('/webmasters', verify, webmasterRoutes);
 router.use('/roles', verify, roleRoutes);
 router.use('/permissions', verify, permissionRoutes);
 router.use('/uploads', verify, express.static('uploads'));
