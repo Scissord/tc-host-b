@@ -1,4 +1,5 @@
 import * as SubStatus from '#models/sub_status.js';
+import * as Team from '#models/team.js';
 
 export const get = async (req, res) => {
 	try {
@@ -19,6 +20,17 @@ export const find = async (req, res) => {
 		res.status(200).send({ message: 'ok', subStatuses });
 	}	catch (err) {
 		console.log("Error in get getByStatus controller", err.message);
+		res.status(500).send({ error: "Internal Server Error" });
+	}
+};
+
+export const operator = async (req, res) => {
+	try {
+		const team = await Team.find(req.operator.team_id);
+    const subStatuses = await SubStatus.getForOperator(team.sub_status_ids);
+		res.status(200).send({ message: 'ok', subStatuses });
+	}	catch (err) {
+		console.log("Error in get subStatus controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
 	}
 };

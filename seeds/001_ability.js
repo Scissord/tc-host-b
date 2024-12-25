@@ -67,11 +67,16 @@ export const seed = async (knex) => {
       titles: ['Получить статистику', 'Получить статистику начальника отдела', 'Получить статистику вебмастера', 'Получить статистику оператора'] 
     },
     { 
-      name: 'admin', 
-      actions: ['superadmin_page', 'department_head'], 
-      titles: ['Страница, для редактирования всего', 'Руководитель отдела'], 
-      extraFields: [{ entity_id: 1, entity_type: "department" }] 
-    }
+      name: 'users', 
+      actions: ['get', 'create', 'update', 'delete'], 
+      titles: ['Получить список пользователей', 'Создать пользоватя', 'Обновить пользоватя', 'Удалить пользоватя'] 
+    },
+    // { 
+    //   name: 'admin', 
+    //   actions: ['superadmin_page', 'department_head'], 
+    //   titles: ['Страница, для редактирования всего', 'Руководитель отдела'], 
+    //   extraFields: [{ entity_id: 1, entity_type: "department" }] 
+    // },
   ];
 
   const abilities = groups.flatMap((group, groupIndex) =>

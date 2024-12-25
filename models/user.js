@@ -6,7 +6,7 @@ const db = knex();
 const userRepository = repository('user');
 
 export const get = async () => {
-  return await userRepository.getAll();
+  return await userRepository.getActive();
 };
 
 export const create = async (data) => {
@@ -17,8 +17,12 @@ export const update = async (id, data) => {
   return await userRepository.update(id, data);
 };
 
+export const softDelete = async (id) => {
+  return await userRepository.softDelete(id);
+};
+
 export const hardDelete = async (id) => {
-  return await userRepository.hardDelete(id);
+  return await userRepository.delete(id);
 };
 
 export const find = async (id) => {

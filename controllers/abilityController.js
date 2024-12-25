@@ -18,6 +18,7 @@ export const getForHeader = async (req, res) => {
 		const get_cities_ability = await Ability.findWhere({ name: 'get_cities' });
 		const get_departments_ability = await Ability.findWhere({ name: 'get_departments' });
 		const get_statuses_ability = await Ability.findWhere({ name: 'get_statuses' });
+		const get_users_ability = await Ability.findWhere({ name: 'get_users' });
 
 		res.status(200).send({ 
       message: 'ok', 
@@ -26,6 +27,7 @@ export const getForHeader = async (req, res) => {
 			get_cities: +get_cities_ability.id,
 			get_departments: +get_departments_ability.id,
 			get_statuses: +get_statuses_ability.id,
+			get_users: +get_users_ability.id
     });
 	}	catch (err) {
 		console.log("Error in getForHeader ability controller", err.message);

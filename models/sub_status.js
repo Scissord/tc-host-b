@@ -17,6 +17,19 @@ export const get = async () => {
   return sub_statuses;
 };
 
+export const getForOperator = async (ids) => {
+  const sub_statuses = await db('sub_status as ss')
+    .leftJoin('order as o', 'ss.id', 'o.sub_status_id')
+    .select('ss.id', 'ss.name')
+    .where('ss.deleted_at', null)
+    .whereIn('ss.id', ids)
+    .count('o.id as orders_count')
+    .groupBy('ss.id', 'ss.name')
+    .orderBy('ss.id', 'asc');
+
+  return sub_statuses;
+};
+
 export const getWhere = async (query) => {
   return await subStatusRepository.getWhere(query);
 };

@@ -101,7 +101,7 @@ export const getUserOrders = async (req, res) => {
 			lastPage, pages
 		});
 	}	catch (err) {
-		console.log("Error in get getOrders controller", err.message);
+		console.log("Error in get getUserOrders controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
 	};
 };
@@ -146,75 +146,25 @@ export const getWebmasterOrders = async (req, res) => {
 			lastPage, pages
 		});
 	}	catch (err) {
-		console.log("Error in get getOrders controller", err.message);
+		console.log("Error in get getWebmasterOrders controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
 	};
 };
 
 export const getOperatorOrders = async (req, res) => {
 	try {
-    const { 
-			limit, 
-			page,
-			sub_status,
-			id,
-			fio,
-			products: items,
-			phone,
-			region,
-			city,
-			address,
-			postal_code,
-			comment,
-			utm_term,
-			webmaster,
-			operator,
-			order_sub_status,
-			additional1,
-			additional2,
-			additional3,
-			additional4,
-			additional5,
-			additional6,
-			additional7,
-			additional8,
-			additional9,
-			additional10,
-			created_at,
-			updated_at,  
-		} = req.query;
+    const { limit, page, sub_status } = req.query;
 
 		// validate here on fields
 
-    const { orders, lastPage, pages } = await Order.getPaginated(
+    const { 
+			orders, 
+			lastPage, 
+			pages 
+		} = await Order.getOperatorPaginated(
 			limit, 
 			page,
 			sub_status,
-			id,
-			fio,
-			items,
-			phone,
-			region,
-			city,
-			address,
-			postal_code,
-			comment,
-			utm_term,
-			webmaster,
-			operator,
-			order_sub_status,
-			additional1,
-			additional2,
-			additional3,
-			additional4,
-			additional5,
-			additional6,
-			additional7,
-			additional8,
-			additional9,
-			additional10,
-			created_at,
-			updated_at, 
 		);
 
 		const [products, webmasters, operators, cities, subStatuses] = await Promise.all([
@@ -245,7 +195,7 @@ export const getOperatorOrders = async (req, res) => {
 			lastPage, pages
 		});
 	}	catch (err) {
-		console.log("Error in get getOrders controller", err.message);
+		console.log("Error in get getOperatorOrders controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
 	};
 };

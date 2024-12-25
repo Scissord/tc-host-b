@@ -14,10 +14,12 @@ import operatorRoutes from './operatorRoute.js';
 import roleRoutes from './roleRoute.js'
 import permissionRoutes from './permissionRoute.js'
 import cityRoute from './cityRoute.js';
+import userRoute from './userRoute.js';
 
 const router = Router();
 
 router.use('/auth', authRoutes);
+router.use('/users', verify, userRoute);
 router.use('/abilities', verify, abilityRoutes);
 router.use('/orders', verify, orderRoutes);
 router.use('/statuses', verify, statusRoutes);
