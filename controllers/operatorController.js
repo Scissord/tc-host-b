@@ -12,6 +12,29 @@ export const getFree = async (req, res) => {
 	}
 };
 
+export const get = async (req, res) => {
+	try {
+    const operators = await Operator.get();
+
+		res.status(200).send({ message: 'ok', operators });
+	}	catch (err) {
+		console.log("Error in get webmaster controller", err.message);
+		res.status(500).send({ error: "Internal Server Error" });
+	}
+};
+
+export const create = async (req, res) => {
+  try {
+		const data = req.body;
+		const operator = await Operator.create(data);
+
+    return res.status(200).send({ message: 'ok', operator });
+  }	catch (err) {
+		console.log("Error in create webmaster controller", err.message);
+		res.status(500).send({ error: "Internal Server Error" });
+	}
+};
+
 export const update = async (req, res) => {
   try {
     const { operator_id } = req.params;
@@ -25,4 +48,16 @@ export const update = async (req, res) => {
     console.log("Error in update operator controller", err.message);
     res.status(500).send({ error: "Internal Server Error" });
   }
+};
+
+export const softDelete = async (req, res) => {
+  try {
+		const { operator_id } = req.params;
+		const operator = await Operator.softDelete(operator_id);
+
+		res.status(200).send({ message: 'ok', operator });
+	}	catch (err) {
+		console.log("Error in softDelete webmaster controller", err.message);
+		res.status(500).send({ error: "Internal Server Error" });
+	}
 };

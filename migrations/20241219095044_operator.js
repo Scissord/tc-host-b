@@ -17,6 +17,8 @@ export const up = function(knex) {
         .references('id')
         .inTable('team')
         .onDelete('CASCADE');
+
+      table.timestamp('deleted_at').defaultTo(null);
     });
 };
 

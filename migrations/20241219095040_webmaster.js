@@ -11,6 +11,8 @@ export const up = function(knex) {
         .references('id')
         .inTable('user')
         .onDelete('CASCADE');
+        
+      table.timestamp('deleted_at').defaultTo(null);
     });
 };
 

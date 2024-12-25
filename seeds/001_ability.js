@@ -23,8 +23,8 @@ export const seed = async (knex) => {
     },
     { 
       name: 'webmasters', 
-      actions: ['get'], 
-      titles: ['Получить список вебмастеров'] 
+      actions: ['get', 'create', 'update', 'delete'], 
+      titles: ['Получить список вебмастеров', 'Создать вебмастера', 'Изменить вебмастера', 'Удалить вебмастера'] 
     },
     { 
       name: 'departments', 
