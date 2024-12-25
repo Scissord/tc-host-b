@@ -22,7 +22,7 @@ export const validateAuth = async (login, password, entity) => {
   };
 
   // 2. Find user in database
-  const user = await User.findWhere({ login });
+  const user = await User.findWhereActive({ login });
 
   // 3. If user is not found
   if(!user) {
@@ -40,12 +40,12 @@ export const validateAuth = async (login, password, entity) => {
   // 5. Check for role
   switch (entity) {
     case 'user': {
-      const webmaster = await Webmaster.findWhere({ user_id: user.id });
+      const webmaster = await Webmaster.findWhereActive({ user_id: user.id });
       if (webmaster) {
         result.message = ERRORS.IS_WEBMASTER;
         return result;
       }
-      const operator = await Operator.findWhere({ user_id: user.id });
+      const operator = await Operator.findWhereActive({ user_id: user.id });
       if (operator) {
         result.message = ERRORS.IS_OPERATOR;
         return result;
@@ -53,7 +53,7 @@ export const validateAuth = async (login, password, entity) => {
       break;
     }
     case 'webmaster': {
-      const webmaster = await Webmaster.findWhere({ user_id: user.id });
+      const webmaster = await Webmaster.findWhereActive({ user_id: user.id });
       if (!webmaster) {
         result.message = ERRORS.NOT_WEBMASTER;
         return result;
@@ -61,7 +61,7 @@ export const validateAuth = async (login, password, entity) => {
       break;
     }
     case 'operator': {
-      const operator = await Operator.findWhere({ user_id: user.id });
+      const operator = await Operator.findWhereActive({ user_id: user.id });
       if (!operator) {
         result.message = ERRORS.NOT_OPERATOR;
         return result;

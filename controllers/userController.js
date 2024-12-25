@@ -44,7 +44,6 @@ export const update = async (req, res) => {
 		};
 
 		const newUser = await User.update(user_id, data);
-		console.log(newUser);
 
 		res.status(200).send({ message: 'ok', user: newUser });
 	}	catch (err) {

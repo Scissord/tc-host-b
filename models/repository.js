@@ -24,6 +24,14 @@ const repository = (tableName) => {
       return await db(tableName).select('*').where(query);
     },
 
+    // get by query and deleted_at null
+    getWhereActive: async (query) => {
+      return await db(tableName)
+        .select('*')
+        .where(query)
+        .andWhere('deleted_at', null);
+    },
+
     getWhereIn: async (query) => {
       return await db(tableName).select('*').whereIn(query)
     },
@@ -111,6 +119,17 @@ const repository = (tableName) => {
       const record = await db(tableName)
         .select('*')
         .where(query)
+        .first();
+
+      return record;
+    },
+
+    // find by query with deleted_at = null
+    findWhereActive: async(query) => {
+      const record = await db(tableName)
+        .select('*')
+        .where(query)
+        .where('deleted_at', null)
         .first();
 
       return record;

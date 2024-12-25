@@ -33,6 +33,10 @@ export const findWhere = async function (query) {
   return await userRepository.findWhere(query);
 };
 
+export const findWhereActive = async function (query) {
+  return await userRepository.findWhereActive(query);
+};
+
 export const findWebmaster = async function (user_id) {
   return await db('user as u')
     .select('u.*', 'w.id as webmaster_id')

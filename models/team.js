@@ -4,16 +4,20 @@ import repository from './repository.js';
 const db = knex();
 const teamRepository = repository('team');
 
-export const get = async (department_id) => {
+export const get = async () => {
+  return await teamRepository.getActive();
+};
+
+export const getByDepartment = async (department_id) => {
   return await db('team')
     .select('*')
     .where('department_id', department_id)
-    .orderBy('id', 'asc')
-    .where('deleted_at', null);
+    .andWhere('deleted_at', null)
+    .orderBy('id', 'asc');
 };
 
-export const getWhere = async (query) => {
-  return await teamRepository.getWhere(query);
+export const getWhereActive = async (query) => {
+  return await teamRepository.getWhereActive(query);
 };
 
 export const create = async (data) => {

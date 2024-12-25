@@ -17,13 +17,13 @@ export const seed = async (knex) => {
         // cities
         21, 22, 23, 24, 
         // webmasters
-        31, 32, 33, 34,
+        31, 32, 33, 34, 35,
         // departments
         41, 42, 43, 44, 45,
         // teams
         51, 52, 53, 54, 55,
         // operators
-        61, 62, 63, 64, 65,
+        61, 62, 63, 64, 65, 66,
         // users
         71, 72, 73, 74,
         // statuses
@@ -52,7 +52,7 @@ export const seed = async (knex) => {
     // webmaster_team_lead
     {
       entity_id: 4,
-      abilities: [31, 93, 101],
+      abilities: [32, 93, 101],
       type: "role"
     },
     // webmaster1

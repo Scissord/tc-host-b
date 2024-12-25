@@ -1,6 +1,17 @@
 import * as User from '#models/user.js';
 import * as Webmaster from '#models/webmaster.js';
 
+export const getFree = async (req, res) => {
+	try {
+    const free_webmasters = await Webmaster.getFree();
+
+		res.status(200).send({ message: 'ok', free_webmasters });
+	}	catch (err) {
+		console.log("Error in getFree operator controller", err.message);
+		res.status(500).send({ error: "Internal Server Error" });
+	}
+};
+
 export const get = async (req, res) => {
 	try {
     const webmasters = await Webmaster.get();

@@ -12,6 +12,14 @@ export const get = async () => {
     .orderBy('id', 'asc');
 };
 
+export const getFree = async () => {
+  return await db('user as u')
+    .select('u.id', 'u.name')
+    .leftJoin('webmaster as w', 'w.user_id', 'u.id')
+    .where('w.id', null)
+    .orderBy('id', 'asc');
+};
+
 export const create = async (data) => {
   return await webmasterRepository.create(data);
 };
@@ -21,11 +29,11 @@ export const update = async (id, data) => {
 };
 
 export const softDelete = async (id) => {
-  return await userRepository.softDelete(id);
+  return await webmasterRepository.softDelete(id);
 };
 
 export const hardDelete = async (id) => {
-  return await userRepository.delete(id);
+  return await webmasterRepository.delete(id);
 };
 
 export const find = async (id) => {
@@ -34,4 +42,8 @@ export const find = async (id) => {
 
 export const findWhere = async function (query) {
   return await webmasterRepository.findWhere(query);
+};
+
+export const findWhereActive = async function (query) {
+  return await webmasterRepository.findWhereActive(query);
 };

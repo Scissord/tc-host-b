@@ -13,6 +13,14 @@ export const get = async () => {
 };
 
 export const getFree = async () => {
+  return await db('user as u')
+    .select('u.id', 'u.name', 'o.team_id')
+    .leftJoin('operator as o', 'o.user_id', 'u.id')
+    .where('o.id', null)
+    .orderBy('id', 'asc');
+};
+
+export const getWithout = async () => {
   return await db('operator as o')
     .select('o.*', 'u.name as name')
     .leftJoin('user as u', 'u.id', 'o.user_id')
@@ -51,4 +59,8 @@ export const find = async (id) => {
 
 export const findWhere = async function (query) {
   return await operatorRepository.findWhere(query);
+};
+
+export const findWhereActive = async function (query) {
+  return await operatorRepository.findWhereActive(query);
 };

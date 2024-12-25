@@ -6,7 +6,7 @@ export const seed = async (knex) => {
   await knex('user').del();
 
   const users = [
-    { id: 1, login: 'superadmin', password: '$2a$10$nmSMifufoud7yWmBHWg.j.nVAmsrgrta.TRCUV.lRd8/qQoge/Jpa', name: 'Шымнгысхан' },
+    { id: 1, login: 'superadmin', password: '$2a$10$nmSMifufoud7yWmBHWg.j.nVAmsrgrta.TRCUV.lRd8/qQoge/Jpa', name: 'Шынгысхан' },
     { id: 2, login: 'admin1', password: '$2a$10$4dOvf4vDTUyfgzSklNS6Qurtnfp.vzL0.tSSsC6mCq.3jiDqslwJm', name: 'Медет' },
     { id: 3, login: 'admin2', password: '$2a$10$2EnIIfRVe8jrTcjXtP7.suPkY0StD2yho/f9BRYvOfBBZlJBfoEWm', name: 'Абзал' },
     { id: 4, login: 'webmaster1', password: '$2a$10$KNmvW7nHTzASa84EfC3Yy.it4MNXDdBeT9uq8OlFNkOsi.3litRXu', name: 'Вебмастер 1' },

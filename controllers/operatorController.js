@@ -1,6 +1,17 @@
 import * as Operator from '#models/operator.js';
 import * as User from '#models/user.js';
 
+export const get = async (req, res) => {
+	try {
+    const operators = await Operator.get();
+
+		res.status(200).send({ message: 'ok', operators });
+	}	catch (err) {
+		console.log("Error in get webmaster controller", err.message);
+		res.status(500).send({ error: "Internal Server Error" });
+	}
+};
+
 export const getFree = async (req, res) => {
 	try {
     const free_operators = await Operator.getFree();
@@ -12,13 +23,13 @@ export const getFree = async (req, res) => {
 	}
 };
 
-export const get = async (req, res) => {
+export const getWithout = async (req, res) => {
 	try {
-    const operators = await Operator.get();
+    const free_operators = await Operator.getWithout();
 
-		res.status(200).send({ message: 'ok', operators });
+		res.status(200).send({ message: 'ok', free_operators });
 	}	catch (err) {
-		console.log("Error in get webmaster controller", err.message);
+		console.log("Error in getFree operator controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
 	}
 };
