@@ -15,4 +15,21 @@ redisClient.connect().catch(err => {
   console.error('Failed to connect to Redis:', err);
 });
 
-export default redisClient;
+export async function setKeyValue(key, value, expirationInSeconds = 60) {
+  try {
+    await redisClient.set(key, expirationInSeconds,value);
+  } catch (err) {
+    console.error('Error setting key in Redis:', err);
+  }
+}
+
+export async function getKeyValue(key) {
+  try {
+    const value = await redisClient.get(key);
+    return value;
+  } catch (err) {
+    console.error('Error getting key from Redis:', err);
+    return null;
+  }
+}
+
