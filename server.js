@@ -16,6 +16,7 @@ const allowedOrigins = [
 
 const PORT = process.env.PORT || 8080;
 
+// Логика приложения
 function startServer() {
   app.use(express.json());
   app.use(cookieParser());
@@ -40,4 +41,5 @@ function startServer() {
   });
 }
 
+// Инициализация кластера
 setupCluster(startServer);
