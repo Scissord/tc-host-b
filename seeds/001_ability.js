@@ -6,70 +6,75 @@ export const seed = async (knex) => {
   await knex('ability').del();
 
   const groups = [
-    { 
-      name: 'orders', 
-      actions: ['get', 'get_order', 'create', 'update', 'delete'], 
-      titles: ['Получить заказы', 'Получить заказ', 'Создать заказ', 'Изменить заказ', 'Удалить заказ'] 
+    {
+      name: 'orders',
+      actions: ['get', 'get_order', 'create', 'update', 'delete'],
+      titles: ['Получить заказы', 'Получить заказ', 'Создать заказ', 'Изменить заказ', 'Удалить заказ']
     },
-    { 
-      name: 'products', 
-      actions: ['get', 'create', 'update', 'delete'], 
-      titles: ['Получить товары', 'Создать товар', 'Изменить товар', 'Удалить товар'] 
+    {
+      name: 'products',
+      actions: ['get', 'create', 'update', 'delete'],
+      titles: ['Получить товары', 'Создать товар', 'Изменить товар', 'Удалить товар']
     },
-    { 
-      name: 'cities', 
-      actions: ['get', 'create', 'update', 'delete'], 
-      titles: ['Получить города', 'Создать город', 'Изменить город', 'Удалить город'] 
+    {
+      name: 'cities',
+      actions: ['get', 'create', 'update', 'delete'],
+      titles: ['Получить города', 'Создать город', 'Изменить город', 'Удалить город']
     },
-    { 
-      name: 'webmasters', 
-      actions: ['get', 'get_free', 'create', 'update', 'delete'], 
-      titles: ['Получить список вебмастеров', 'Получить список свободных вебмастеров', 'Создать вебмастера', 'Изменить вебмастера', 'Удалить вебмастера'] 
+    {
+      name: 'webmasters',
+      actions: ['get', 'get_free', 'create', 'update', 'delete'],
+      titles: ['Получить список вебмастеров', 'Получить список свободных вебмастеров', 'Создать вебмастера', 'Изменить вебмастера', 'Удалить вебмастера']
     },
-    { 
-      name: 'departments', 
-      actions: ['get', 'get_department', 'create', 'update', 'delete'], 
-      titles: ['Получить отделы', 'Получить отдел', 'Создать отдел', 'Изменить отдел', 'Удалить отдел'] 
+    {
+      name: 'departments',
+      actions: ['get', 'get_department', 'create', 'update', 'delete'],
+      titles: ['Получить отделы', 'Получить отдел', 'Создать отдел', 'Изменить отдел', 'Удалить отдел']
     },
-    { 
-      name: 'teams', 
-      actions: ['get', 'get_team', 'create', 'update', 'delete'], 
-      titles: ['Получить команды', 'Получить команду', 'Создать команду', 'Изменить команду', 'Удалить команду'] 
+    {
+      name: 'teams',
+      actions: ['get', 'get_team', 'create', 'update', 'delete'],
+      titles: ['Получить команды', 'Получить команду', 'Создать команду', 'Изменить команду', 'Удалить команду']
     },
-    { 
-      name: 'operators', 
-      actions: ['get', 'get_free', 'create', 'update', 'delete'], 
-      titles: ['Получить всех операторов', 'Получить пользователей, у которых нет operator_id', 'Создать оператора', 'Изменить оператора', 'Удалить оператора'] 
+    {
+      name: 'operators',
+      actions: ['get', 'get_free', 'create', 'update', 'delete'],
+      titles: ['Получить всех операторов', 'Получить пользователей, у которых нет operator_id', 'Создать оператора', 'Изменить оператора', 'Удалить оператора']
     },
-    { 
-      name: 'users', 
-      actions: ['get', 'create', 'update', 'delete'], 
-      titles: ['Получить пользователей', 'Создать пользователя', 'Изменить пользователя', 'Удалить пользователя'] 
+    {
+      name: 'users',
+      actions: ['get', 'create', 'update', 'delete'],
+      titles: ['Получить пользователей', 'Создать пользователя', 'Изменить пользователя', 'Удалить пользователя']
     },
-    { 
-      name: 'statuses', 
-      actions: ['get', 'create', 'update', 'delete'], 
-      titles: ['Получить статусы', 'Создать статус', 'Изменить статус', 'Удалить статус'] 
+    {
+      name: 'statuses',
+      actions: ['get', 'create', 'update', 'delete'],
+      titles: ['Получить статусы', 'Создать статус', 'Изменить статус', 'Удалить статус']
     },
-    { 
-      name: 'sub_statuses', 
-      actions: ['get', 'create', 'update', 'delete'], 
-      titles: ['Получить подстатусы', 'Создать подстатус', 'Изменить подстатус', 'Удалить подстатус'] 
+    {
+      name: 'sub_statuses',
+      actions: ['get', 'create', 'update', 'delete'],
+      titles: ['Получить подстатусы', 'Создать подстатус', 'Изменить подстатус', 'Удалить подстатус']
     },
-    { 
-      name: 'order_columns', 
-      actions: ['get', 'create', 'update', 'delete'], 
-      titles: ['Получить заголовки заказов', 'Создать заголовок для таблицы заказов', 'Изменить заголовок для таблицы заказов', 'Удалить заголовок для таблицы заказов'] 
+    {
+      name: 'order_columns',
+      actions: ['get', 'create', 'update', 'delete'],
+      titles: ['Получить заголовки заказов', 'Создать заголовок для таблицы заказов', 'Изменить заголовок для таблицы заказов', 'Удалить заголовок для таблицы заказов']
     },
-    { 
-      name: 'statistics', 
-      actions: ['get', 'supervisor_statistic', 'webmaster_statistic', 'operator_statistic'], 
-      titles: ['Получить статистику', 'Получить статистику начальника отдела', 'Получить статистику вебмастера', 'Получить статистику оператора'] 
+    {
+      name: 'statistics',
+      actions: ['get', 'supervisor_statistic', 'webmaster_statistic', 'operator_statistic'],
+      titles: ['Получить статистику', 'Получить статистику начальника отдела', 'Получить статистику вебмастера', 'Получить статистику оператора']
     },
-    { 
-      name: 'users', 
-      actions: ['get', 'create', 'update', 'delete'], 
-      titles: ['Получить список пользователей', 'Создать пользоватя', 'Обновить пользоватя', 'Удалить пользоватя'] 
+    {
+      name: 'roles',
+      actions: ['get', 'create', 'update', 'delete'],
+      titles: ['Получить роли', 'Создать роль', 'Изменить роль', 'Удалить роль']
+    },
+    {
+      name: 'assigned_role',
+      actions: ['get', 'update', 'delete'],
+      titles: ['Получить список пользователей с ролями', 'Изменить роль для пользователя', 'Удалить роль для пользователя']
     },
     // { 
     //   name: 'admin', 

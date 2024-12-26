@@ -33,5 +33,5 @@ app.use(cors({
 app.use('/api', apiRoutes);
 
 server.listen(PORT, () => {
-	console.log(`Welcome to cv server, port ${PORT} ✅✅✅`);
+  console.log(`Welcome to cv server, port ${PORT} ✅✅✅`);
 });

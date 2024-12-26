@@ -17,7 +17,9 @@ const ERRORS = {
   NOT_OPERATOR: 'Данный пользователь не является оператором!',
   INVALID_ROLE: 'Неизвестная роль пользователя!',
   // ability
-  USER_CANT: 'Пользователь не может выполнить это действие!'
+  USER_CANT: 'Пользователь не может выполнить это действие!',
+  // fields
+  REQUIRED_PHONE: 'Укажите телефон!',
 };
 
 export default ERRORS;

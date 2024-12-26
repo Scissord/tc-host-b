@@ -64,9 +64,9 @@ const repository = (tableName) => {
       return updatedRecord;
     },
 
-    updateWhereIn: async (query, data) => {
+    updateWhereIn: async (ids, data) => {
       const updatedRecords = await db(tableName)
-        .whereIn(query)
+        .whereIn('id', ids)
         .update(data)
         .returning('*');
 

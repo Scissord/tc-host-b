@@ -1,13 +1,11 @@
 import * as Order from '#models/order.js';
-import * as OrderSubStatus from '#root/models/sub_status.js';
+import * as SubStatus from '#models/sub_status.js';
 import * as Product from '#models/product.js';
 import * as Webmaster from '#models/webmaster.js';
 import * as Operator from '#models/operator.js';
 import * as City from '#models/city.js';
-import * as SubStatus from '#models/sub_status.js';
-import * as User from '#models/user.js';
-
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
+import ERRORS from '#constants/errors.js';
 
 export const getUserOrders = async (req, res) => {
 	try {
@@ -44,7 +42,7 @@ export const getUserOrders = async (req, res) => {
 
 		// validate here on fields
 
-    const { orders, lastPage, pages } = await Order.getUserPaginated(
+    const { orders, lastPage, pages } = await Order.getUserOrdersPaginated(
 			limit, 
 			page,
 			sub_status,
@@ -114,7 +112,7 @@ export const getWebmasterOrders = async (req, res) => {
 
 		// validate here on fields
 
-    const { orders, lastPage, pages } = await Order.getWebmasterPaginated(
+    const { orders, lastPage, pages } = await Order.getWebmasterOrdersPaginated(
 			limit, 
 			page,
 			req.webmaster.id
@@ -163,7 +161,7 @@ export const getOperatorOrders = async (req, res) => {
 			orders, 
 			lastPage, 
 			pages 
-		} = await Order.getOperatorPaginated(
+		} = await Order.getOperatorOrdersPaginated(
 			limit, 
 			page,
 			sub_status,
@@ -216,14 +214,28 @@ export const getOrder = async (req, res) => {
 
 export const changeStatus = async (req, res) => {
 	try {
-		const { ids, sub_status_id } = req.body;
+		const { ids, old_sub_status_id, new_sub_status_id } = req.body;
 
 		if(ids.length === 0) {
-			return res.status(400).send({ message: "Заказы не выбраны!" })
+			console.log('here');
+			const subStatus = await SubStatus.find(old_sub_status_id);
+			const orders = await Order.getWhere({ sub_status_id: old_sub_status_id });
+			await Order.updateWhereIn(orders.map(order => order.id), {
+				status_id: subStatus.status_id, 
+				sub_status_id: new_sub_status_id
+			})
+
+			return res.status(200).send({ 
+				message: 'ok', 
+				orders
+			});
 		};
 
-		const subStatus = await OrderSubStatus.find(sub_status_id);
-		const orders = await Order.updateWhereIn({ id: ids }, { status_id: subStatus.status_id, sub_status_id });
+		const newSubStatus = await SubStatus.find(new_sub_status_id);
+		const orders = await Order.updateWhereIn(ids, { 
+			status_id: newSubStatus.status_id,
+			sub_status_id: new_sub_status_id
+		});
 
 		res.status(200).send({ 
 			message: 'ok', 
@@ -238,20 +250,26 @@ export const changeStatus = async (req, res) => {
 export const create = async (req, res) => {
 	try {
 	  const data = req.body;
-	  const phone = data.phone;
   
-	  if (!phone) {
-		return res.status(400).send({ message: "Phone number is required" });
-	  }
+	  if (!data.phone) {
+			return res.status(400).send({ 
+				message: ERRORS.REQUIRED_PHONE
+			});
+	  };
+
+		data.status_id = 1;
+		data.sub_status_id = 1;
   
-	  const cachedOrder = await getKeyValue(phone);
-	  if (cachedOrder) {
-		return res.status(400).send({ message: "Order for this phone number already exists" });
-	  }
+	  // const cachedOrder = await getKeyValue(phone);
+	  // if (cachedOrder) {
+		// 	return res.status(400).send({ 
+		// 		message: "Order for this phone number already exists" 
+		// 	});
+	  // }
   
 	  const order = await Order.create(data);
   
-	  await setKeyValue(phone, JSON.stringify(order), 60); 
+	  // await setKeyValue(phone, JSON.stringify(order), 60); 
   
 	  return res.status(200).send({ message: 'ok', order });
 	} catch (err) {

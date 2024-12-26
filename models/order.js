@@ -5,146 +5,12 @@ const db = knex();
 
 const orderRepository = repository('order');
 
-export const getOrderStatisticForWebmaster = async (webmaster_id, start_date, end_date, byDay = false) => {
-  try {
-    const result = await db('order as o')
-      .select("o.webmaster_id", "webmaster_id")
-      .select("u.name as user_name")
-      .select("s.name as status_name")
-      .select(db.raw("COUNT(*) as status_count"))
-      .modify((queryBuilder) => {
-        if (byDay) {
-          queryBuilder.select(db.raw("DATE(o.created_at) as day"));
-        }
-      })
-      .innerJoin("webmaster as w", "w.id", "o.webmaster_id")
-      .innerJoin("status as s", "s.id", "o.status_id")
-      .innerJoin("user as u", "u.id", "w.user_id")
-      .modify((queryBuilder) => {
-        if (webmaster_id) {
-          queryBuilder.where("o.webmaster_id", webmaster_id);
-        }
-      })
-      .andWhereBetween("o.created_at", [start_date, end_date])
-      .groupBy("o.webmaster_id")
-      .groupBy("u.name")
-      .groupBy("s.name")
-      .modify((queryBuilder) => {
-        if (byDay) {
-          queryBuilder.groupBy(db.raw("DATE(o.created_at)"));
-        }
-      });
-
-    const formattedResult = result.reduce((acc, row) => {
-      const { webmaster_id, user_name, status_name, status_count, day } = row;
-
-      if (!acc[webmaster_id]) {
-        acc[webmaster_id] = {
-          webmaster_id,
-          user_name,
-          statuses: {},
-          total_orders: 0,
-          daily: {}, 
-        };
-      }
-
-      if (byDay) {
-        if (!acc[webmaster_id].daily[day]) {
-          acc[webmaster_id].daily[day] = {
-            statuses: {},
-            total_orders: 0,
-          };
-        }
-
-        acc[webmaster_id].daily[day].statuses[status_name] = parseInt(status_count, 10);
-        acc[webmaster_id].daily[day].total_orders += parseInt(status_count, 10);
-      } else {
-        acc[webmaster_id].statuses[status_name] = parseInt(status_count, 10);
-        acc[webmaster_id].total_orders += parseInt(status_count, 10);
-      }
-
-      return acc;
-    }, {});
-
-    return Object.values(formattedResult);
-  } catch (err) {
-    console.error("Error fetching statistics for webmaster:", err.message);
-    throw new Error("Failed to fetch statistics");
-  }
-};
-
-export const getOrderStatisticForOperator = async (operator_id, start_date, end_date, byDay = false) => {
-  try {
-    const result = await db('order as o')
-      .select("o.operator_id", "operator_id")
-      .select("u.name as user_name")
-      .select("s.name as status_name")
-      .select(db.raw("COUNT(*) as status_count"))
-      .modify((queryBuilder) => {
-        if (byDay) {
-          queryBuilder.select(db.raw("DATE(o.created_at) as day"));
-        }
-      })
-      .innerJoin("operator as op", "op.id", "o.operator_id")
-      .innerJoin("status as s", "s.id", "o.status_id")
-      .innerJoin("user as u", "u.id", "op.user_id")
-      .modify((queryBuilder) => {
-        if (operator_id) {
-          queryBuilder.where("o.operator_id", operator_id);
-        }
-      })
-      .andWhereBetween("o.created_at", [start_date, end_date])
-      .groupBy("o.operator_id")
-      .groupBy("u.name")
-      .groupBy("s.name")
-      .modify((queryBuilder) => {
-        if (byDay) {
-          queryBuilder.groupBy(db.raw("DATE(o.created_at)"));
-        }
-      });
-
-    const formattedResult = result.reduce((acc, row) => {
-      const { operator_id, user_name, status_name, status_count, day } = row;
-
-      if (!acc[operator_id]) {
-        acc[operator_id] = {
-          operator_id,
-          user_name,
-          statuses: {},
-          total_orders: 0,
-          daily: {}, // Статистика по дням
-        };
-      }
-
-      if (byDay) {
-        if (!acc[operator_id].daily[day]) {
-          acc[operator_id].daily[day] = {
-            statuses: {},
-            total_orders: 0,
-          };
-        }
-
-        acc[operator_id].daily[day].statuses[status_name] = parseInt(status_count, 10);
-        acc[operator_id].daily[day].total_orders += parseInt(status_count, 10);
-      } else {
-        acc[operator_id].statuses[status_name] = parseInt(status_count, 10);
-        acc[operator_id].total_orders += parseInt(status_count, 10);
-      }
-
-      return acc;
-    }, {});
-
-    return Object.values(formattedResult);
-  } catch (err) {
-    console.error("Error fetching statistics for operator:", err.message);
-    throw new Error("Failed to fetch statistics");
-  }
-};
-
-
-
 export const get = async () => {
   return await orderRepository.getAll();
+};
+
+export const getWhere = async (query) => {
+  return await orderRepository.getWhere(query);
 };
 
 export const create = async (data) => {
@@ -163,11 +29,11 @@ export const find = async (id) => {
   return await orderRepository.find(id);
 };
 
-export const updateWhereIn = async (query, data) => {
-  return await orderRepository.updateWhereIn(query, data);
+export const updateWhereIn = async (ids, data) => {
+  return await orderRepository.updateWhereIn(ids, data);
 };
 
-export const getUserPaginated = async function (
+export const getUserOrdersPaginated = async function (
   limit, 
   page,
   sub_status,
@@ -361,7 +227,7 @@ export const getUserPaginated = async function (
   };
 };
 
-export const getWebmasterPaginated = async function (
+export const getWebmasterOrdersPaginated = async function (
   limit, 
   page,
   webmaster_id
@@ -407,7 +273,7 @@ export const getWebmasterPaginated = async function (
   };
 };
 
-export const getOperatorPaginated = async function (
+export const getOperatorOrdersPaginated = async function (
   limit, 
   page,
   sub_status,
@@ -453,4 +319,139 @@ export const getOperatorPaginated = async function (
   };
 };
 
+export const getOrderStatisticForWebmaster = async (webmaster_id, start_date, end_date, byDay = false) => {
+  try {
+    const result = await db('order as o')
+      .select("o.webmaster_id", "webmaster_id")
+      .select("u.name as user_name")
+      .select("s.name as status_name")
+      .select(db.raw("COUNT(*) as status_count"))
+      .modify((queryBuilder) => {
+        if (byDay) {
+          queryBuilder.select(db.raw("DATE(o.created_at) as day"));
+        }
+      })
+      .innerJoin("webmaster as w", "w.id", "o.webmaster_id")
+      .innerJoin("status as s", "s.id", "o.status_id")
+      .innerJoin("user as u", "u.id", "w.user_id")
+      .modify((queryBuilder) => {
+        if (webmaster_id) {
+          queryBuilder.where("o.webmaster_id", webmaster_id);
+        }
+      })
+      .andWhereBetween("o.created_at", [start_date, end_date])
+      .groupBy("o.webmaster_id")
+      .groupBy("u.name")
+      .groupBy("s.name")
+      .modify((queryBuilder) => {
+        if (byDay) {
+          queryBuilder.groupBy(db.raw("DATE(o.created_at)"));
+        }
+      });
+
+    const formattedResult = result.reduce((acc, row) => {
+      const { webmaster_id, user_name, status_name, status_count, day } = row;
+
+      if (!acc[webmaster_id]) {
+        acc[webmaster_id] = {
+          webmaster_id,
+          user_name,
+          statuses: {},
+          total_orders: 0,
+          daily: {}, 
+        };
+      }
+
+      if (byDay) {
+        if (!acc[webmaster_id].daily[day]) {
+          acc[webmaster_id].daily[day] = {
+            statuses: {},
+            total_orders: 0,
+          };
+        }
+
+        acc[webmaster_id].daily[day].statuses[status_name] = parseInt(status_count, 10);
+        acc[webmaster_id].daily[day].total_orders += parseInt(status_count, 10);
+      } else {
+        acc[webmaster_id].statuses[status_name] = parseInt(status_count, 10);
+        acc[webmaster_id].total_orders += parseInt(status_count, 10);
+      }
+
+      return acc;
+    }, {});
+
+    return Object.values(formattedResult);
+  } catch (err) {
+    console.error("Error fetching statistics for webmaster:", err.message);
+    throw new Error("Failed to fetch statistics");
+  }
+};
+
+export const getOrderStatisticForOperator = async (operator_id, start_date, end_date, byDay = false) => {
+  try {
+    const result = await db('order as o')
+      .select("o.operator_id", "operator_id")
+      .select("u.name as user_name")
+      .select("s.name as status_name")
+      .select(db.raw("COUNT(*) as status_count"))
+      .modify((queryBuilder) => {
+        if (byDay) {
+          queryBuilder.select(db.raw("DATE(o.created_at) as day"));
+        }
+      })
+      .innerJoin("operator as op", "op.id", "o.operator_id")
+      .innerJoin("status as s", "s.id", "o.status_id")
+      .innerJoin("user as u", "u.id", "op.user_id")
+      .modify((queryBuilder) => {
+        if (operator_id) {
+          queryBuilder.where("o.operator_id", operator_id);
+        }
+      })
+      .andWhereBetween("o.created_at", [start_date, end_date])
+      .groupBy("o.operator_id")
+      .groupBy("u.name")
+      .groupBy("s.name")
+      .modify((queryBuilder) => {
+        if (byDay) {
+          queryBuilder.groupBy(db.raw("DATE(o.created_at)"));
+        }
+      });
+
+    const formattedResult = result.reduce((acc, row) => {
+      const { operator_id, user_name, status_name, status_count, day } = row;
+
+      if (!acc[operator_id]) {
+        acc[operator_id] = {
+          operator_id,
+          user_name,
+          statuses: {},
+          total_orders: 0,
+          daily: {}, // Статистика по дням
+        };
+      }
+
+      if (byDay) {
+        if (!acc[operator_id].daily[day]) {
+          acc[operator_id].daily[day] = {
+            statuses: {},
+            total_orders: 0,
+          };
+        }
+
+        acc[operator_id].daily[day].statuses[status_name] = parseInt(status_count, 10);
+        acc[operator_id].daily[day].total_orders += parseInt(status_count, 10);
+      } else {
+        acc[operator_id].statuses[status_name] = parseInt(status_count, 10);
+        acc[operator_id].total_orders += parseInt(status_count, 10);
+      }
+
+      return acc;
+    }, {});
+
+    return Object.values(formattedResult);
+  } catch (err) {
+    console.error("Error fetching statistics for operator:", err.message);
+    throw new Error("Failed to fetch statistics");
+  }
+};
 

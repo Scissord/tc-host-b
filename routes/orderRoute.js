@@ -10,7 +10,7 @@ router.get("/user", withExtraData({ ability_name: 'get_orders' }, checkAbility),
 router.get("/webmaster", withExtraData({ entity: 'webmaster' }, checkEntity), controller.getWebmasterOrders);
 router.get("/operator", withExtraData({ entity: 'operator' }, checkEntity), controller.getOperatorOrders);
 router.get("/:order_id", withExtraData({ ability_name: 'get_order_orders' }, checkAbility), controller.getOrder);
-router.post("/create", controller.create)
+router.post("", controller.create);
 router.patch("/update_status", controller.changeStatus);
 
 export default router;

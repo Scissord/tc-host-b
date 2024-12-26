@@ -14,9 +14,11 @@ import operatorRoutes from './operatorRoute.js';
 import webmasterRoutes from './webmasterRoute.js';
 import roleRoutes from './roleRoute.js'
 import permissionRoutes from './permissionRoute.js'
+import assignedRoleRoutes from './assignedRoleRoute.js';
 import cityRoute from './cityRoute.js';
 import userRoute from './userRoute.js';
 import statisticRoute from './statisticRoute.js'
+
 const router = Router();
 
 router.use('/auth', authRoutes);
@@ -34,6 +36,8 @@ router.use('/operators', verify, operatorRoutes);
 router.use('/webmasters', verify, webmasterRoutes);
 router.use('/roles', verify, roleRoutes);
 router.use('/permissions', verify, permissionRoutes);
+router.use('/assigned_roles', verify, assignedRoleRoutes);
 router.use('/uploads', verify, express.static('uploads'));
 router.use('/statistic', statisticRoute)
+
 export default router;

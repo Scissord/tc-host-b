@@ -3,7 +3,7 @@ import repository from './repository.js';
 const roleRepository = repository('role');
 
 export const get = async () => {
-  return await roleRepository.getAll();
+  return await roleRepository.getActive();
 };
 
 export const create = async (data) => {
@@ -12,6 +12,10 @@ export const create = async (data) => {
 
 export const update = async (id, data) => {
   return await roleRepository.update(id, data);
+};
+
+export const softDelete = async (id) => {
+  return await roleRepository.softDelete(id);
 };
 
 export const hardDelete = async (id) => {
