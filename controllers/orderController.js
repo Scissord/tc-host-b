@@ -5,9 +5,8 @@ import * as Webmaster from '#models/webmaster.js';
 import * as Operator from '#models/operator.js';
 import * as City from '#models/city.js';
 import * as SubStatus from '#models/sub_status.js';
-import * as User from '#models/user.js';
 
-import { setKeyValue, getKeyValue } from '#root/services/redis/redis';
+import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 
 export const getUserOrders = async (req, res) => {
 	try {
