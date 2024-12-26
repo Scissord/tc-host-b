@@ -7,6 +7,8 @@ import * as City from '#models/city.js';
 import * as SubStatus from '#models/sub_status.js';
 import * as User from '#models/user.js';
 
+import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
+
 export const getUserOrders = async (req, res) => {
 	try {
     const { 
@@ -234,12 +236,27 @@ export const changeStatus = async (req, res) => {
 };
 
 export const create = async (req, res) => {
-  try {
-
-    return res.status(200).send({ message: 'ok', order });
-  }	catch (err) {
-		console.log("Error in create user controller", err.message);
-		res.status(500).send({ error: "Internal Server Error" });
+	try {
+	  const data = req.body;
+	  const phone = data.phone;
+  
+	  if (!phone) {
+		return res.status(400).send({ message: "Phone number is required" });
+	  }
+  
+	  const cachedOrder = await getKeyValue(phone);
+	  if (cachedOrder) {
+		return res.status(400).send({ message: "Order for this phone number already exists" });
+	  }
+  
+	  const order = await Order.create(data);
+  
+	  await setKeyValue(phone, JSON.stringify(order), 60); 
+  
+	  return res.status(200).send({ message: 'ok', order });
+	} catch (err) {
+	  console.log("Error in create order controller", err.message);
+	  res.status(500).send({ error: "Internal Server Error" });
 	}
 };
 
