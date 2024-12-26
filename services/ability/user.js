@@ -9,10 +9,10 @@ export const can = async (user_id, ability_name) => {
 
   // 2. find abilities
   const user_abilities = await getUserAbilitiesName(user_id);
-  if(user_abilities.includes(ability_name)) {
+  if (user_abilities.includes(ability_name)) {
     return true;
   };
-  
+
   return false;
 };
 
@@ -23,7 +23,7 @@ export const getUserInfo = async (user) => {
 
 export const getUserAssignedRole = async (user_id) => {
   const assigned_role = await AssignedRole.findWhere({ entity_id: user_id, entity_type: 'user' });
-  if(assigned_role) {
+  if (assigned_role) {
     return assigned_role;
   } else {
     return false;
@@ -35,16 +35,15 @@ export const getUserPermissions = async (user_id) => {
 
   const assigned_role = await getUserAssignedRole(user_id);
 
-  if(assigned_role) {
+  if (assigned_role) {
     const permissionsByRole = await Permission.getWhere({ entity_id: assigned_role.role_id, entity_type: 'role' });
-    if(permissionsByRole) {
+    if (permissionsByRole) {
       permissions = [...permissions, ...permissionsByRole];
     };
   };
 
-
   const permissionsByUser = await Permission.getWhere({ entity_id: user_id, entity_type: 'user' });
-  if(permissionsByUser.length > 0) {
+  if (permissionsByUser.length > 0) {
     permissions = [...permissions, ...permissionsByUser];
   };
 
@@ -56,7 +55,7 @@ export const getUserAbilitiesId = async (user_id) => {
 
   const permissions = await getUserPermissions(user_id)
 
-  for(const permission of permissions) {
+  for (const permission of permissions) {
     const ability = await Ability.find(permission.ability_id);
     abilities.push(+ability.id);
   };
@@ -69,7 +68,7 @@ export const getUserAbilitiesName = async (user_id) => {
 
   const permissions = await getUserPermissions(user_id)
 
-  for(const permission of permissions) {
+  for (const permission of permissions) {
     const ability = await Ability.find(permission.ability_id);
     abilities.push(ability.name);
   };

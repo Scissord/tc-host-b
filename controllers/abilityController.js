@@ -1,5 +1,17 @@
 import * as Ability from '#models/ability.js';
 
+export const get = async (req, res) => {
+	return res.status(200).send({ message: 'ok' })
+	// try {
+	// 	const abilities = await Ability.get();
+
+	// 	res.status(200).send({ message: 'ok', abilities });
+	// } catch (err) {
+	// 	console.log("Error in get ability controller", err.message);
+	// 	res.status(500).send({ error: "Internal Server Error" });
+	// }
+};
+
 export const getForHeader = async (req, res) => {
 	try {
 		const get_orders_ability = await Ability.findWhere({ name: 'get_orders' });
@@ -24,45 +36,14 @@ export const getForHeader = async (req, res) => {
 	}
 };
 
-export const create = async (req, res) => {
-	try {
-
-		return res.status(200).send({ message: 'ok' });
-	} catch (err) {
-		console.log("Error in create ability controller", err.message);
-		res.status(500).send({ error: "Internal Server Error" });
-	}
-};
-
-export const update = async (req, res) => {
-	try {
-
-		res.status(200).send({ message: 'ok' });
-	} catch (err) {
-		console.log("Error in update ability controller", err.message);
-		res.status(500).send({ error: "Internal Server Error" });
-	}
-};
-
-export const destroy = async (req, res) => {
-	try {
-
-		res.status(200).send({ message: 'ok' });
-	} catch (err) {
-		console.log("Error in destroy ability controller", err.message);
-		res.status(500).send({ error: "Internal Server Error" });
-	}
-};
-
-
 export const getAbilitiesByEntityType = async (req, res) => {
 	try {
 		const { entity_id, entity_type } = req.query
-		const abilities = Ability.getAbilitiesByPermission(entity_id, entity_type)
+		const abilities = await Ability.getAbilitiesByPermission(entity_id, entity_type)
 
 		res.status(200).send({ message: 'ok', abilities });
 	} catch (err) {
-		console.log("Error in create permission controller", err.message);
+		console.log("Error in get ability controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
 	}
-}
+};

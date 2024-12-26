@@ -1,4 +1,5 @@
 import * as AssignedRole from '#models/assigned_role.js';
+import ERRORS from '#constants/errors.js';
 
 export const getByRole = async (req, res) => {
   try {
@@ -15,6 +16,22 @@ export const getByRole = async (req, res) => {
 export const create = async (req, res) => {
   try {
     const data = req.body;
+    const exist_assigned_role = await AssignedRole.findWhere(data);
+    if (exist_assigned_role) {
+      return res.status(400).send({
+        message: ERRORS.ROLE_EXIST,
+      });
+    };
+
+    const exist_another_role = await AssignedRole.findWhere({
+      entity_id: data.entity_id,
+      entity_type: data.entity_type
+    });
+
+    if (exist_another_role) {
+      await AssignedRole.hardDelete(exist_another_role.id);
+    };
+
     const assigned_role = await AssignedRole.create(data);
 
     return res.status(200).send({ message: 'ok', assigned_role });

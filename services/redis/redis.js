@@ -11,25 +11,26 @@ redisClient.on('error', (err) => {
   console.error('Redis client error:', err);
 });
 
-// redisClient.connect().catch(err => {
-//   console.error('Failed to connect to Redis:', err);
-// });
-
-export async function setKeyValue(key, value, expirationInSeconds = 60) {
+export async function setKeyValue(key, value, expirationInSeconds = null) {
   try {
-    await redisClient.set(key, expirationInSeconds, value);
+    if (value === null) {
+      await redisClient.del(key);
+    } else {
+      expirationInSeconds
+        ? await redisClient.setEx(key, expirationInSeconds, value)
+        : await redisClient.set(key, value);
+    }
   } catch (err) {
     console.error('Error setting key in Redis:', err);
   }
-}
+};
 
 export async function getKeyValue(key) {
   try {
     const value = await redisClient.get(key);
-    return value;
+    return value ? JSON.parse(value) : null;
   } catch (err) {
     console.error('Error getting key from Redis:', err);
     return null;
   }
-}
-
+};

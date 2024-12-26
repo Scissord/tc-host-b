@@ -20,6 +20,8 @@ const ERRORS = {
   USER_CANT: 'Пользователь не может выполнить это действие!',
   // fields
   REQUIRED_PHONE: 'Укажите телефон!',
+  // role
+  ROLE_EXIST: 'У пользователя уже есть роль!',
 };
 
 export default ERRORS;
