@@ -16,7 +16,8 @@ export const getFree = async () => {
   return await db('user as u')
     .select('u.id', 'u.name')
     .leftJoin('webmaster as w', 'w.user_id', 'u.id')
-    .where('w.id', null)
+    .whereNull('w.id')
+    .orWhereNotNull('w.deleted_at')
     .orderBy('id', 'asc');
 };
 

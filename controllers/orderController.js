@@ -217,8 +217,12 @@ export const changeStatus = async (req, res) => {
 	try {
 		const { ids, sub_status_id } = req.body;
 
+		if(ids.length === 0) {
+			return res.status(400).send({ message: "Заказы не выбраны!" })
+		};
+
 		const subStatus = await OrderSubStatus.find(sub_status_id);
-		const orders = await Order.updateWhereIn({ id: ids }, { status_id: subStatus.order_status_id, sub_status_id });
+		const orders = await Order.updateWhereIn({ id: ids }, { status_id: subStatus.status_id, sub_status_id });
 
 		res.status(200).send({ 
 			message: 'ok', 
@@ -236,12 +240,12 @@ export const create = async (req, res) => {
 	  const phone = data.phone;
   
 	  if (!phone) {
-		return res.status(400).send({ error: "Phone number is required" });
+		return res.status(400).send({ message: "Phone number is required" });
 	  }
   
 	  const cachedOrder = await getKeyValue(phone);
 	  if (cachedOrder) {
-		return res.status(400).send({ error: "Order for this phone number already exists" });
+		return res.status(400).send({ message: "Order for this phone number already exists" });
 	  }
   
 	  const order = await Order.create(data);
@@ -253,7 +257,7 @@ export const create = async (req, res) => {
 	  console.log("Error in create order controller", err.message);
 	  res.status(500).send({ error: "Internal Server Error" });
 	}
-  };
+};
 
 export const update = async (req, res) => {
   try {
