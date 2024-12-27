@@ -46,13 +46,25 @@ export const seed = async (knex) => {
     // admin
     {
       entity_id: 2,
-      abilities: [1, 2, 3, 4, 101],
+      abilities: [
+        1, 2, 3, 4,
+        41, 42, 43, 44, 45,
+        51, 52, 53, 54, 55,
+        61, 62, 63, 64, 65,
+        101,
+      ],
       type: "role"
     },
     // supervisor
     {
       entity_id: 3,
-      abilities: [1, 2, 3, 4, 101],
+      abilities: [
+        1, 2, 3, 4,
+        41, 42, 43, 44, 45,
+        51, 52, 53, 54, 55,
+        61, 62, 63, 64, 65,
+        101,
+      ],
       type: "role"
     },
     // webmaster_team_lead
@@ -67,7 +79,7 @@ export const seed = async (knex) => {
       abilities: [101],
       type: "user"
     },
-    // webmaster1
+    // webmaster2
     {
       entity_id: 5,
       abilities: [101],
