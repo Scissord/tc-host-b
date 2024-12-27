@@ -12,6 +12,6 @@ router.get("/operator", withExtraData({ entity: 'operator' }, checkEntity), cont
 router.get("/:order_id", withExtraData({ ability_name: 'get_order_orders' }, checkAbility), controller.getOrder);
 router.post("", controller.create);
 router.patch("/:order_id", controller.update);
-router.patch("/update_status", controller.changeStatus);
+router.patch("/status/update", controller.changeStatus);
 
 export default router;
