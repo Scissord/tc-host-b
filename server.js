@@ -11,6 +11,7 @@ dotenv.config();
 const allowedOrigins = [
   'http://localhost:5173',
   'https://talkcall-crm.com',
+  "https://www.talkcall-crm.com",
 ];
 
 const PORT = process.env.PORT || 8080;
