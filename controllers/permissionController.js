@@ -1,4 +1,5 @@
 import * as Permission from '#models/permission.js';
+import ERRORS from '#constants/errors.js';
 
 export const getByEntity = async (req, res) => {
   try {
@@ -15,6 +16,14 @@ export const getByEntity = async (req, res) => {
 export const create = async (req, res) => {
   try {
     const data = req.body;
+
+    const exist_permission = await Permission.findWhere(data);
+    if (exist_permission) {
+      return res.status(400).send({
+        message: ERRORS.PERMISSION_EXIST,
+      });
+    };
+
     const permission = await Permission.create(data);
 
     return res.status(200).send({ message: 'ok', permission });

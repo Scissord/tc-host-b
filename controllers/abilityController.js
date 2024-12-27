@@ -1,15 +1,14 @@
 import * as Ability from '#models/ability.js';
 
 export const get = async (req, res) => {
-	return res.status(200).send({ message: 'ok' })
-	// try {
-	// 	const abilities = await Ability.get();
+	try {
+		const abilities = await Ability.get();
 
-	// 	res.status(200).send({ message: 'ok', abilities });
-	// } catch (err) {
-	// 	console.log("Error in get ability controller", err.message);
-	// 	res.status(500).send({ error: "Internal Server Error" });
-	// }
+		res.status(200).send({ message: 'ok', abilities });
+	} catch (err) {
+		console.log("Error in get ability controller", err.message);
+		res.status(500).send({ error: "Internal Server Error" });
+	}
 };
 
 export const getForHeader = async (req, res) => {

@@ -10,8 +10,7 @@ dotenv.config();
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'http://192.168.0.148:5173',
-  'https://tc-chat.pw',
+  'https://talkcall-crm.com',
 ];
 
 const PORT = process.env.PORT || 8080;

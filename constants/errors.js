@@ -22,6 +22,8 @@ const ERRORS = {
   REQUIRED_PHONE: 'Укажите телефон!',
   // role
   ROLE_EXIST: 'У пользователя уже есть роль!',
+  // permission
+  PERMISSION_EXIST: 'У пользователя уже есть этот доступ!',
 };
 
 export default ERRORS;

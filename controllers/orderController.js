@@ -204,6 +204,7 @@ export const getOrder = async (req, res) => {
 	try {
 		const { order_id } = req.params;
 		const order = await Order.find(order_id);
+		delete order.phone;
 
 		return res.status(200).send({ order })
 	} catch (err) {
@@ -217,7 +218,6 @@ export const changeStatus = async (req, res) => {
 		const { ids, old_sub_status_id, new_sub_status_id } = req.body;
 
 		if (ids.length === 0) {
-			console.log('here');
 			const subStatus = await SubStatus.find(old_sub_status_id);
 			const orders = await Order.getWhere({ sub_status_id: old_sub_status_id });
 			await Order.updateWhereIn(orders.map(order => order.id), {
@@ -280,8 +280,24 @@ export const create = async (req, res) => {
 
 export const update = async (req, res) => {
 	try {
+		const { order_id } = req.params;
+		const data = req.body;
 
-		res.status(200).send({ message: 'ok' });
+		// 1. check if new status not match
+		if (data.sub_status_id) {
+			const order = await Order.find(order_id);
+			if (+order.sub_status_id !== +data.sub_status_id) {
+				const sub_status = await SubStatus.find(data.sub_status_id);
+				data.status_id = sub_status.status_id;
+				data.sub_status_id = sub_status.id;
+			};
+		};
+
+
+		// 2. update order
+		const order = await Order.update(order_id, data);
+
+		res.status(200).send({ message: 'ok', order });
 	} catch (err) {
 		console.log("Error in update user controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
