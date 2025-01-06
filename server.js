@@ -1,4 +1,4 @@
-// import setupCluster from '#services/cluster/cluster.js';
+import setupCluster from '#services/cluster/cluster.js';
 import { app, server } from '#services/socket/socket.js';
 import express from "express";
 import dotenv from "dotenv";
@@ -41,7 +41,5 @@ function startServer() {
   });
 }
 
-startServer();
 
-// Инициализация кластера
-// setupCluster(startServer);
+setupCluster(startServer);
