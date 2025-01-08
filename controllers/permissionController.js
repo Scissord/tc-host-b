@@ -4,7 +4,7 @@ import ERRORS from '#constants/errors.js';
 export const getByEntity = async (req, res) => {
   try {
     const { entity_id, entity_type } = req.params;
-    const permissions = await Permission.getPermissionsWithAbiltity(entity_id, entity_type)
+    const permissions = await Permission.getPermissionsWithAbility(entity_id, entity_type)
     res.status(200).send({ message: 'ok', permissions });
   } catch (err) {
     console.log("Error in get permission controller", err.message);
