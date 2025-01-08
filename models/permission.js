@@ -48,16 +48,16 @@ export const deleteByAbilitiesAndType = async (abilityIds, entityType, entity_id
   }
 };
 
-export const getPermissionsWithAbiltity = async (entity_id, entity_type) => {
+export const getPermissionsWithAbility = async (entity_id, entity_type) => {
   try {
     const result = await db('permission')
-    .leftJoin('ability')
-    .whereIn('entity_id', entity_id)
-    .andWhere('entity_type', entity_type)
+      .leftJoin('ability', 'permission.ability_id', 'ability.id') 
+      .where('permission.entity_id', entity_id)
+      .andWhere('permission.entity_type', entity_type);
 
-    return result
+    return result;
   } catch (err) {
-    console.error('Error in get records:', err.message);
+    console.error('Error in getPermissionsWithAbility:', err.message);
     throw new Error('Failed to get records.');
   }
-}
+};
