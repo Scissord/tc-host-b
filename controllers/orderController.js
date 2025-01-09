@@ -115,7 +115,7 @@ export const getUserOrders = async (req, res) => {
 		});
 	} catch (err) {
 		console.log("Error in get getUserOrders controller", err.message);
-		res.status(400).send({ message: "Ошибка на сервере" });
+		res.status(500).send({ error: "Internal Server Error" });
 	};
 };
 
@@ -167,8 +167,6 @@ export const getWebmasterOrders = async (req, res) => {
 export const getOperatorOrders = async (req, res) => {
 	try {
 		const { limit, page, sub_status } = req.query;
-
-		// validate here on fields
 
 		const {
 			orders,
