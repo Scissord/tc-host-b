@@ -1,16 +1,16 @@
 import { Server } from "socket.io";
 import http from "http";
 import express from "express";
-// import { redisClient } from "#services/redis/redis.js";
+import { redisClient } from "#services/redis/redis.js";
 
 const app = express();
 const server = http.createServer(app);
 
-// const redisPublisher = redisClient.duplicate();
-// const redisSubscriber = redisClient.duplicate();
+const redisPublisher = redisClient.duplicate();
+const redisSubscriber = redisClient.duplicate();
 
-// await redisPublisher.connect();
-// await redisSubscriber.connect();
+await redisPublisher.connect();
+await redisSubscriber.connect();
 
 const io = new Server(server, {
   cors: {
@@ -23,16 +23,16 @@ const io = new Server(server, {
 });
 
 // Подписка на Redis для синхронизации событий между воркерами
-// redisSubscriber.subscribe("broadcast", (message) => {
-//   const data = JSON.parse(message);
-//   io.emit(data.event, data.payload);
-// });
+redisSubscriber.subscribe("broadcast", (message) => {
+  const data = JSON.parse(message);
+  io.emit(data.event, data.payload);
+});
 
 io.on("connection", async (socket) => {
   const { user_id } = socket.handshake.query;
 
   // Добавляем socket_id в Set для user_id
-  // await redisClient.sAdd(`sockets:${user_id}`, socket.id);
+  await redisClient.sAdd(`sockets:${user_id}`, socket.id);
 
   console.log(`User connected: ${user_id}, socket: ${socket.id}`);
 

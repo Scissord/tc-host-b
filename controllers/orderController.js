@@ -4,7 +4,7 @@ import * as Product from '#models/product.js';
 import * as Webmaster from '#models/webmaster.js';
 import * as Operator from '#models/operator.js';
 import * as City from '#models/city.js';
-// import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
+import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import ERRORS from '#constants/errors.js';
 
 export const getOrdersChatsByStatuses = async (req, res) => {
@@ -271,16 +271,16 @@ export const create = async (req, res) => {
 		data.status_id = 1;
 		data.sub_status_id = 1;
 
-		// const cachedOrder = await getKeyValue(phone);
-		// if (cachedOrder) {
-		// 	return res.status(400).send({ 
-		// 		message: "Order for this phone number already exists" 
-		// 	});
-		// }
+		const cachedOrder = await getKeyValue(phone);
+		if (cachedOrder) {
+			return res.status(400).send({
+				message: "Order for this phone number already exists"
+			});
+		}
 
 		const order = await Order.create(data);
 
-		// await setKeyValue(phone, JSON.stringify(order), 60); 
+		await setKeyValue(phone, JSON.stringify(order), 60);
 
 		return res.status(200).send({ message: 'ok', order });
 	} catch (err) {
