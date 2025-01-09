@@ -1,10 +1,11 @@
 import * as AssignedRole from '#models/assigned_role.js';
+import * as User from '#models/user.js';
 import ERRORS from '#constants/errors.js';
 
 export const getByRole = async (req, res) => {
   try {
     const { role_id } = req.params;
-    const assigned_roles = await AssignedRole.getWhere({ role_id });
+    const assigned_roles = await AssignedRole.getUsers(role_id);
 
     res.status(200).send({ message: 'ok', assigned_roles });
   } catch (err) {
@@ -33,6 +34,12 @@ export const create = async (req, res) => {
     };
 
     const assigned_role = await AssignedRole.create(data);
+
+    const user = await User.find(assigned_role.entity_id);
+    if (user) {
+      assigned_role.name = user.name;
+    };
+
 
     return res.status(200).send({ message: 'ok', assigned_role });
   } catch (err) {

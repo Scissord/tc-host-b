@@ -1,5 +1,7 @@
-import * as Operator from '#models/operator.js';
 import * as User from '#models/user.js';
+import * as Operator from '#models/operator.js';
+import * as Webmaster from '#models/webmaster.js';
+import ERRORS from '#constants/errors.js';
 
 export const get = async (req, res) => {
 	try {
@@ -26,6 +28,23 @@ export const getFree = async (req, res) => {
 export const create = async (req, res) => {
 	try {
 		const data = req.body;
+
+		// check if exist
+		const existed_operator = await Operator.findWhere({ user_id: data.user_id });
+		if (existed_operator) {
+			return res.status(400).send({
+				message: ERRORS.IS_OPERATOR,
+			});
+		};
+
+		// check if he is webmaster
+		const existed_webmaster = await Webmaster.findWhere({ user_id: data.user_id });
+		if (existed_webmaster) {
+			return res.status(400).send({
+				message: ERRORS.IS_WEBMASTER,
+			});
+		};
+
 		const operator = await Operator.create(data);
 
 		return res.status(200).send({ message: 'ok', operator });

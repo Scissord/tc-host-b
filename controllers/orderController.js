@@ -7,7 +7,6 @@ import * as City from '#models/city.js';
 // import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import ERRORS from '#constants/errors.js';
 
-
 export const getOrdersChatsByStatuses = async (req, res) => {
 	try {
 		const { sub_statuses, limit, offset } = req.query
@@ -19,7 +18,8 @@ export const getOrdersChatsByStatuses = async (req, res) => {
 		console.log("Error in get getOrderChats controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
 	};
-}
+};
+
 export const getUserOrders = async (req, res) => {
 	try {
 		const {
@@ -115,7 +115,7 @@ export const getUserOrders = async (req, res) => {
 		});
 	} catch (err) {
 		console.log("Error in get getUserOrders controller", err.message);
-		res.status(500).send({ error: "Internal Server Error" });
+		res.status(400).send({ message: "Ошибка на сервере" });
 	};
 };
 

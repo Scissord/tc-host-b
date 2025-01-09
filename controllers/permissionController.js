@@ -12,34 +12,20 @@ export const getByEntity = async (req, res) => {
   }
 };
 
-export const create = async (req, res) => {
+export const toggle = async (req, res) => {
   try {
     const data = req.body;
 
     const exist_permission = await Permission.findWhere(data);
     if (exist_permission) {
-      return res.status(400).send({
-        message: ERRORS.PERMISSION_EXIST,
-      });
+      await Permission.hardDelete(exist_permission.id);
+      return res.status(200).send({ message: 'ok', permission: exist_permission });
+    } else {
+      const permission = await Permission.create(data);
+      return res.status(200).send({ message: 'ok', permission });
     };
-
-    const permission = await Permission.create(data);
-
-    return res.status(200).send({ message: 'ok', permission });
   } catch (err) {
     console.log("Error in create permission controller", err.message);
-    res.status(500).send({ error: "Internal Server Error" });
-  }
-};
-
-export const hardDelete = async (req, res) => {
-  try {
-    const { permission_id } = req.params;
-    const permission = await Permission.hardDelete(permission_id);
-
-    res.status(200).send({ message: 'ok', permission });
-  } catch (err) {
-    console.log("Error in hardDelete permission controller", err.message);
     res.status(500).send({ error: "Internal Server Error" });
   }
 };
