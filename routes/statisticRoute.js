@@ -5,7 +5,8 @@ import withExtraData from "#middleware/withExtraData.js";
 
 const router = express.Router();
 
-router.post("/webmaster", withExtraData({ ability_name: 'get_webmaster_statistic' }, checkAbility), controller.getStatisticForWebmaster);
-router.post("/operator", withExtraData({ ability_name: 'get_operator_statistic' }, checkAbility), controller.getStatisticForOperator);
+router.get("/user", withExtraData({ ability_name: 'user_statistics' }, checkAbility), controller.getUserStatistic);
+router.get("/webmaster", withExtraData({ ability_name: 'webmaster_statistics' }, checkAbility), controller.getWebmasterStatistic);
+router.get("/operator", withExtraData({ ability_name: 'operator_statistics' }, checkAbility), controller.getOperatorStatistic);
 
 export default router;

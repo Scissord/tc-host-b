@@ -34,7 +34,7 @@ export const updateWhereIn = async (ids, data) => {
 };
 
 export const getUserOrdersPaginated = async function (
-  limit, 
+  limit,
   page,
   sub_status,
   id,
@@ -61,14 +61,14 @@ export const getUserOrdersPaginated = async function (
   additional9,
   additional10,
   created_at,
-  updated_at, 
+  updated_at,
 ) {
   const result = await db('order as o')
     .select('o.*')
     .select(db.raw('COALESCE(json_agg(oi.*) FILTER (WHERE oi.id IS NOT NULL), \'[]\') as items'))
     .leftJoin('order_item as oi', 'oi.order_id', 'o.id')
     .modify((q) => {
-      if(id) {
+      if (id) {
         const ids = id.replace(/,/g, ' ').split(' ').map(item => item.trim()).filter(item => item);
         if (ids.length > 1) {
           q.whereIn('o.id', ids);
@@ -76,10 +76,10 @@ export const getUserOrdersPaginated = async function (
           q.where('o.id', id);
         }
       }
-      if(fio) {
+      if (fio) {
         q.where('o.fio', 'ilike', `%${fio}%`)
       }
-      if(phone) {
+      if (phone) {
         q.where('o.phone', 'ilike', `%${phone}%`)
       }
       if (items) {
@@ -94,13 +94,13 @@ export const getUserOrdersPaginated = async function (
           [`%${items}%`]
         );
       }
-      if(phone) {
+      if (phone) {
         q.where('o.phone', 'ilike', `%${phone}%`)
       }
-      if(region) {
+      if (region) {
         q.where('o.region', 'ilike', `%${region}%`)
       }
-      if(city) {
+      if (city) {
         q.whereRaw(
           `EXISTS (
             SELECT 1
@@ -111,19 +111,19 @@ export const getUserOrdersPaginated = async function (
           [`%${city}%`]
         );
       }
-      if(address) {
+      if (address) {
         q.where('o.address', 'ilike', `%${address}%`)
       }
-      if(postal_code) {
+      if (postal_code) {
         q.where('o.postal_code', 'ilike', `%${postal_code}%`)
       }
-      if(comment) {
+      if (comment) {
         q.where('o.comment', 'ilike', `%${comment}%`)
       }
-      if(utm_term) {
+      if (utm_term) {
         q.where('o.utm_term', 'ilike', `%${utm_term}%`)
       }
-      if(webmaster) {
+      if (webmaster) {
         q.whereRaw(
           `EXISTS (
             SELECT 1
@@ -134,7 +134,7 @@ export const getUserOrdersPaginated = async function (
           [`%${webmaster}%`]
         );
       }
-      if(operator) {
+      if (operator) {
         q.whereRaw(
           `EXISTS (
             SELECT 1
@@ -145,7 +145,7 @@ export const getUserOrdersPaginated = async function (
           [`%${operator}%`]
         );
       }
-      if(order_sub_status) {
+      if (order_sub_status) {
         q.whereRaw(
           `EXISTS (
             SELECT 1
@@ -156,37 +156,37 @@ export const getUserOrdersPaginated = async function (
           [`%${order_sub_status}%`]
         );
       }
-      if(additional1) {
+      if (additional1) {
         q.where('o.additional1', 'ilike', `%${additional1}%`)
       }
-      if(additional2) {
+      if (additional2) {
         q.where('o.additional2', 'ilike', `%${additional2}%`)
       }
-      if(additional3) {
+      if (additional3) {
         q.where('o.additional4', 'ilike', `%${additional4}%`)
       }
-      if(additional5) {
+      if (additional5) {
         q.where('o.additional5', 'ilike', `%${additional5}%`)
       }
-      if(additional6) {
+      if (additional6) {
         q.where('o.additional6', 'ilike', `%${additional6}%`)
       }
-      if(additional7) {
+      if (additional7) {
         q.where('o.additional7', 'ilike', `%${additional7}%`)
       }
-      if(additional8) {
+      if (additional8) {
         q.where('o.additional8', 'ilike', `%${additional8}%`)
       }
-      if(additional9) {
+      if (additional9) {
         q.where('o.additional9', 'ilike', `%${additional9}%`)
       }
-      if(additional10) {
+      if (additional10) {
         q.where('o.additional10', 'ilike', `%${additional10}%`)
       }
-      if(created_at) {
+      if (created_at) {
         q.where('o.created_at', 'ilike', `%${created_at}%`)
       }
-      if(updated_at) {
+      if (updated_at) {
         q.where('o.updated_at', 'ilike', `%${updated_at}%`)
       }
     })
@@ -206,7 +206,7 @@ export const getUserOrdersPaginated = async function (
   const maxPagesToShow = 4;
 
   let pages = [];
-  
+
   if (last <= maxPagesToShow) {
     pages = Array.from({ length: last }, (_, i) => i + 1);
   } else {
@@ -228,7 +228,7 @@ export const getUserOrdersPaginated = async function (
 };
 
 export const getWebmasterOrdersPaginated = async function (
-  limit, 
+  limit,
   page,
   webmaster_id
 ) {
@@ -252,7 +252,7 @@ export const getWebmasterOrdersPaginated = async function (
   const maxPagesToShow = 4;
 
   let pages = [];
-  
+
   if (last <= maxPagesToShow) {
     pages = Array.from({ length: last }, (_, i) => i + 1);
   } else {
@@ -274,7 +274,7 @@ export const getWebmasterOrdersPaginated = async function (
 };
 
 export const getOperatorOrdersPaginated = async function (
-  limit, 
+  limit,
   page,
   sub_status,
 ) {
@@ -298,7 +298,7 @@ export const getOperatorOrdersPaginated = async function (
   const maxPagesToShow = 4;
 
   let pages = [];
-  
+
   if (last <= maxPagesToShow) {
     pages = Array.from({ length: last }, (_, i) => i + 1);
   } else {
@@ -319,139 +319,65 @@ export const getOperatorOrdersPaginated = async function (
   };
 };
 
-export const getOrderStatisticForWebmaster = async (webmaster_id, start_date, end_date, byDay = false) => {
-  try {
-    const result = await db('order as o')
-      .select("o.webmaster_id", "webmaster_id")
-      .select("u.name as user_name")
-      .select("s.name as status_name")
-      .select(db.raw("COUNT(*) as status_count"))
-      .modify((queryBuilder) => {
-        if (byDay) {
-          queryBuilder.select(db.raw("DATE(o.created_at) as day"));
-        }
-      })
-      .innerJoin("webmaster as w", "w.id", "o.webmaster_id")
-      .innerJoin("status as s", "s.id", "o.status_id")
-      .innerJoin("user as u", "u.id", "w.user_id")
-      .modify((queryBuilder) => {
-        if (webmaster_id) {
-          queryBuilder.where("o.webmaster_id", webmaster_id);
-        }
-      })
-      .andWhereBetween("o.created_at", [start_date, end_date])
-      .groupBy("o.webmaster_id")
-      .groupBy("u.name")
-      .groupBy("s.name")
-      .modify((queryBuilder) => {
-        if (byDay) {
-          queryBuilder.groupBy(db.raw("DATE(o.created_at)"));
-        }
-      });
+export const getOrdersStatisticForUser = async (start, end, webmaster_id = null, operator_id = null) => {
+  const orders = await db('order as o')
+    .select(
+      'o.id',
+      'o.status_id',
+      'o.created_at',
+      'o.city_id',
+      'c.name as city_name',
+      'o.region',
+    )
+    .leftJoin('city as c', 'c.id', 'o.city_id')
+    .modify((q) => {
+      if (webmaster_id) {
+        q.where('o.webmaster_id', webmaster_id);
+      };
+      if (operator_id) {
+        q.where('o.operator_id', operator_id);
+      };
+    })
+    .andWhereBetween("o.created_at", [start, end])
+    .orderBy('o.created_at', 'desc');
 
-    const formattedResult = result.reduce((acc, row) => {
-      const { webmaster_id, user_name, status_name, status_count, day } = row;
-
-      if (!acc[webmaster_id]) {
-        acc[webmaster_id] = {
-          webmaster_id,
-          user_name,
-          statuses: {},
-          total_orders: 0,
-          daily: {}, 
-        };
-      }
-
-      if (byDay) {
-        if (!acc[webmaster_id].daily[day]) {
-          acc[webmaster_id].daily[day] = {
-            statuses: {},
-            total_orders: 0,
-          };
-        }
-
-        acc[webmaster_id].daily[day].statuses[status_name] = parseInt(status_count, 10);
-        acc[webmaster_id].daily[day].total_orders += parseInt(status_count, 10);
-      } else {
-        acc[webmaster_id].statuses[status_name] = parseInt(status_count, 10);
-        acc[webmaster_id].total_orders += parseInt(status_count, 10);
-      }
-
-      return acc;
-    }, {});
-
-    return Object.values(formattedResult);
-  } catch (err) {
-    console.error("Error fetching statistics for webmaster:", err.message);
-    throw new Error("Failed to fetch statistics");
-  }
+  return orders;
 };
 
-export const getOrderStatisticForOperator = async (operator_id, start_date, end_date, byDay = false) => {
-  try {
-    const result = await db('order as o')
-      .select("o.operator_id", "operator_id")
-      .select("u.name as user_name")
-      .select("s.name as status_name")
-      .select(db.raw("COUNT(*) as status_count"))
-      .modify((queryBuilder) => {
-        if (byDay) {
-          queryBuilder.select(db.raw("DATE(o.created_at) as day"));
-        }
-      })
-      .innerJoin("operator as op", "op.id", "o.operator_id")
-      .innerJoin("status as s", "s.id", "o.status_id")
-      .innerJoin("user as u", "u.id", "op.user_id")
-      .modify((queryBuilder) => {
-        if (operator_id) {
-          queryBuilder.where("o.operator_id", operator_id);
-        }
-      })
-      .andWhereBetween("o.created_at", [start_date, end_date])
-      .groupBy("o.operator_id")
-      .groupBy("u.name")
-      .groupBy("s.name")
-      .modify((queryBuilder) => {
-        if (byDay) {
-          queryBuilder.groupBy(db.raw("DATE(o.created_at)"));
-        }
-      });
+export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) => {
+  const orders = await db('order as o')
+    .select(
+      'o.id',
+      'o.status_id',
+      'o.created_at',
+      'o.webmaster_id'
+    )
+    .modify((q) => {
+      if (webmaster_id) {
+        q.where('o.webmaster_id', webmaster_id);
+      };
+    })
+    .andWhereBetween("o.created_at", [start, end])
+    .orderBy('o.created_at', 'desc');
 
-    const formattedResult = result.reduce((acc, row) => {
-      const { operator_id, user_name, status_name, status_count, day } = row;
-
-      if (!acc[operator_id]) {
-        acc[operator_id] = {
-          operator_id,
-          user_name,
-          statuses: {},
-          total_orders: 0,
-          daily: {}, // Статистика по дням
-        };
-      }
-
-      if (byDay) {
-        if (!acc[operator_id].daily[day]) {
-          acc[operator_id].daily[day] = {
-            statuses: {},
-            total_orders: 0,
-          };
-        }
-
-        acc[operator_id].daily[day].statuses[status_name] = parseInt(status_count, 10);
-        acc[operator_id].daily[day].total_orders += parseInt(status_count, 10);
-      } else {
-        acc[operator_id].statuses[status_name] = parseInt(status_count, 10);
-        acc[operator_id].total_orders += parseInt(status_count, 10);
-      }
-
-      return acc;
-    }, {});
-
-    return Object.values(formattedResult);
-  } catch (err) {
-    console.error("Error fetching statistics for operator:", err.message);
-    throw new Error("Failed to fetch statistics");
-  }
+  return orders;
 };
 
+export const getOrderStatisticForOperator = async (start, end, operator_id) => {
+  const orders = await db('order as o')
+    .select(
+      'o.id',
+      'o.status_id',
+      'o.created_at',
+      'o.operator_id'
+    )
+    .modify((q) => {
+      if (operator_id) {
+        q.where('o.operator_id', operator_id);
+      };
+    })
+    .andWhereBetween("o.created_at", [start, end])
+    .orderBy('o.created_at', 'desc');
+
+  return orders;
+};

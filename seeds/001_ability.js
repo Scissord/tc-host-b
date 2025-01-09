@@ -86,6 +86,11 @@ export const seed = async (knex) => {
       actions: ['get', 'create', 'delete'],
       titles: ['Получить список выданных доступов для пользователей и ролей', 'Выдать доступ пользователю или роли', 'Удалить доступ пользователю или роли']
     },
+    {
+      name: 'statistics',
+      actions: ['user', 'webmaster', 'operator'],
+      titles: ['Получить общую статистику', 'Получить статистику по вебмастерам', 'Получить статистику по операторам']
+    }
     // { 
     //   name: 'admin', 
     //   actions: ['superadmin_page', 'department_head'], 

@@ -40,6 +40,8 @@ export const seed = async (knex) => {
         141,
         // permissions
         151, 152, 153,
+        // statistics
+        161, 162, 163
       ],
       type: "role"
     },

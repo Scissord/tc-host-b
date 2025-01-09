@@ -16,14 +16,24 @@ export const seed = async (knex) => {
     4: [10, 11, 12],
     5: [13, 14, 15],
     6: [16, 17, 18],
-    7: [19, 20, 21]
+    7: [19, 20, 21],
   };
   const regions = ['Ю.К.О', 'С.К.О', 'В.К.О', 'З.К.О'];
+
+  const getRandomDateInRange = (start, end) => {
+    const startDate = start.getTime();
+    const endDate = end.getTime();
+    return new Date(startDate + Math.random() * (endDate - startDate));
+  };
+
+  const now = new Date();
+  const threeMonthsLater = new Date();
+  threeMonthsLater.setMonth(now.getMonth() + 3);
 
   // Генерация заказов
   const orders = Array.from({ length: 1000 }, (_, i) => {
     const randomArrayItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
-    
+
     const status = randomArrayItem(statuses);
     const sub_statusesForStatus = sub_statuses[status]; // Получаем допустимые подстатусы для текущего статуса
     const sub_status = randomArrayItem(sub_statusesForStatus); // Выбираем случайный подстатус из допустимых для выбранного статуса
@@ -52,7 +62,7 @@ export const seed = async (knex) => {
       additional8: 'Доп. поле 8',
       additional9: null,
       additional10: 'Доп. поле 10',
-      created_at: new Date(),
+      created_at: getRandomDateInRange(now, threeMonthsLater),
       updated_at: new Date(),
       approved_at: null,
       cancelled_at: null,

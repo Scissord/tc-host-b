@@ -32,8 +32,10 @@ const repository = (tableName) => {
         .andWhere('deleted_at', null);
     },
 
-    getWhereIn: async (query) => {
-      return await db(tableName).select('*').whereIn(query)
+    getWhereIn: async (field, values) => {
+      return await db(tableName)
+        .select('*')
+        .whereIn(field, values);
     },
 
     // create record
@@ -96,16 +98,16 @@ const repository = (tableName) => {
       if (!Array.isArray(ids) || ids.length === 0) {
         throw new Error('Invalid input: ids must be a non-empty array.');
       }
-    
+
       await db(tableName)
         .whereIn('id', ids)
         .del();
-    
+
       return ids;
     },
 
     // find record by id
-    find: async(id) => {
+    find: async (id) => {
       const record = await db(tableName)
         .select('*')
         .where('id', id)
@@ -115,7 +117,7 @@ const repository = (tableName) => {
     },
 
     // find by query
-    findWhere: async(query) => {
+    findWhere: async (query) => {
       const record = await db(tableName)
         .select('*')
         .where(query)
@@ -125,7 +127,7 @@ const repository = (tableName) => {
     },
 
     // find by query with deleted_at = null
-    findWhereActive: async(query) => {
+    findWhereActive: async (query) => {
       const record = await db(tableName)
         .select('*')
         .where(query)
