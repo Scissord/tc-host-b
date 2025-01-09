@@ -15,6 +15,6 @@ export const findWhere = async function (query) {
   return await whIntegration.findWhere(query);
 };
 
-// export const update = async (id, data) => {
+export const update = async (id, data) => {
 
-//   };
+  };

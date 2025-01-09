@@ -16,7 +16,8 @@ export const up = async function(knex) {
         table.string('id_message', 255).notNullable(); 
         table.timestamp('timestamp').notNullable(); 
         table.jsonb('message_data'); 
-        table.string('status', 50).nullable(); 
+        table.boolean('status')
+        .notNullable; 
         table.bigInteger('sender_id')
         .nullable()
         .references('id')

@@ -10,8 +10,11 @@ import ERRORS from '#constants/errors.js';
 
 export const getOrdersChatsByStatuses = async (req, res) => {
 	try {
-		const { sub_statuses } = req.query 
+		const { sub_statuses, limit , offset} = req.query 
+		const statusesArray = sub_statuses ? sub_statuses.split(',').map(Number) : [];
 
+		const chats = await Order.getOrdersChatsByStatuses(statusesArray, limit, offset)
+		return res.status(200).send({ chats })
 	} catch (err) {
 		console.log("Error in get getOrderChats controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
