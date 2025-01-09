@@ -47,3 +47,17 @@ export const deleteByAbilitiesAndType = async (abilityIds, entityType, entity_id
     throw new Error('Failed to delete records.');
   }
 };
+
+export const getPermissionsWithAbility = async (entity_id, entity_type) => {
+  try {
+    const result = await db('permission')
+      .leftJoin('ability', 'permission.ability_id', 'ability.id') 
+      .where('permission.entity_id', entity_id)
+      .andWhere('permission.entity_type', entity_type);
+
+    return result;
+  } catch (err) {
+    console.error('Error in getPermissionsWithAbility:', err.message);
+    throw new Error('Failed to get records.');
+  }
+};

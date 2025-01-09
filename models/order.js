@@ -33,6 +33,52 @@ export const updateWhereIn = async (ids, data) => {
   return await orderRepository.updateWhereIn(ids, data);
 };
 
+
+export const getOrdersChatsByStatuses = async (sub_statuses, limit, offset) => {
+  try {
+    const result = await db('order')
+      .leftJoin('wh_chat', 'order.id', 'wh_chat.order_id')
+      .leftJoin('wh_message', function () {
+        this.on('wh_chat.order_id', '=', 'wh_message.order_id')
+          .andOn(
+            'wh_message.id',
+            '=',
+            db.raw('(SELECT MAX(id) FROM wh_message WHERE wh_message.order_id = wh_chat.order_id)')
+          );
+      })
+      .leftJoin(
+        db('wh_message')
+          .select('order_id')
+          .count('* as unread_count')
+          .where('status', false) 
+          .groupBy('order_id')
+          .as('unread_messages'),
+        'order.id',
+        'unread_messages.order_id'
+      )
+      .select(
+        'order.id as order_id',
+        'order.sub_status_id',
+        'wh_message.type as message_type',
+        'wh_message.type_message as message_type_message',
+        'wh_message.timestamp as message_timestamp',
+        'wh_message.message_data as message_data',
+        'wh_message.status as message_status',
+        'wh_message.sender_id as sender_id',
+        'unread_messages.unread_count as unread_count' 
+      )
+      .whereIn('order.sub_status_id', sub_statuses)
+      .limit(limit) 
+      .offset(offset); 
+
+    return result;
+  } catch (err) {
+    console.error('Error fetching chats with statuses:', err);
+    throw new Error('Failed to fetch chats for given statuses.');
+  }
+};
+
+
 export const getUserOrdersPaginated = async function (
   limit,
   page,
