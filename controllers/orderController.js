@@ -4,13 +4,13 @@ import * as Product from '#models/product.js';
 import * as Webmaster from '#models/webmaster.js';
 import * as Operator from '#models/operator.js';
 import * as City from '#models/city.js';
-import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
+// import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import ERRORS from '#constants/errors.js';
 
 
 export const getOrdersChatsByStatuses = async (req, res) => {
 	try {
-		const { sub_statuses, limit , offset} = req.query 
+		const { sub_statuses, limit, offset } = req.query
 		const statusesArray = sub_statuses ? sub_statuses.split(',').map(Number) : [];
 
 		const chats = await Order.getOrdersChatsByStatuses(statusesArray, limit, offset)
