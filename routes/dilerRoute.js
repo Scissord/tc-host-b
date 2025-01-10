@@ -12,6 +12,10 @@ router.get("/get_status_list", checkDiler, controller.getStatusList);
 http://localhost:8080/api/diler/get_webmasters?token=90f42555-0c00-4c54-b70e-2da4385683a4
 router.get("/get_webmasters", checkDiler, controller.getWebmasters);
 
+// Получение товаров
+// http://localhost:8080/api/diler/get_offer_goods?token=90f42555-0c00-4c54-b70e-2da4385683a4
+router.get("/get_offer_goods", checkDiler, controller.getOfferGoods);
+
 // Обновление заказа
 http://localhost:8080/api/diler/update_order?token=90f42555-0c00-4c54-b70e-2da4385683a4&id=10001
 router.patch("/update_order", checkDiler, controller.updateOrder);

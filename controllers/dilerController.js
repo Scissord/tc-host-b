@@ -42,6 +42,26 @@ export const getWebmasters = async (req, res) => {
   }
 };
 
+export const getOfferGoods = async (req, res) => {
+  try {
+    const products = await Product.get();
+
+    const transformedProducts = products.reduce((acc, p) => {
+      acc[p.id] = {
+        name: p.name,
+        price: p.price,
+      };
+
+      return acc;
+    }, {});
+
+    res.status(200).json(transformedProducts);
+  } catch (err) {
+    console.log("Error in getWebmasters diler controller", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 export const updateOrder = async (req, res) => {
   try {
     const { id } = req.query;
