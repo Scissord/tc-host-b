@@ -18,6 +18,17 @@ const io = new Server(server, {
       "http://localhost:5173",
       "https://talkcall-crm.com",
       "https://www.talkcall-crm.com",
+      // greenapi
+      "https://7103.api.greenapi.com",
+      "https://7103.media.greenapi.com",
+      "46.101.109.139",
+      "51.250.12.167",
+      "51.250.84.44",
+      "51.250.95.149",
+      "89.169.137.216",
+      "158.160.49.84",
+      "165.22.93.202",
+      "167.172.162.71"
     ],
   },
 });
@@ -68,12 +79,12 @@ io.on("connection", async (socket) => {
 
   socket.on("sendEntryOrder", (data) => {
     console.log("Entry Order:", data);
-  
-    const { user_id } = socket.handshake.query; 
+
+    const { user_id } = socket.handshake.query;
 
     onlineUsers.forEach((user) => {
       if (+user.user_id === +user_id) return;
-  
+
       user.sockets.forEach((socketId) => {
         io.to(socketId).emit("blockOrder", {
           message: "Order reserved.",
@@ -83,7 +94,7 @@ io.on("connection", async (socket) => {
       });
     });
   });
-  
+
 
   socket.on("sendExitOrder", async (data) => {
     console.log("Exit Order:", data);
@@ -104,26 +115,26 @@ io.on("connection", async (socket) => {
 
   socket.on("privateMessage", (data) => {
     // const { recipient_id, message } = data;
-    
+
     // Находим пользователя в onlineUsers по recipient_id
     // const recipientUser = onlineUsers.find(
     //   (user) => +user.user_id === +recipient_id
     // );
-  
+
     // if (recipientUser) {
-      // У пользователя могут быть несколько сокетов, рассылаем на все
-  //     recipientUser.sockets.forEach((socketId) => {
-  //       io.to(socketId).emit("newMessage", {
-  //         sender: user_id, // отправитель - текущий user_id
-  //         message,
-  //       });
-  //     });
-  //   } else {
-  //     console.log(`User ${recipient_id} is not online`);
-  //   }
+    // У пользователя могут быть несколько сокетов, рассылаем на все
+    //     recipientUser.sockets.forEach((socketId) => {
+    //       io.to(socketId).emit("newMessage", {
+    //         sender: user_id, // отправитель - текущий user_id
+    //         message,
+    //       });
+    //     });
+    //   } else {
+    //     console.log(`User ${recipient_id} is not online`);
+    //   }
 
   });
-  
+
 
   socket.on("disconnect", async () => {
     // console.log(`User disconnected: ${user_id}`);
