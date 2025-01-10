@@ -13,6 +13,8 @@ const allowedOrigins = [
   'https://talkcall-crm.com',
   "https://www.talkcall-crm.com",
   // greenapi
+  "https://7103.api.greenapi.com",
+  "https://7103.media.greenapi.com",
   "46.101.109.139",
   "51.250.12.167",
   "51.250.84.44",

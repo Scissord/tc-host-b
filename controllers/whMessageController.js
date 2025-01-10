@@ -15,7 +15,7 @@ export const getChatHistory = async (req, res) => {
 export const messageReceive = async (req, res) => {
 	try {
 		const data = req.body;
-		console.log(data)
+		console.log(data);
 
 		return res.status(200).send({ message: "ok" });
 	} catch (err) {
