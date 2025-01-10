@@ -1,5 +1,7 @@
-import cluster from 'cluster';
 import os from 'os';
+import cluster from 'cluster';
+// import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 export default function setupCluster(workerCallback, minWorkers = 1) {
   if (cluster.isPrimary) {
@@ -23,6 +25,11 @@ export default function setupCluster(workerCallback, minWorkers = 1) {
       }
     });
   } else {
+    // const __dirname = dirname(fileURLToPath(import.meta.url));
+    // cluster.setupPrimary({
+    //   exec: __dirname + '/server.js',
+    // });
+
     workerCallback();
   }
 }
