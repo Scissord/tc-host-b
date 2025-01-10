@@ -38,7 +38,7 @@ router.use('/roles', verify, roleRoutes);
 router.use('/permissions', verify, permissionRoutes);
 router.use('/assigned_roles', verify, assignedRoleRoutes);
 router.use('/statistics', verify, statisticRoutes);
-router.use('/message', verify, whMessageRoutes);
+router.use('/message', whMessageRoutes);
 router.use('/uploads', verify, express.static('uploads'));
 
 export default router;
