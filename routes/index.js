@@ -19,6 +19,7 @@ import cityRoute from './cityRoute.js';
 import userRoute from './userRoute.js';
 import statisticRoutes from './statisticRoute.js'
 import dilerRoutes from './dilerRoute.js';
+import whMessageRoutes from './whMessage.js'
 
 const router = Router();
 
@@ -40,6 +41,7 @@ router.use('/permissions', verify, permissionRoutes);
 router.use('/assigned_roles', verify, assignedRoleRoutes);
 router.use('/statistics', verify, statisticRoutes);
 router.use('/diler', dilerRoutes);
+router.use('/message', whMessageRoutes);
 router.use('/uploads', verify, express.static('uploads'));
 
 export default router;
