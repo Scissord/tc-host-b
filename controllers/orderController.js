@@ -93,8 +93,8 @@ export const getUserOrders = async (req, res) => {
 		const enhancedOrders = orders.map((order) => {
 			return {
 				...order,
-				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name,
-				operator: operators.find((o) => +o.id === +order.operator_id)?.name,
+				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-',
+				operator: operators.find((o) => +o.id === +order.operator_id)?.name ?? '-',
 				city: cities.find((c) => +c.id === +order.city_id) || null,
 				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) || null,
 				items: order.items.map((item) => {
@@ -138,8 +138,8 @@ export const getWebmasterOrders = async (req, res) => {
 		const enhancedOrders = orders.map((order) => {
 			return {
 				...order,
-				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name,
-				operator: operators.find((o) => +o.id === +order.operator_id)?.name,
+				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-',
+				operator: operators.find((o) => +o.id === +order.operator_id)?.name ?? '-',
 				city: cities.find((c) => +c.id === +order.city_id) || null,
 				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) || null,
 				items: order.items.map((item) => {
@@ -185,8 +185,8 @@ export const getOperatorOrders = async (req, res) => {
 		const enhancedOrders = orders.map((order) => {
 			return {
 				...order,
-				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name,
-				operator: operators.find((o) => +o.id === +order.operator_id)?.name,
+				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-',
+				operator: operators.find((o) => +o.id === +order.operator_id)?.name ?? '-',
 				city: cities.find((c) => +c.id === +order.city_id) || null,
 				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) || null,
 				items: order.items.map((item) => {

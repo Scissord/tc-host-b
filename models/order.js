@@ -13,6 +13,16 @@ export const getWhere = async (query) => {
   return await orderRepository.getWhere(query);
 };
 
+export const getWhereIn = async (field, values) => {
+  return await db('order as o')
+    .select('o.*')
+    .select(db.raw('COALESCE(json_agg(oi.*) FILTER (WHERE oi.id IS NOT NULL), \'[]\') as items'))
+    .leftJoin('order_item as oi', 'oi.order_id', 'o.id')
+    .whereIn(field, values)
+    .groupBy('o.id')
+    .orderBy('o.id', 'desc');
+};
+
 export const create = async (data) => {
   return await orderRepository.create(data);
 };
@@ -33,7 +43,6 @@ export const updateWhereIn = async (ids, data) => {
   return await orderRepository.updateWhereIn(ids, data);
 };
 
-
 export const getOrdersChatsByStatuses = async (sub_statuses, limit, offset) => {
   try {
     const result = await db('order')
@@ -50,7 +59,7 @@ export const getOrdersChatsByStatuses = async (sub_statuses, limit, offset) => {
         db('wh_message')
           .select('order_id')
           .count('* as unread_count')
-          .where('status', false) 
+          .where('status', false)
           .groupBy('order_id')
           .as('unread_messages'),
         'order.id',
@@ -65,11 +74,11 @@ export const getOrdersChatsByStatuses = async (sub_statuses, limit, offset) => {
         'wh_message.message_data as message_data',
         'wh_message.status as message_status',
         'wh_message.sender_id as sender_id',
-        'unread_messages.unread_count as unread_count' 
+        'unread_messages.unread_count as unread_count'
       )
       .whereIn('order.sub_status_id', sub_statuses)
-      .limit(limit) 
-      .offset(offset); 
+      .limit(limit)
+      .offset(offset);
 
     return result;
   } catch (err) {
@@ -77,7 +86,6 @@ export const getOrdersChatsByStatuses = async (sub_statuses, limit, offset) => {
     throw new Error('Failed to fetch chats for given statuses.');
   }
 };
-
 
 export const getUserOrdersPaginated = async function (
   limit,
@@ -426,4 +434,14 @@ export const getOrderStatisticForOperator = async (start, end, operator_id) => {
     .orderBy('o.created_at', 'desc');
 
   return orders;
+};
+
+// for diler
+export const getOrderIdsInSubStatus = async (sub_status_id) => {
+  const ids = await db('order as o')
+    .where('o.sub_status_id', sub_status_id)
+    .orderBy('o.created_at', 'desc')
+    .pluck('o.id');
+
+  return ids;
 };
