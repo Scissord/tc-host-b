@@ -17,7 +17,7 @@ export const getChatHistory = async (req, res) => {
 export const messageReceive = async (req, res) => {
 	try {
 		const data = req.body;
-		
+		console.log(data)
 	} catch (err) {
 		console.log("Error in messageReceive controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });

@@ -18,7 +18,7 @@ import assignedRoleRoutes from './assignedRoleRoute.js';
 import cityRoute from './cityRoute.js';
 import userRoute from './userRoute.js';
 import statisticRoutes from './statisticRoute.js'
-
+import whMessageRoutes from './whMessage.js'
 const router = Router();
 
 router.use('/auth', authRoutes);
@@ -38,6 +38,7 @@ router.use('/roles', verify, roleRoutes);
 router.use('/permissions', verify, permissionRoutes);
 router.use('/assigned_roles', verify, assignedRoleRoutes);
 router.use('/statistics', verify, statisticRoutes);
+router.use('/message', verify, whMessageRoutes);
 router.use('/uploads', verify, express.static('uploads'));
 
 export default router;
