@@ -30,6 +30,9 @@ const io = new Server(server, {
       "165.22.93.202",
       "167.172.162.71"
     ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    credentials: true,
   },
 });
 
