@@ -66,22 +66,24 @@ io.on("connection", async (socket) => {
     // );
   });
 
-  socket.on("sendEntryOrder", async (data) => {
+  socket.on("sendEntryOrder", (data) => {
     console.log("Entry Order:", data);
+  
+    const { user_id } = socket.handshake.query; 
 
-    // Публикация события в Redis
-    // await redisPublisher.publish(
-    //   "broadcast",
-    //   JSON.stringify({
-    //     event: "blockOrder",
-    //     payload: {
-    //       message: "Order reserved.",
-    //       order_id: data.order_id,
-    //       name: data.name,
-    //     },
-    //   })
-    // );
+    onlineUsers.forEach((user) => {
+      if (+user.user_id === +user_id) return;
+  
+      user.sockets.forEach((socketId) => {
+        io.to(socketId).emit("blockOrder", {
+          message: "Order reserved.",
+          order_id: data.order_id,
+          name: data.name,
+        });
+      });
+    });
   });
+  
 
   socket.on("sendExitOrder", async (data) => {
     console.log("Exit Order:", data);
@@ -100,23 +102,28 @@ io.on("connection", async (socket) => {
     // );
   });
 
-  socket.on("privateMessage", async (data) => {
-    const { recipient_id, message } = data;
+  socket.on("privateMessage", (data) => {
+    // const { recipient_id, message } = data;
+    
+    // Находим пользователя в onlineUsers по recipient_id
+    // const recipientUser = onlineUsers.find(
+    //   (user) => +user.user_id === +recipient_id
+    // );
+  
+    // if (recipientUser) {
+      // У пользователя могут быть несколько сокетов, рассылаем на все
+  //     recipientUser.sockets.forEach((socketId) => {
+  //       io.to(socketId).emit("newMessage", {
+  //         sender: user_id, // отправитель - текущий user_id
+  //         message,
+  //       });
+  //     });
+  //   } else {
+  //     console.log(`User ${recipient_id} is not online`);
+  //   }
 
-    // Получаем все сокеты получателя
-    // const recipientSockets = await redisClient.sMembers(`sockets:${recipient_id}`);
-
-    // if (recipientSockets.length > 0) {
-    //   recipientSockets.forEach((socketId) => {
-    //     io.to(socketId).emit("newMessage", {
-    //       sender: socket.id,
-    //       message,
-    //     });
-    //   });
-    // } else {
-    //   console.log(`User ${recipient_id} is not online`);
-    // }
   });
+  
 
   socket.on("disconnect", async () => {
     // console.log(`User disconnected: ${user_id}`);
