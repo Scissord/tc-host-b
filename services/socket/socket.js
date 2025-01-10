@@ -21,14 +21,15 @@ const io = new Server(server, {
       // greenapi
       "https://7103.api.greenapi.com",
       "https://7103.media.greenapi.com",
-      "46.101.109.139",
-      "51.250.12.167",
-      "51.250.84.44",
-      "51.250.95.149",
-      "89.169.137.216",
-      "158.160.49.84",
-      "165.22.93.202",
-      "167.172.162.71"
+      "http://46.101.109.139",
+      "http://51.250.12.167",
+      "http://51.250.84.44",
+      "http://51.250.95.149",
+      "http://89.169.137.216",
+      "http://158.160.49.84",
+      "http://165.22.93.202",
+      "http://167.172.162.71",
+      "http://92.46.108.23"
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
