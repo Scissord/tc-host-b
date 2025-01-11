@@ -12,25 +12,35 @@ const redisSubscriber = redisClient.duplicate();
 await redisPublisher.connect();
 await redisSubscriber.connect();
 
+
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://talkcall-crm.com',
+  "https://www.talkcall-crm.com",
+  // greenapi
+  "https://7103.api.greenapi.com",
+  "https://7103.media.greenapi.com",
+  "https://46.101.109.139",
+  "https://51.250.12.167",
+  "https://51.250.84.44",
+  "https://51.250.95.149",
+  "https://89.169.137.216",
+  "https://158.160.49.84",
+  "https://165.22.93.202",
+  "https://167.172.162.71",
+  // diler
+  "https://92.46.108.23",
+];
+
 const io = new Server(server, {
   cors: {
-    origin: [
-      "http://localhost:5173",
-      "https://talkcall-crm.com",
-      "https://www.talkcall-crm.com",
-      // greenapi
-      "https://7103.api.greenapi.com",
-      "https://7103.media.greenapi.com",
-      "http://46.101.109.139",
-      "http://51.250.12.167",
-      "http://51.250.84.44",
-      "http://51.250.95.149",
-      "http://89.169.137.216",
-      "http://158.160.49.84",
-      "http://165.22.93.202",
-      "http://167.172.162.71",
-      "http://92.46.108.23"
-    ],
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     credentials: true,
