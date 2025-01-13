@@ -22,6 +22,7 @@ export const seed = async (knex) => {
   const genders = [1, 2];
   const payments = [1, 2, 3];
   const deliveries = [1, 2, 3, 4];
+  const cancelReasons = [1, 2, 3, 4, 5, 6, 7, 8];
   const regions = ['Ю.К.О', 'С.К.О', 'В.К.О', 'З.К.О'];
 
   const getRandomDateInRange = (start, end) => {
@@ -55,6 +56,7 @@ export const seed = async (knex) => {
       gender_id: randomArrayItem(genders),
       payment_id: randomArrayItem(payments),
       delivery_id: randomArrayItem(deliveries),
+      cancel_reason_id: randomArrayItem(cancelReasons),
       webmaster_id: randomArrayItem(webmasters),
       operator_id: randomArrayItem(operators),
       status_id: status,
