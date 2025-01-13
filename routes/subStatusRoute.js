@@ -6,7 +6,7 @@ import checkEntity from "#middleware/checkEntity.js";
 
 const router = express.Router();
 
-router.get("", withExtraData({ ability_name: 'get_sub_statuses' }, checkAbility), controller.get);
+router.get("", controller.get);
 router.get("/:status_id", withExtraData({ ability_name: 'get_sub_statuses' }, checkAbility), controller.find);
 router.get("/operator/data", withExtraData({ entity: 'operator' }, checkEntity), controller.operator);
 router.post("", withExtraData({ ability_name: 'create_sub_statuses' }, checkAbility), controller.create);
