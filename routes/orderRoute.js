@@ -16,7 +16,7 @@ router.get("/webmaster", withExtraData({ entity: 'webmaster' }, checkEntity), co
 router.get("/operator", withExtraData({ entity: 'operator' }, checkEntity), controller.getOperatorOrders);
 
 // Зайти в заказ
-router.get("/:order_id", withExtraData({ ability_name: 'get_order_orders' }, checkAbility), controller.getOrder);
+router.get("/:order_id", controller.getOrder);
 
 // Создать заказ
 router.post("", controller.create);

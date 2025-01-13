@@ -1,4 +1,4 @@
-import setupCluster from '#services/cluster/cluster.js';
+// import setupCluster from '#services/cluster/cluster.js';
 import { app, server } from '#services/socket/socket.js';
 import express from "express";
 import dotenv from "dotenv";
@@ -30,29 +30,29 @@ const allowedOrigins = [
 const PORT = process.env.PORT || 8080;
 
 // Логика приложения
-function startServer() {
-  app.use(express.json());
-  app.use(cookieParser());
+// function startServer() {
+app.use(express.json());
+app.use(cookieParser());
 
-  app.use(cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    credentials: true,
-  }));
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true,
+}));
 
-  app.use('/api', apiRoutes);
+app.use('/api', apiRoutes);
 
-  server.listen(PORT, () => {
-    console.log(`Worker ${process.pid} started on port ${PORT} ✅✅✅`);
-  });
-}
+server.listen(PORT, () => {
+  console.log(`Server ${process.pid} started on port ${PORT} ✅✅✅`);
+});
+// }
 
 
-setupCluster(startServer);
+// setupCluster(startServer);

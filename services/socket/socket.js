@@ -1,17 +1,16 @@
 import { Server } from "socket.io";
 import http from "http";
 import express from "express";
-import { redisClient } from "#services/redis/redis.js";
+// import { redisClient } from "#services/redis/redis.js";
 
 const app = express();
 const server = http.createServer(app);
 
-const redisPublisher = redisClient.duplicate();
-const redisSubscriber = redisClient.duplicate();
+// const redisPublisher = redisClient.duplicate();
+// const redisSubscriber = redisClient.duplicate();
 
-await redisPublisher.connect();
-await redisSubscriber.connect();
-
+// await redisPublisher.connect();
+// await redisSubscriber.connect();
 
 const allowedOrigins = [
   'http://localhost:5173',
@@ -48,10 +47,10 @@ const io = new Server(server, {
 });
 
 // Подписка на Redis для синхронизации событий между воркерами
-redisSubscriber.subscribe("broadcast", (message) => {
-  const data = JSON.parse(message);
-  io.emit(data.event, data.payload);
-});
+// redisSubscriber.subscribe("broadcast", (message) => {
+//   const data = JSON.parse(message);
+//   io.emit(data.event, data.payload);
+// });
 
 const onlineUsers = [];
 
@@ -94,8 +93,6 @@ io.on("connection", async (socket) => {
   socket.on("sendEntryOrder", (data) => {
     console.log("Entry Order:", data);
 
-    const { user_id } = socket.handshake.query;
-
     onlineUsers.forEach((user) => {
       if (+user.user_id === +user_id) return;
 
@@ -113,18 +110,17 @@ io.on("connection", async (socket) => {
   socket.on("sendExitOrder", async (data) => {
     console.log("Exit Order:", data);
 
-    // Публикация события в Redis
-    // await redisPublisher.publish(
-    //   "broadcast",
-    //   JSON.stringify({
-    //     event: "openOrder",
-    //     payload: {
-    //       message: "Order unblocked.",
-    //       order_id: data.order_id,
-    //       name: data.name,
-    //     },
-    //   })
-    // );
+    onlineUsers.forEach((user) => {
+      if (+user.user_id === +user_id) return;
+
+      user.sockets.forEach((socketId) => {
+        io.to(socketId).emit("openOrder", {
+          message: "Order reserved.",
+          order_id: data.order_id,
+          name: data.name,
+        });
+      });
+    });
   });
 
   socket.on("privateMessage", (data) => {
