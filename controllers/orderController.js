@@ -328,8 +328,8 @@ export const create = async (req, res) => {
 			});
 		};
 
-		data.status_id = 1;
-		data.sub_status_id = 1;
+		data.status_id = 0;
+		data.sub_status_id = 0;
 
 		const cachedOrder = await getKeyValue(data.phone);
 		if (cachedOrder) {
