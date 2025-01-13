@@ -122,6 +122,25 @@ export const getDeliveries = async (req, res) => {
   }
 };
 
+export const getGenders = async (req, res) => {
+  try {
+    const genders = await Gender.get();
+
+    const transformedGenders = genders.reduce((acc, g) => {
+      acc[g.id] = {
+        name: g.name,
+      };
+
+      return acc;
+    }, {});
+
+    res.status(200).json(transformedGenders);
+  } catch (err) {
+    console.log("Error in getGenders dialer controller", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 export const updateOrder = async (req, res) => {
   try {
     const { id } = req.query;
