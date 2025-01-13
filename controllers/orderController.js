@@ -340,7 +340,7 @@ export const create = async (req, res) => {
 
 		const order = await Order.create(data);
 
-		await setKeyValue(phone, JSON.stringify(order), 60);
+		await setKeyValue(data.phone, JSON.stringify(order), 60);
 
 		return res.status(200).send({ message: 'ok', order });
 	} catch (err) {
