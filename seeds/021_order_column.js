@@ -87,6 +87,11 @@ export const seed = async (knex) => {
     },
     {
       id: 17,
+      name: "cancel_reason",
+      label: "Причина отмены",
+    },
+    {
+      id: 17,
       name: "additional1",
       label: "additional1",
     },

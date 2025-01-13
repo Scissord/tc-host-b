@@ -7,6 +7,7 @@ import * as City from '#models/city.js';
 import * as Gender from '#models/gender.js';
 import * as Payment from '#models/payment.js';
 import * as Delivery from '#models/delivery.js';
+import * as CancelReason from '#models/cancel_reason.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import ERRORS from '#constants/errors.js';
 
@@ -98,6 +99,7 @@ export const getUserOrders = async (req, res) => {
 			genders,
 			payments,
 			deliveries,
+			cancelReasons,
 		] = await Promise.all([
 			Product.get(),
 			Webmaster.get(),
@@ -107,6 +109,7 @@ export const getUserOrders = async (req, res) => {
 			Gender.get(),
 			Payment.get(),
 			Delivery.get(),
+			CancelReason.get(),
 		]);
 
 		const enhancedOrders = orders.map((order) => {
@@ -127,6 +130,7 @@ export const getUserOrders = async (req, res) => {
 				gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
 				payment: payments.find((p) => +p.id === order.payment_id)?.name ?? '-',
 				delivery: deliveries.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
+				cancel_reason: cancelReasons.find((cr) => +cr.id === +order.id)?.name ?? '-'
 			}
 		});
 
@@ -162,6 +166,7 @@ export const getWebmasterOrders = async (req, res) => {
 			genders,
 			payments,
 			deliveries,
+			cancelReasons,
 		] = await Promise.all([
 			Product.get(),
 			Webmaster.get(),
@@ -171,6 +176,7 @@ export const getWebmasterOrders = async (req, res) => {
 			Gender.get(),
 			Payment.get(),
 			Delivery.get(),
+			CancelReason.get(),
 		]);
 
 		const enhancedOrders = orders.map((order) => {
@@ -191,6 +197,7 @@ export const getWebmasterOrders = async (req, res) => {
 				gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
 				payment: payments.find((p) => +p.id === order.payment_id)?.name ?? '-',
 				delivery: deliveries.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
+				cancel_reason: cancelReasons.find((cr) => +cr.id === +order.id)?.name ?? '-'
 			}
 		});
 
@@ -228,6 +235,7 @@ export const getOperatorOrders = async (req, res) => {
 			genders,
 			payments,
 			deliveries,
+			cancelReasons,
 		] = await Promise.all([
 			Product.get(),
 			Webmaster.get(),
@@ -237,6 +245,7 @@ export const getOperatorOrders = async (req, res) => {
 			Gender.get(),
 			Payment.get(),
 			Delivery.get(),
+			CancelReason.get(),
 		]);
 
 		const enhancedOrders = orders.map((order) => {
@@ -257,6 +266,7 @@ export const getOperatorOrders = async (req, res) => {
 				gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
 				payment: payments.find((p) => +p.id === order.payment_id)?.name ?? '-',
 				delivery: deliveries.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
+				cancel_reason: cancelReasons.find((cr) => +cr.id === +order.id)?.name ?? '-'
 			}
 		});
 

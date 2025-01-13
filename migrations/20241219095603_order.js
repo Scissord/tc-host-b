@@ -69,6 +69,13 @@ export const up = function (knex) {
         .inTable('delivery')
         .onDelete('CASCADE');
 
+      table.tinyint('cancel_reason_id')
+        .unsigned()
+        .nullable()
+        .references('id')
+        .inTable('cancel_reason')
+        .onDelete('CASCADE');
+
       table.string('additional1', 255).nullable();
       table.string('additional2', 255).nullable();
       table.string('additional3', 255).nullable();
