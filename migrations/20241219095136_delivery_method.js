@@ -4,7 +4,7 @@
  */
 export const up = function (knex) {
   return knex.schema
-    .createTable('delivery', (table) => {
+    .createTable('delivery_method', (table) => {
       table.bigIncrements('id').primary();
       table.string('name', 255).notNullable();
 
@@ -17,5 +17,5 @@ export const up = function (knex) {
  * @returns { Promise<void> }
  */
 export const down = function (knex) {
-  return knex.schema.dropTable('delivery');
+  return knex.schema.dropTable('delivery_method');
 };

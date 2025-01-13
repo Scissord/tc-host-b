@@ -25,14 +25,14 @@ router.get("/get_offer_goods", checkDialer, controller.getOfferGoods);
 router.get("/get_cities", checkDialer, controller.getCities);
 
 // Получение способов оплаты
-// http://localhost:8080/api/dialer/get_payments?token=90f42555-0c00-4c54-b70e-2da4385683a4
-// https://api.talkcall-crm.com/api/dialer/get_payments?token=""
-router.get("/get_payments", checkDialer, controller.getPayments);
+// http://localhost:8080/api/dialer/get_payment_methods?token=90f42555-0c00-4c54-b70e-2da4385683a4
+// https://api.talkcall-crm.com/api/dialer/get_payment_methods?token=""
+router.get("/get_payment_methods", checkDialer, controller.getPaymentMethods);
 
 // Получение способов доставки
-// http://localhost:8080/api/dialer/get_deliveries?token=90f42555-0c00-4c54-b70e-2da4385683a4
-// https://api.talkcall-crm.com/api/dialer/get_deliveries?token=""
-router.get("/get_deliveries", checkDialer, controller.getDeliveries);
+// http://localhost:8080/api/dialer/get_delivery_methods?token=90f42555-0c00-4c54-b70e-2da4385683a4
+// https://api.talkcall-crm.com/api/dialer/get_delivery_methods?token=""
+router.get("/get_delivery_methods", checkDialer, controller.getDeliveryMethods);
 
 // Получение способов доставки
 // http://localhost:8080/api/dialer/get_genders?token=90f42555-0c00-4c54-b70e-2da4385683a4
@@ -40,9 +40,9 @@ router.get("/get_deliveries", checkDialer, controller.getDeliveries);
 router.get("/get_genders", checkDialer, controller.getGenders);
 
 // Получение причин отказов
-// http://localhost:8080/api/dialer/get_cancel_reasons?token=90f42555-0c00-4c54-b70e-2da4385683a4
-// https://api.talkcall-crm.com/api/dialer/get_cancel_reasons?token=""
-router.get("/get_cancel_reasons", checkDialer, controller.getCancelReasons);
+// http://localhost:8080/api/dialer/get_order_cancel_reasons?token=90f42555-0c00-4c54-b70e-2da4385683a4
+// https://api.talkcall-crm.com/api/dialer/get_order_cancel_reasons?token=""
+router.get("/get_order_cancel_reasons", checkDialer, controller.getOrderCancelReasons);
 
 // Обновление заказа
 // http://localhost:8080/api/dialer/update_order?token=90f42555-0c00-4c54-b70e-2da4385683a4&id=10001

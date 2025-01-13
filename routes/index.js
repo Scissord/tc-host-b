@@ -19,7 +19,11 @@ import cityRoute from './cityRoute.js';
 import userRoute from './userRoute.js';
 import statisticRoutes from './statisticRoute.js'
 import dialerRoutes from './dialerRoute.js';
-import whMessageRoutes from './whMessage.js'
+import genderRoutes from './genderRoute.js';
+import paymentMethodRoutes from './paymentMethodRoute.js';
+import deliveryMethodRoutes from './deliveryMethodRoute.js';
+import orderCancelReasonRoutes from './orderCancelReasonRoute.js';
+import whMessageRoutes from './whMessage.js';
 
 const router = Router();
 
@@ -40,6 +44,10 @@ router.use('/roles', verify, roleRoutes);
 router.use('/permissions', verify, permissionRoutes);
 router.use('/assigned_roles', verify, assignedRoleRoutes);
 router.use('/statistics', verify, statisticRoutes);
+router.use('/genders', verify, genderRoutes);
+router.use('/payment_methods', verify, paymentMethodRoutes);
+router.use('/delivery_methods', verify, deliveryMethodRoutes);
+router.use('/order_cancel_reasons', verify, orderCancelReasonRoutes);
 router.use('/dialer', dialerRoutes);
 router.use('/message', whMessageRoutes);
 router.use('/uploads', verify, express.static('uploads'));

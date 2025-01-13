@@ -3,8 +3,8 @@
  * @returns { Promise<void> } 
  */
 export const seed = async (knex) => {
-  await knex('payment').del()
-  await knex('payment').insert([
+  await knex('payment_method').del()
+  await knex('payment_method').insert([
     {
       id: 1,
       name: 'Наличный расчет',
@@ -19,5 +19,5 @@ export const seed = async (knex) => {
     },
   ]);
 
-  await knex.raw("SELECT setval('payment_id_seq', (SELECT MAX(id) FROM payment))");
+  await knex.raw("SELECT setval('payment_method_id_seq', (SELECT MAX(id) FROM payment_method))");
 };

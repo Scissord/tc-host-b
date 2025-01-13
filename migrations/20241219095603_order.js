@@ -19,6 +19,7 @@ export const up = function (knex) {
       table.string('address', 255).nullable();
       table.string('postal_code', 255).nullable();
       table.string('comment', 255).nullable();
+      table.tinyint('age').nullable();
       table.string('utm_term', 255).nullable();
       table.integer('webmaster_id')
         .unsigned()
@@ -55,25 +56,25 @@ export const up = function (knex) {
         .inTable('gender')
         .onDelete('CASCADE');
 
-      table.tinyint('payment_id')
+      table.tinyint('payment_method_id')
         .unsigned()
         .nullable()
         .references('id')
-        .inTable('payment')
+        .inTable('payment_method')
         .onDelete('CASCADE');
 
-      table.tinyint('delivery_id')
+      table.tinyint('delivery_method_id')
         .unsigned()
         .nullable()
         .references('id')
-        .inTable('delivery')
+        .inTable('delivery_method')
         .onDelete('CASCADE');
 
-      table.tinyint('cancel_reason_id')
+      table.tinyint('order_cancel_reason_id')
         .unsigned()
         .nullable()
         .references('id')
-        .inTable('cancel_reason')
+        .inTable('order_cancel_reason')
         .onDelete('CASCADE');
 
       table.string('additional1', 255).nullable();
@@ -89,6 +90,8 @@ export const up = function (knex) {
 
       table.timestamp('created_at').defaultTo(knex.fn.now());
       table.timestamp('updated_at').defaultTo(knex.fn.now());
+      table.timestamp('delivery_at').defaultTo(null);
+      table.timestamp('logist_recall_at').defaultTo(null);
       table.timestamp('approved_at').defaultTo(null);
       table.timestamp('cancelled_at').defaultTo(null);
       table.timestamp('shipped_at').defaultTo(null);

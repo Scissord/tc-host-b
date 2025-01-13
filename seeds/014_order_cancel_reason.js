@@ -3,8 +3,8 @@
  * @returns { Promise<void> } 
  */
 export const seed = async (knex) => {
-  await knex('cancel_reason').del()
-  await knex('cancel_reason').insert([
+  await knex('order_cancel_reason').del()
+  await knex('order_cancel_reason').insert([
     {
       id: 1,
       name: 'Дорого',
@@ -39,5 +39,5 @@ export const seed = async (knex) => {
     },
   ]);
 
-  await knex.raw("SELECT setval('payment_id_seq', (SELECT MAX(id) FROM payment))");
+  await knex.raw("SELECT setval('order_cancel_reason_id_seq', (SELECT MAX(id) FROM order_cancel_reason))");
 };

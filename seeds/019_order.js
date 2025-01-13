@@ -20,9 +20,9 @@ export const seed = async (knex) => {
     6: [31, 9, 8],
   };
   const genders = [1, 2];
-  const payments = [1, 2, 3];
-  const deliveries = [1, 2, 3, 4];
-  const cancelReasons = [1, 2, 3, 4, 5, 6, 7, 8];
+  const paymentMethods = [1, 2, 3];
+  const deliveryMethods = [1, 2, 3, 4];
+  const orderCancelReasons = [1, 2, 3, 4, 5, 6, 7, 8];
   const regions = ['Ю.К.О', 'С.К.О', 'В.К.О', 'З.К.О'];
 
   const getRandomDateInRange = (start, end) => {
@@ -52,11 +52,12 @@ export const seed = async (knex) => {
       address: `ул. Улица ${i + 1}, д. ${i + 1}, кв. ${i + 1}`,
       postal_code: '160000',
       comment: `Комментарий ${i + 1}`,
+      age: 18,
       utm_term: null,
       gender_id: randomArrayItem(genders),
-      payment_id: randomArrayItem(payments),
-      delivery_id: randomArrayItem(deliveries),
-      cancel_reason_id: randomArrayItem(cancelReasons),
+      payment_method_id: randomArrayItem(paymentMethods),
+      delivery_method_id: randomArrayItem(deliveryMethods),
+      order_cancel_reason_id: randomArrayItem(orderCancelReasons),
       webmaster_id: randomArrayItem(webmasters),
       operator_id: randomArrayItem(operators),
       status_id: status,
@@ -73,6 +74,8 @@ export const seed = async (knex) => {
       additional10: 'Доп. поле 10',
       created_at: getRandomDateInRange(now, threeMonthsLater),
       updated_at: new Date(),
+      delivery_at: null,
+      logist_recall_at: null,
       approved_at: null,
       cancelled_at: null,
       shipped_at: null,

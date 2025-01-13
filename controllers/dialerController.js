@@ -6,9 +6,9 @@ import * as Operator from '#models/operator.js';
 import * as SubStatus from '#models/sub_status.js';
 import * as City from '#models/city.js';
 import * as Gender from '#models/gender.js';
-import * as Payment from '#models/payment.js';
-import * as Delivery from '#models/delivery.js';
-import * as CancelReason from '#models/cancel_reason.js';
+import * as PaymentMethod from '#root/models/payment_method.js';
+import * as DeliveryMethod from '#root/models/delivery_method.js';
+import * as OrderCancelReason from '#root/models/order_cancel_reason.js';
 import ERRORS from '#constants/errors.js';
 
 export const getStatusList = async (req, res) => {
@@ -85,40 +85,40 @@ export const getCities = async (req, res) => {
   }
 };
 
-export const getPayments = async (req, res) => {
+export const getPaymentMethods = async (req, res) => {
   try {
-    const payments = await Payment.get();
+    const payment_methods = await PaymentMethod.get();
 
-    const transformedPayments = payments.reduce((acc, p) => {
-      acc[p.id] = {
-        name: p.name,
+    const transformedPaymentMethods = payment_methods.reduce((acc, pm) => {
+      acc[pm.id] = {
+        name: pm.name,
       };
 
       return acc;
     }, {});
 
-    res.status(200).json(transformedPayments);
+    res.status(200).json(transformedPaymentMethods);
   } catch (err) {
-    console.log("Error in getPayments dialer controller", err.message);
+    console.log("Error in getPaymentMethods dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-export const getDeliveries = async (req, res) => {
+export const getDeliveryMethods = async (req, res) => {
   try {
-    const deliveries = await Delivery.get();
+    const delivery_methods = await DeliveryMethod.get();
 
-    const transformedDeliveries = deliveries.reduce((acc, d) => {
-      acc[d.id] = {
-        name: d.name,
+    const transformedDeliveryMethods = delivery_methods.reduce((acc, dm) => {
+      acc[dm.id] = {
+        name: dm.name,
       };
 
       return acc;
     }, {});
 
-    res.status(200).json(transformedDeliveries);
+    res.status(200).json(transformedDeliveryMethods);
   } catch (err) {
-    console.log("Error in getDeliveries dialer controller", err.message);
+    console.log("Error in getDeliveryMethods dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -142,21 +142,21 @@ export const getGenders = async (req, res) => {
   }
 };
 
-export const getCancelReasons = async (req, res) => {
+export const getOrderCancelReasons = async (req, res) => {
   try {
-    const cancelReasons = await CancelReason.get();
+    const order_cancel_reasons = await OrderCancelReason.get();
 
-    const transformedCancelReasons = cancelReasons.reduce((acc, cr) => {
-      acc[cr.id] = {
-        name: cr.name,
+    const transformedOrderCancelReasons = order_cancel_reasons.reduce((acc, ocr) => {
+      acc[ocr.id] = {
+        name: ocr.name,
       };
 
       return acc;
     }, {});
 
-    res.status(200).json(transformedCancelReasons);
+    res.status(200).json(transformedOrderCancelReasons);
   } catch (err) {
-    console.log("Error in getGenders dialer controller", err.message);
+    console.log("Error in getOrderCancelReasons dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -224,8 +224,9 @@ export const getOrdersByIds = async (req, res) => {
       cities,
       subStatuses,
       genders,
-      payments,
-      deliveries,
+      paymentMethods,
+      deliveryMethods,
+      orderCancelReasons,
     ] = await Promise.all([
       Product.get(),
       Webmaster.get(),
@@ -233,8 +234,9 @@ export const getOrdersByIds = async (req, res) => {
       City.get(),
       SubStatus.get(),
       Gender.get(),
-      Payment.get(),
-      Delivery.get(),
+      PaymentMethod.get(),
+      DeliveryMethod.get(),
+      OrderCancelReason.get(),
     ]);
 
     const transformedStatuses = orders.reduce((acc, order) => {
@@ -253,8 +255,9 @@ export const getOrdersByIds = async (req, res) => {
           };
         }),
         gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
-        payment: payments.find((p) => +p.id === order.payment_id)?.name ?? '-',
-        delivery: deliveries.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
+        payment_method: paymentMethods.find((p) => +p.id === order.payment_id)?.name ?? '-',
+        delivery_method: deliveryMethods.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
+        order_cancel_reason: orderCancelReasons.find((cr) => +cr.id === +order.cancel_reason_id)?.name ?? '-'
       };
       return acc;
     }, {});
