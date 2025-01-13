@@ -130,7 +130,7 @@ export const getUserOrders = async (req, res) => {
 				gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
 				payment: payments.find((p) => +p.id === order.payment_id)?.name ?? '-',
 				delivery: deliveries.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
-				cancel_reason: cancelReasons.find((cr) => +cr.id === +order.id)?.name ?? '-'
+				cancel_reason: cancelReasons.find((cr) => +cr.id === +order.cancel_reason_id)?.name ?? '-'
 			}
 		});
 
@@ -197,7 +197,7 @@ export const getWebmasterOrders = async (req, res) => {
 				gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
 				payment: payments.find((p) => +p.id === order.payment_id)?.name ?? '-',
 				delivery: deliveries.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
-				cancel_reason: cancelReasons.find((cr) => +cr.id === +order.id)?.name ?? '-'
+				cancel_reason: cancelReasons.find((cr) => +cr.id === +order.cancel_reason_id)?.name ?? '-'
 			}
 		});
 
@@ -266,7 +266,7 @@ export const getOperatorOrders = async (req, res) => {
 				gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
 				payment: payments.find((p) => +p.id === order.payment_id)?.name ?? '-',
 				delivery: deliveries.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
-				cancel_reason: cancelReasons.find((cr) => +cr.id === +order.id)?.name ?? '-'
+				cancel_reason: cancelReasons.find((cr) => +cr.id === +order.cancel_reason_id)?.name ?? '-'
 			}
 		});
 
