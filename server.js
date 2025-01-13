@@ -23,7 +23,7 @@ const allowedOrigins = [
   "https://158.160.49.84",
   "https://165.22.93.202",
   "https://167.172.162.71",
-  // diler
+  // dialer
   "https://92.46.108.23",
 ];
 

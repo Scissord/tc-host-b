@@ -5,6 +5,9 @@ import * as Product from '#models/product.js';
 import * as Operator from '#models/operator.js';
 import * as SubStatus from '#models/sub_status.js';
 import * as City from '#models/city.js';
+import * as Gender from '#models/gender.js';
+import * as Payment from '#models/payment.js';
+import * as Delivery from '#models/delivery.js';
 import ERRORS from '#constants/errors.js';
 
 export const getStatusList = async (req, res) => {
@@ -21,7 +24,7 @@ export const getStatusList = async (req, res) => {
 
     res.status(200).json(transformedStatuses);
   } catch (err) {
-    console.log("Error in getStatusList diler controller", err.message);
+    console.log("Error in getStatusList dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -37,7 +40,7 @@ export const getWebmasters = async (req, res) => {
 
     res.status(200).json(transformedWebmasters);
   } catch (err) {
-    console.log("Error in getWebmasters diler controller", err.message);
+    console.log("Error in getWebmasters dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -57,7 +60,26 @@ export const getOfferGoods = async (req, res) => {
 
     res.status(200).json(transformedProducts);
   } catch (err) {
-    console.log("Error in getWebmasters diler controller", err.message);
+    console.log("Error in getWebmasters dialer controller", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const getCities = async (req, res) => {
+  try {
+    const cities = await City.get();
+
+    const transformedCities = cities.reduce((acc, c) => {
+      acc[c.id] = {
+        name: c.name,
+      };
+
+      return acc;
+    }, {});
+
+    res.status(200).json(transformedCities);
+  } catch (err) {
+    console.log("Error in getCities dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -83,7 +105,7 @@ export const updateOrder = async (req, res) => {
 
     res.status(200).json(order);
   } catch (err) {
-    console.log("Error in updateOrder diler controller", err.message);
+    console.log("Error in updateOrder dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -100,7 +122,7 @@ export const getOrderIdsInSubStatus = async (req, res) => {
 
     res.status(200).json(ids);
   } catch (err) {
-    console.log("Error in getOrderIdsInSubStatus diler controller", err.message);
+    console.log("Error in getOrderIdsInSubStatus dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -118,8 +140,24 @@ export const getOrdersByIds = async (req, res) => {
 
     const orders = await Order.getWhereIn('o.id', parsed_ids);
 
-    const [products, webmasters, operators, cities, subStatuses] = await Promise.all([
-      Product.get(), Webmaster.get(), Operator.get(), City.get(), SubStatus.get()
+    const [
+      products,
+      webmasters,
+      operators,
+      cities,
+      subStatuses,
+      genders,
+      payments,
+      deliveries,
+    ] = await Promise.all([
+      Product.get(),
+      Webmaster.get(),
+      Operator.get(),
+      City.get(),
+      SubStatus.get(),
+      Gender.get(),
+      Payment.get(),
+      Delivery.get(),
     ]);
 
     const transformedStatuses = orders.reduce((acc, order) => {
@@ -137,13 +175,16 @@ export const getOrdersByIds = async (req, res) => {
             price: product ? product.price : '-',
           };
         }),
+        gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
+        payment: payments.find((p) => +p.id === order.payment_id)?.name ?? '-',
+        delivery: deliveries.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
       };
       return acc;
     }, {});
 
     res.status(200).json(transformedStatuses);
   } catch (err) {
-    console.log("Error in getOrderIdsInSubStatus diler controller", err.message);
+    console.log("Error in getOrderIdsInSubStatus dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };

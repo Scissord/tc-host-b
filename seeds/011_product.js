@@ -6,19 +6,76 @@ export const seed = async (knex) => {
   await knex('product').del()
   await knex('product').insert([
     {
-      id: 1, 
-      name: 'Продукт 1', 
-      price: 500
+      id: 212253,
+      name: 'AlcoBalance',
+      price: 1650
     },
     {
-      id: 2, 
-      name: 'Продукт 2', 
-      price: 1000
+      id: 212255,
+      name: 'BodyBalance',
+      price: 1650
     },
     {
-      id: 3, 
-      name: 'Продукт 3', 
-      price: 1500
+      id: 212254,
+      name: 'EroKing',
+      price: 1650
+    },
+    {
+      id: 212252,
+      name: 'FemBalance',
+      price: 1650
+    },
+    {
+      id: 212251,
+      name: 'LibidoFortis',
+      price: 1650
+    },
+    {
+      id: 200503,
+      name: 'Beclean',
+      price: 1650
+    },
+    {
+      id: 200504,
+      name: 'Cardio-Sei VARIKOZ',
+      price: 1650
+    },
+    {
+      id: 200505,
+      name: 'Cardio-Sei',
+      price: 1650
+    },
+    {
+      id: 200501,
+      name: 'EroPower',
+      price: 1650
+    },
+    {
+      id: 200502,
+      name: 'Femiston',
+      price: 1650
+    },
+    {
+      id: 212256,
+      name: 'FlexBalance',
+      price: 1650
+    },
+    {
+      id: 212257,
+      name: 'ManBalance',
+      price: 1650
+    },
+    {
+      id: 212250,
+      name: 'Minoxidix',
+      price: 1650
+    },
+    {
+      id: 200500,
+      name: 'ProStrong',
+      price: 1650
     },
   ]);
+
+  await knex.raw("SELECT setval('product_id_seq', (SELECT MAX(id) FROM product))");
 };

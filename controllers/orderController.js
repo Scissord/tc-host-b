@@ -4,6 +4,9 @@ import * as Product from '#models/product.js';
 import * as Webmaster from '#models/webmaster.js';
 import * as Operator from '#models/operator.js';
 import * as City from '#models/city.js';
+import * as Gender from '#models/gender.js';
+import * as Payment from '#models/payment.js';
+import * as Delivery from '#models/delivery.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import ERRORS from '#constants/errors.js';
 
@@ -86,8 +89,24 @@ export const getUserOrders = async (req, res) => {
 			updated_at,
 		);
 
-		const [products, webmasters, operators, cities, subStatuses] = await Promise.all([
-			Product.get(), Webmaster.get(), Operator.get(), City.get(), SubStatus.get()
+		const [
+			products,
+			webmasters,
+			operators,
+			cities,
+			subStatuses,
+			genders,
+			payments,
+			deliveries,
+		] = await Promise.all([
+			Product.get(),
+			Webmaster.get(),
+			Operator.get(),
+			City.get(),
+			SubStatus.get(),
+			Gender.get(),
+			Payment.get(),
+			Delivery.get(),
 		]);
 
 		const enhancedOrders = orders.map((order) => {
@@ -96,7 +115,7 @@ export const getUserOrders = async (req, res) => {
 				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-',
 				operator: operators.find((o) => +o.id === +order.operator_id)?.name ?? '-',
 				city: cities.find((c) => +c.id === +order.city_id) || null,
-				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) || null,
+				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) ?? null,
 				items: order.items.map((item) => {
 					const product = products.find((p) => +p.id === +item.product_id);
 					return {
@@ -105,6 +124,9 @@ export const getUserOrders = async (req, res) => {
 						price: product ? product.price : null,
 					};
 				}),
+				gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
+				payment: payments.find((p) => +p.id === order.payment_id)?.name ?? '-',
+				delivery: deliveries.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
 			}
 		});
 
@@ -131,8 +153,24 @@ export const getWebmasterOrders = async (req, res) => {
 			req.webmaster.id
 		);
 
-		const [products, webmasters, operators, cities, subStatuses] = await Promise.all([
-			Product.get(), Webmaster.get(), Operator.get(), City.get(), SubStatus.get()
+		const [
+			products,
+			webmasters,
+			operators,
+			cities,
+			subStatuses,
+			genders,
+			payments,
+			deliveries,
+		] = await Promise.all([
+			Product.get(),
+			Webmaster.get(),
+			Operator.get(),
+			City.get(),
+			SubStatus.get(),
+			Gender.get(),
+			Payment.get(),
+			Delivery.get(),
 		]);
 
 		const enhancedOrders = orders.map((order) => {
@@ -141,7 +179,7 @@ export const getWebmasterOrders = async (req, res) => {
 				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-',
 				operator: operators.find((o) => +o.id === +order.operator_id)?.name ?? '-',
 				city: cities.find((c) => +c.id === +order.city_id) || null,
-				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) || null,
+				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) ?? null,
 				items: order.items.map((item) => {
 					const product = products.find((p) => +p.id === +item.product_id);
 					return {
@@ -150,6 +188,9 @@ export const getWebmasterOrders = async (req, res) => {
 						price: product ? product.price : null,
 					};
 				}),
+				gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
+				payment: payments.find((p) => +p.id === order.payment_id)?.name ?? '-',
+				delivery: deliveries.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
 			}
 		});
 
@@ -178,8 +219,24 @@ export const getOperatorOrders = async (req, res) => {
 			sub_status,
 		);
 
-		const [products, webmasters, operators, cities, subStatuses] = await Promise.all([
-			Product.get(), Webmaster.get(), Operator.get(), City.get(), SubStatus.get()
+		const [
+			products,
+			webmasters,
+			operators,
+			cities,
+			subStatuses,
+			genders,
+			payments,
+			deliveries,
+		] = await Promise.all([
+			Product.get(),
+			Webmaster.get(),
+			Operator.get(),
+			City.get(),
+			SubStatus.get(),
+			Gender.get(),
+			Payment.get(),
+			Delivery.get(),
 		]);
 
 		const enhancedOrders = orders.map((order) => {
@@ -188,7 +245,7 @@ export const getOperatorOrders = async (req, res) => {
 				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-',
 				operator: operators.find((o) => +o.id === +order.operator_id)?.name ?? '-',
 				city: cities.find((c) => +c.id === +order.city_id) || null,
-				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) || null,
+				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) ?? null,
 				items: order.items.map((item) => {
 					const product = products.find((p) => +p.id === +item.product_id);
 					return {
@@ -197,6 +254,9 @@ export const getOperatorOrders = async (req, res) => {
 						price: product ? product.price : null,
 					};
 				}),
+				gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
+				payment: payments.find((p) => +p.id === order.payment_id)?.name ?? '-',
+				delivery: deliveries.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
 			}
 		});
 
@@ -271,12 +331,12 @@ export const create = async (req, res) => {
 		data.status_id = 1;
 		data.sub_status_id = 1;
 
-		const cachedOrder = await getKeyValue(phone);
+		const cachedOrder = await getKeyValue(data.phone);
 		if (cachedOrder) {
 			return res.status(400).send({
-				message: "Order for this phone number already exists"
+				message: "Заказ по этому номеру был создан недавно!"
 			});
-		}
+		};
 
 		const order = await Order.create(data);
 

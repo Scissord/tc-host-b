@@ -109,4 +109,5 @@ export const seed = async (knex) => {
   );
 
   await knex('ability').insert(abilities);
+  await knex.raw("SELECT setval('ability_id_seq', (SELECT MAX(id) FROM ability))");
 };

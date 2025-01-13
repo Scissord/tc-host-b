@@ -1,6 +1,6 @@
 import ERRORS from "#constants/errors.js";
 
-const checkDiler = async (req, res, next) => {
+const checkDialer = async (req, res, next) => {
   const { token } = req.query;
 
   if (!token) {
@@ -9,9 +9,9 @@ const checkDiler = async (req, res, next) => {
     });
   };
 
-  if (token === process.env.DILER_API_KEY) {
+  if (token === process.env.DIALER_API_KEY) {
     next();
   };
 };
 
-export default checkDiler;
+export default checkDialer;

@@ -436,7 +436,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id) => {
   return orders;
 };
 
-// for diler
+// for dialer
 export const getOrderIdsInSubStatus = async (sub_status_id) => {
   const ids = await db('order as o')
     .where('o.sub_status_id', sub_status_id)

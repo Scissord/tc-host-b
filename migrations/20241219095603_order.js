@@ -2,7 +2,7 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-export const up = function(knex) {
+export const up = function (knex) {
   return knex.schema
     .createTable('order', (table) => {
       table.bigIncrements('id').primary();
@@ -48,6 +48,27 @@ export const up = function(knex) {
         .inTable('sub_status')
         .onDelete('CASCADE');
 
+      table.tinyint('gender_id')
+        .unsigned()
+        .nullable()
+        .references('id')
+        .inTable('gender')
+        .onDelete('CASCADE');
+
+      table.tinyint('payment_id')
+        .unsigned()
+        .nullable()
+        .references('id')
+        .inTable('payment')
+        .onDelete('CASCADE');
+
+      table.tinyint('delivery_id')
+        .unsigned()
+        .nullable()
+        .references('id')
+        .inTable('delivery')
+        .onDelete('CASCADE');
+
       table.string('additional1', 255).nullable();
       table.string('additional2', 255).nullable();
       table.string('additional3', 255).nullable();
@@ -72,6 +93,6 @@ export const up = function(knex) {
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-export const down = function(knex) {
+export const down = function (knex) {
   return knex.schema.dropTable('order');
 };
