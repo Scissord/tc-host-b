@@ -24,6 +24,16 @@ router.get("/get_offer_goods", checkDialer, controller.getOfferGoods);
 // https://api.talkcall-crm.com/api/dialer/get_cities?token=""
 router.get("/get_cities", checkDialer, controller.getCities);
 
+// Получение способов оплаты
+// http://localhost:8080/api/dialer/get_payments?token=90f42555-0c00-4c54-b70e-2da4385683a4
+// https://api.talkcall-crm.com/api/dialer/get_payments?token=""
+router.get("/get_payments", checkDialer, controller.getPayments);
+
+// Получение способов доставки
+// http://localhost:8080/api/dialer/get_deliveries?token=90f42555-0c00-4c54-b70e-2da4385683a4
+// https://api.talkcall-crm.com/api/dialer/get_deliveries?token=""
+router.get("/get_deliveries", checkDialer, controller.getPayments);
+
 // Обновление заказа
 // http://localhost:8080/api/dialer/update_order?token=90f42555-0c00-4c54-b70e-2da4385683a4&id=10001
 // https://api.talkcall-crm.com/api/dialer/update_order?token=""&id=""

@@ -5,6 +5,6 @@ import checkAbility from "#middleware/checkAbility.js";
 
 const router = express.Router();
 
-router.get("", withExtraData({ ability_name: 'get_order_columns' }, checkAbility), controller.get);
+router.get("", controller.get);
 
 export default router;

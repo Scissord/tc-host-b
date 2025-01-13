@@ -84,6 +84,44 @@ export const getCities = async (req, res) => {
   }
 };
 
+export const getPayments = async (req, res) => {
+  try {
+    const payments = await Payment.get();
+
+    const transformedPayments = payments.reduce((acc, p) => {
+      acc[p.id] = {
+        name: p.name,
+      };
+
+      return acc;
+    }, {});
+
+    res.status(200).json(transformedPayments);
+  } catch (err) {
+    console.log("Error in getPayments dialer controller", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const getDeliveries = async (req, res) => {
+  try {
+    const deliveries = await Delivery.get();
+
+    const transformedDeliveries = deliveries.reduce((acc, d) => {
+      acc[d.id] = {
+        name: d.name,
+      };
+
+      return acc;
+    }, {});
+
+    res.status(200).json(transformedDeliveries);
+  } catch (err) {
+    console.log("Error in getDeliveries dialer controller", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 export const updateOrder = async (req, res) => {
   try {
     const { id } = req.query;

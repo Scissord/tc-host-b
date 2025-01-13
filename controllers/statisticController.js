@@ -52,8 +52,6 @@ export const getWebmasterStatistic = async (req, res) => {
 
     const statistics = groupWebmasters(orders, webmasters);
 
-    console.log(statistics);
-
     return res.status(200).send({ message: 'ok', statistics });
   } catch (err) {
     console.log("Error in getWebmasterStatistic statistic controller", err.message);
