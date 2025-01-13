@@ -8,6 +8,7 @@ import * as City from '#models/city.js';
 import * as Gender from '#models/gender.js';
 import * as Payment from '#models/payment.js';
 import * as Delivery from '#models/delivery.js';
+import * as CancelReason from '#models/cancel_reason.js';
 import ERRORS from '#constants/errors.js';
 
 export const getStatusList = async (req, res) => {
@@ -135,6 +136,25 @@ export const getGenders = async (req, res) => {
     }, {});
 
     res.status(200).json(transformedGenders);
+  } catch (err) {
+    console.log("Error in getGenders dialer controller", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const getCancelReasons = async (req, res) => {
+  try {
+    const cancelReasons = await CancelReason.get();
+
+    const transformedCancelReasons = cancelReasons.reduce((acc, cr) => {
+      acc[cr.id] = {
+        name: cr.name,
+      };
+
+      return acc;
+    }, {});
+
+    res.status(200).json(transformedCancelReasons);
   } catch (err) {
     console.log("Error in getGenders dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
