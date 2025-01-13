@@ -32,7 +32,7 @@ router.get("/get_payments", checkDialer, controller.getPayments);
 // Получение способов доставки
 // http://localhost:8080/api/dialer/get_deliveries?token=90f42555-0c00-4c54-b70e-2da4385683a4
 // https://api.talkcall-crm.com/api/dialer/get_deliveries?token=""
-router.get("/get_deliveries", checkDialer, controller.getPayments);
+router.get("/get_deliveries", checkDialer, controller.getDeliveries);
 
 // Обновление заказа
 // http://localhost:8080/api/dialer/update_order?token=90f42555-0c00-4c54-b70e-2da4385683a4&id=10001
