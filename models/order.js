@@ -214,7 +214,6 @@ export const getUserOrdersPaginated = async function (
             SELECT 1
             FROM webmaster w
             WHERE w.id = o.webmaster_id
-            AND w.name ILIKE ?
           )`,
           [`%${webmaster}%`]
         );
