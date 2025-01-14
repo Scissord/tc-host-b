@@ -156,6 +156,7 @@ export const getOperatorOrders = async (req, res) => {
 
 export const getOrder = async (req, res) => {
 	try {
+		console.log(req.params)
 		// webmaster can't enter the page
 		if (req.webmaster) {
 			return res.status(403).send({
