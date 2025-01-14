@@ -50,7 +50,7 @@ export const getUserOrders = async (req, res) => {
 			created_at,
 			updated_at,
 		} = req.query;
-
+		console.log(req.query)
 		let hide = false;
 		if (req.operator) {
 			hide = true;
