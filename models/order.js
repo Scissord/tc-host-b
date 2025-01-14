@@ -229,7 +229,7 @@ export const getUserOrdersPaginated = async function (
           [`%${operator}%`]
         );
       }
-      if (order_sub_status) {
+      if (order_sub_status && !id) {
         q.whereRaw(
           `EXISTS (
             SELECT 1
@@ -273,8 +273,11 @@ export const getUserOrdersPaginated = async function (
       if (updated_at) {
         q.where('o.updated_at', 'ilike', `%${updated_at}%`)
       }
+      if (sub_status  && !id) {
+        q.where('o.sub_status_id', sub_status);
+    }
     })
-    // .where('o.sub_status_id', sub_status)
+
     .groupBy('o.id')
     .orderBy('o.id', 'desc')
     .paginate({
