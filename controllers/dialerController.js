@@ -207,15 +207,17 @@ export const changeOrderItem = async (req, res) => {
 
     await OrderItem.hardDeleteByOrderId(id);
 
+    let items = [];
     for (const order_item of data) {
-      await OrderItem.create({
+      const item = await OrderItem.create({
         order_id: id,
         product_id: order_item.product_id,
         quantity: order_item.quantity,
       });
+      items.push(item);
     };
 
-    res.status(200);
+    res.status(200).json(items);
   } catch (err) {
     console.log("Error in changeOrderItem dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
