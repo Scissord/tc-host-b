@@ -61,7 +61,7 @@ export const getUserOrders = async (req, res) => {
 		const { orders, lastPage, pages } = await Order.getUserOrdersPaginated(
 			limit,
 			page,
-			sub_status,
+			// sub_status,
 			id,
 			fio,
 			items,
@@ -74,7 +74,7 @@ export const getUserOrders = async (req, res) => {
 			utm_term,
 			webmaster,
 			operator,
-			order_sub_status,
+			// order_sub_status,
 			additional1,
 			additional2,
 			additional3,
