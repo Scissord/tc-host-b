@@ -3,7 +3,7 @@ import http from "http";
 import express from "express";
 import * as Order from "#models/order.js";
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
-import mapOrders from "#services/order/map.js";
+import { mapOrders } from "#services/order/map.js";
 
 const app = express();
 const server = http.createServer(app);

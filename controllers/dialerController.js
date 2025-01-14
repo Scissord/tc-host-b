@@ -1,5 +1,6 @@
 import { parse } from 'comma-separated-tokens';
 import * as Order from '#models/order.js';
+import * as OrderItem from '#models/order_item.js';
 import * as Webmaster from '#models/webmaster.js';
 import * as Product from '#models/product.js';
 import * as Operator from '#models/operator.js';
@@ -198,15 +199,21 @@ export const changeOrderItem = async (req, res) => {
       });
     };
 
-    // if (Object.keys(data).length === 0) {
-    //   return res.status(400).send({
-    //     message: ERRORS.REQUIRED_FIELDS
-    //   });
-    // };
+    if (!data.length) {
+      return res.status(400).send({
+        message: ERRORS.REQUIRED_FIELDS
+      });
+    };
 
-    console.log(data);
+    await OrderItem.hardDeleteByOrderId(id);
 
-    // const order = await Order.update(id, data);
+    for (const order_item of data) {
+      await OrderItem.create({
+        order_id: id,
+        product_id: order_item.product_id,
+        quantity: order_item.quantity,
+      });
+    };
 
     res.status(200);
   } catch (err) {

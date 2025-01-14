@@ -59,6 +59,17 @@ export const find = async (id) => {
   return await orderRepository.find(id);
 };
 
+export const findWithItems = async (id) => {
+  return await db('order as o')
+    .select('o.*')
+    .select(db.raw('COALESCE(json_agg(oi.*) FILTER (WHERE oi.id IS NOT NULL), \'[]\') as items'))
+    .leftJoin('order_item as oi', 'oi.order_id', 'o.id')
+    .where('o.id', id)
+    .groupBy('o.id')
+    .orderBy('o.id', 'desc')
+    .first();
+};
+
 export const updateWhereIn = async (ids, data) => {
   return await orderRepository.updateWhereIn(ids, data);
 };

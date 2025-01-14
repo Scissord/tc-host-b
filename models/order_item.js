@@ -28,6 +28,12 @@ export const hardDelete = async (id) => {
   return await orderItem.delete(id);
 };
 
+export const hardDeleteByOrderId = async (id) => {
+  return await db('order_item as oi')
+    .del()
+    .where('oi.order_id', id);
+};
+
 export const find = async (id) => {
   return await orderItem.find(id);
 };

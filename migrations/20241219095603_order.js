@@ -19,7 +19,7 @@ export const up = function (knex) {
       table.string('address', 255).nullable();
       table.string('postal_code', 255).nullable();
       table.string('comment', 255).nullable();
-      table.tinyint('age').nullable();
+      table.integer('age').nullable();
       table.string('utm_term', 255).nullable();
       table.integer('webmaster_id')
         .unsigned()
@@ -76,6 +76,8 @@ export const up = function (knex) {
         .references('id')
         .inTable('order_cancel_reason')
         .onDelete('CASCADE');
+
+      table.integer('total_sum').defaultTo(0);
 
       table.string('additional1', 255).nullable();
       table.string('additional2', 255).nullable();

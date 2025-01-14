@@ -1,7 +1,7 @@
 import * as Order from '#models/order.js';
 import * as SubStatus from '#models/sub_status.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
-import mapOrders from '#services/order/map.js';
+import { mapOrders, mapOrder } from '#services/order/map.js';
 import hideString from '#utils/hideString.js';
 import ERRORS from '#constants/errors.js';
 
@@ -151,6 +151,7 @@ export const getOperatorOrders = async (req, res) => {
 
 export const getOrder = async (req, res) => {
 	try {
+		// webmaster can't enter the page
 		if (req.webmaster) {
 			return res.status(403).send({
 				message: ERRORS.USER_CANT
@@ -158,13 +159,16 @@ export const getOrder = async (req, res) => {
 		};
 
 		const { order_id } = req.params;
-		const order = await Order.find(order_id);
+		const order = await Order.findWithItems(order_id);
+		const transformedOrder = await mapOrder(order)
+		console.log(transformedOrder);
 
+		// for operators don't show phone
 		if (req.operator) {
-			order.phone = hideString(order.phone) ?? '-';
+			transformedOrder.phone = hideString(transformedOrder.phone) ?? '-';
 		};
 
-		return res.status(200).send({ order })
+		return res.status(200).send({ order: transformedOrder })
 	} catch (err) {
 		console.log("Error in get getOrder controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
@@ -251,11 +255,10 @@ export const update = async (req, res) => {
 			};
 		};
 
-
 		// 2. update order
-		const order = await Order.update(order_id, data);
+		await Order.update(order_id, data);
 
-		res.status(200).send({ message: 'ok', order });
+		res.status(200).send({ message: 'ok' });
 	} catch (err) {
 		console.log("Error in update user controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
