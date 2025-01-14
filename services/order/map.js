@@ -1,0 +1,72 @@
+import * as SubStatus from '#models/sub_status.js';
+import * as Product from '#models/product.js';
+import * as Webmaster from '#models/webmaster.js';
+import * as Operator from '#models/operator.js';
+import * as City from '#models/city.js';
+import * as Gender from '#models/gender.js';
+import * as PaymentMethod from '#root/models/payment_method.js';
+import * as DeliveryMethod from '#root/models/delivery_method.js';
+import * as OrderCancelReason from '#root/models/order_cancel_reason.js';
+import { getKeyValue } from '#services/redis/redis.js';
+import hideString from '#utils/hideString.js';
+
+export default async function mapOrders(orders, entity) {
+  const reservedOrders = await getKeyValue('reservedOrders') || [];
+  const [
+    products,
+    webmasters,
+    operators,
+    cities,
+    subStatuses,
+    genders,
+    paymentMethods,
+    deliveryMethods,
+    orderCancelReasons,
+  ] = await Promise.all([
+    Product.get(),
+    Webmaster.get(),
+    Operator.get(),
+    City.get(),
+    SubStatus.get(),
+    Gender.get(),
+    PaymentMethod.get(),
+    DeliveryMethod.get(),
+    OrderCancelReason.get(),
+  ]);
+
+  const mappedOrders = orders.map((order) => {
+    let is_disabled = false;
+    let reserved_by = '';
+    const reserver = reservedOrders.find((ro) => +ro.order_id === +order.id);
+    if (reserver) {
+      is_disabled = true;
+      reserved_by = reserver.name ?? ''
+    }
+
+    return {
+      ...order,
+      phone: entity === 'user' ? order.phone : hideString(order.phone),
+      webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-',
+      operator: operators.find((o) => +o.id === +order.operator_id)?.name ?? '-',
+      city: cities.find((c) => +c.id === +order.city_id) || null,
+      status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) ?? null,
+      items: order.items.map((item) => {
+        const product = products.find((p) => +p.id === +item.product_id);
+        return {
+          ...item,
+          name: product ? product.name : null,
+          price: product ? product.price : null,
+        };
+      }),
+      gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
+      payment_method: paymentMethods.find((p) => +p.id === order.payment_method_id)?.name ?? '-',
+      delivery_method: deliveryMethods.find((d) => +d.id === +order.delivery_method_id)?.name ?? '-',
+      order_cancel_reason: orderCancelReasons.find((cr) => +cr.id === +order.order_cancel_reason_id)?.name ?? '-',
+      is_checked: false,
+      is_disabled,
+      reserved_by,
+    }
+  });
+
+  return mappedOrders;
+};

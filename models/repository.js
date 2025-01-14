@@ -20,8 +20,11 @@ const repository = (tableName) => {
     },
 
     // get by query
-    getWhere: async (query) => {
-      return await db(tableName).select('*').where(query);
+    getWhere: async (query, order_by = 'id', sort_order = 'desc') => {
+      return await db(tableName)
+        .select('*')
+        .where(query)
+        .orderBy(order_by, sort_order);
     },
 
     // get by query and deleted_at null

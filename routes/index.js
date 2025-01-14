@@ -30,7 +30,7 @@ const router = Router();
 router.use('/auth', authRoutes);
 router.use('/users', verify, userRoute);
 router.use('/abilities', verify, abilityRoutes);
-router.use('/orders', verify, orderRoutes);
+router.use('/orders', orderRoutes);
 router.use('/statuses', verify, statusRoutes);
 router.use('/sub_statuses', verify, subStatusRoutes);
 router.use('/order_columns', verify, orderColumnRoutes);

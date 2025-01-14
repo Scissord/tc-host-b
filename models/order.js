@@ -10,7 +10,27 @@ export const get = async () => {
 };
 
 export const getWhere = async (query) => {
-  return await orderRepository.getWhere(query);
+  return await orderRepository.getWhere(query, 'id', 'desc');
+};
+
+export const getForSocket = async (condition) => {
+  const result = await db('order as o')
+    .select('o.*')
+    .select(db.raw('COALESCE(json_agg(oi.*) FILTER (WHERE oi.id IS NOT NULL), \'[]\') as items'))
+    .leftJoin('order_item as oi', 'oi.order_id', 'o.id')
+    .where(condition)
+    .groupBy('o.id')
+    .orderBy('o.id', 'desc')
+    .paginate({
+      perPage: 20,
+      currentPage: 1,
+      isLengthAware: true
+    });
+
+  return {
+    orders: result.data,
+    total: result.pagination.total,
+  };
 };
 
 export const getWhereIn = async (field, values) => {

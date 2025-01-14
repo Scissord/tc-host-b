@@ -1,14 +1,8 @@
 import * as Order from '#models/order.js';
 import * as SubStatus from '#models/sub_status.js';
-import * as Product from '#models/product.js';
-import * as Webmaster from '#models/webmaster.js';
-import * as Operator from '#models/operator.js';
-import * as City from '#models/city.js';
-import * as Gender from '#models/gender.js';
-import * as PaymentMethod from '#root/models/payment_method.js';
-import * as DeliveryMethod from '#root/models/delivery_method.js';
-import * as OrderCancelReason from '#root/models/order_cancel_reason.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
+import mapOrders from '#services/order/map.js';
+import hideString from '#utils/hideString.js';
 import ERRORS from '#constants/errors.js';
 
 export const getOrdersChatsByStatuses = async (req, res) => {
@@ -90,53 +84,11 @@ export const getUserOrders = async (req, res) => {
 			updated_at,
 		);
 
-		const [
-			products,
-			webmasters,
-			operators,
-			cities,
-			subStatuses,
-			genders,
-			paymentMethods,
-			deliveryMethods,
-			orderCancelReasons,
-		] = await Promise.all([
-			Product.get(),
-			Webmaster.get(),
-			Operator.get(),
-			City.get(),
-			SubStatus.get(),
-			Gender.get(),
-			PaymentMethod.get(),
-			DeliveryMethod.get(),
-			OrderCancelReason.get(),
-		]);
-
-		const enhancedOrders = orders.map((order) => {
-			return {
-				...order,
-				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-',
-				operator: operators.find((o) => +o.id === +order.operator_id)?.name ?? '-',
-				city: cities.find((c) => +c.id === +order.city_id) || null,
-				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) ?? null,
-				items: order.items.map((item) => {
-					const product = products.find((p) => +p.id === +item.product_id);
-					return {
-						...item,
-						name: product ? product.name : null,
-						price: product ? product.price : null,
-					};
-				}),
-				gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
-				payment_method: paymentMethods.find((p) => +p.id === order.payment_method_id)?.name ?? '-',
-				delivery_method: deliveryMethods.find((d) => +d.id === +order.delivery_method_id)?.name ?? '-',
-				order_cancel_reason: orderCancelReasons.find((cr) => +cr.id === +order.order_cancel_reason_id)?.name ?? '-'
-			}
-		});
+		const mappedOrders = await mapOrders(orders, 'user');
 
 		res.status(200).send({
 			message: 'ok',
-			orders: enhancedOrders,
+			orders: mappedOrders,
 			lastPage, pages
 		});
 	} catch (err) {
@@ -157,53 +109,11 @@ export const getWebmasterOrders = async (req, res) => {
 			req.webmaster.id
 		);
 
-		const [
-			products,
-			webmasters,
-			operators,
-			cities,
-			subStatuses,
-			genders,
-			paymentMethods,
-			deliveryMethods,
-			orderCancelReasons,
-		] = await Promise.all([
-			Product.get(),
-			Webmaster.get(),
-			Operator.get(),
-			City.get(),
-			SubStatus.get(),
-			Gender.get(),
-			PaymentMethod.get(),
-			DeliveryMethod.get(),
-			OrderCancelReason.get(),
-		]);
-
-		const enhancedOrders = orders.map((order) => {
-			return {
-				...order,
-				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-',
-				operator: operators.find((o) => +o.id === +order.operator_id)?.name ?? '-',
-				city: cities.find((c) => +c.id === +order.city_id) || null,
-				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) ?? null,
-				items: order.items.map((item) => {
-					const product = products.find((p) => +p.id === +item.product_id);
-					return {
-						...item,
-						name: product ? product.name : null,
-						price: product ? product.price : null,
-					};
-				}),
-				gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
-				payment_method: paymentMethods.find((p) => +p.id === order.payment_method_id)?.name ?? '-',
-				delivery_method: deliveryMethods.find((d) => +d.id === +order.delivery_method_id)?.name ?? '-',
-				order_cancel_reason: orderCancelReasons.find((cr) => +cr.id === +order.order_cancel_reason_id)?.name ?? '-'
-			}
-		});
+		const mappedOrders = await mapOrders(orders, 'webmaster');
 
 		res.status(200).send({
 			message: 'ok',
-			orders: enhancedOrders,
+			orders: mappedOrders,
 			lastPage, pages
 		});
 	} catch (err) {
@@ -226,53 +136,11 @@ export const getOperatorOrders = async (req, res) => {
 			sub_status,
 		);
 
-		const [
-			products,
-			webmasters,
-			operators,
-			cities,
-			subStatuses,
-			genders,
-			paymentMethods,
-			deliveryMethods,
-			orderCancelReasons,
-		] = await Promise.all([
-			Product.get(),
-			Webmaster.get(),
-			Operator.get(),
-			City.get(),
-			SubStatus.get(),
-			Gender.get(),
-			PaymentMethod.get(),
-			DeliveryMethod.get(),
-			OrderCancelReason.get(),
-		]);
-
-		const enhancedOrders = orders.map((order) => {
-			return {
-				...order,
-				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-',
-				operator: operators.find((o) => +o.id === +order.operator_id)?.name ?? '-',
-				city: cities.find((c) => +c.id === +order.city_id) || null,
-				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) ?? null,
-				items: order.items.map((item) => {
-					const product = products.find((p) => +p.id === +item.product_id);
-					return {
-						...item,
-						name: product ? product.name : null,
-						price: product ? product.price : null,
-					};
-				}),
-				gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
-				payment_method: paymentMethods.find((p) => +p.id === order.payment_method_id)?.name ?? '-',
-				delivery_method: deliveryMethods.find((d) => +d.id === +order.delivery_method_id)?.name ?? '-',
-				order_cancel_reason: orderCancelReasons.find((cr) => +cr.id === +order.order_cancel_reason_id)?.name ?? '-'
-			}
-		});
+		const mappedOrders = await mapOrders(orders, 'operator');
 
 		res.status(200).send({
 			message: 'ok',
-			orders: enhancedOrders,
+			orders: mappedOrders,
 			lastPage, pages
 		});
 	} catch (err) {
@@ -283,9 +151,18 @@ export const getOperatorOrders = async (req, res) => {
 
 export const getOrder = async (req, res) => {
 	try {
+		if (req.webmaster) {
+			return res.status(403).send({
+				message: ERRORS.USER_CANT
+			});
+		};
+
 		const { order_id } = req.params;
 		const order = await Order.find(order_id);
-		delete order.phone;
+
+		if (req.operator) {
+			order.phone = hideString(order.phone) ?? '-';
+		};
 
 		return res.status(200).send({ order })
 	} catch (err) {
@@ -350,7 +227,7 @@ export const create = async (req, res) => {
 
 		const order = await Order.create(data);
 
-		await setKeyValue(data.phone, JSON.stringify(order), 60);
+		await setKeyValue(data.phone, order, 60);
 
 		return res.status(200).send({ message: 'ok', order });
 	} catch (err) {

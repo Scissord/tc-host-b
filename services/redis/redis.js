@@ -22,13 +22,14 @@ redisClient.on('error', (err) => {
 });
 
 export async function setKeyValue(key, value, expirationInSeconds = null) {
+  const serializedValue = JSON.stringify(value);
   try {
     if (value === null) {
       await redisClient.del(key);
     } else {
       expirationInSeconds
-        ? await redisClient.setEx(key, expirationInSeconds, value)
-        : await redisClient.set(key, value);
+        ? await redisClient.setEx(key, expirationInSeconds, serializedValue)
+        : await redisClient.set(key, serializedValue);
     }
   } catch (err) {
     console.error('Error setting key in Redis:', err);

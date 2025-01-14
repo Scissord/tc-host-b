@@ -187,6 +187,34 @@ export const updateOrder = async (req, res) => {
   }
 };
 
+export const changeOrderItem = async (req, res) => {
+  try {
+    const { id } = req.query;
+    const data = req.body;
+
+    if (!id) {
+      return res.status(400).send({
+        message: ERRORS.REQUIRED_ID
+      });
+    };
+
+    // if (Object.keys(data).length === 0) {
+    //   return res.status(400).send({
+    //     message: ERRORS.REQUIRED_FIELDS
+    //   });
+    // };
+
+    console.log(data);
+
+    // const order = await Order.update(id, data);
+
+    res.status(200);
+  } catch (err) {
+    console.log("Error in changeOrderItem dialer controller", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 export const getOrderIdsInSubStatus = async (req, res) => {
   try {
     const { status } = req.query;
