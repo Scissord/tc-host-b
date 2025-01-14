@@ -11,7 +11,7 @@ export const seed = async (knex) => {
       entity_id: 1,
       abilities: [
         // orders
-        1, 2, 3, 4,
+        1,
         // products
         11, 12, 13, 14,
         // cities
@@ -33,15 +33,15 @@ export const seed = async (knex) => {
         // order_column
         101, 102, 103, 104,
         // roles
-        121, 122, 123, 124,
+        111, 112, 113, 114,
         // assigned_role
-        131, 132, 133,
+        121, 122, 123,
         // abilities
-        141,
+        131,
         // permissions
-        151, 152, 153,
+        141, 142, 143,
         // statistics
-        161, 162, 163
+        151
       ],
       type: "role"
     },
@@ -50,19 +50,7 @@ export const seed = async (knex) => {
       entity_id: 2,
       abilities: [
         // orders
-        1, 2, 3, 4,
-        // webmasters
-        31, 32, 33, 34, 35,
-        // departments
-        41, 42, 43, 44, 45,
-        // teams
-        51, 52, 53, 54, 55,
-        // operators
-        61, 62, 63, 64, 65,
-        // order_column
-        101, 102, 103, 104,
-        // statistics
-        161, 162, 163
+        1,
       ],
       type: "role"
     },
