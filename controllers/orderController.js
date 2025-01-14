@@ -51,6 +51,11 @@ export const getUserOrders = async (req, res) => {
 			updated_at,
 		} = req.query;
 
+		let hide = false;
+		if (req.operator) {
+			hide = true;
+		};
+
 		// validate here on fields
 
 		const { orders, lastPage, pages } = await Order.getUserOrdersPaginated(
@@ -84,7 +89,7 @@ export const getUserOrders = async (req, res) => {
 			updated_at,
 		);
 
-		const mappedOrders = await mapOrders(orders, 'user');
+		const mappedOrders = await mapOrders(orders, hide);
 
 		res.status(200).send({
 			message: 'ok',
@@ -109,7 +114,7 @@ export const getWebmasterOrders = async (req, res) => {
 			req.webmaster.id
 		);
 
-		const mappedOrders = await mapOrders(orders, 'webmaster');
+		const mappedOrders = await mapOrders(orders, true);
 
 		res.status(200).send({
 			message: 'ok',
@@ -136,7 +141,7 @@ export const getOperatorOrders = async (req, res) => {
 			sub_status,
 		);
 
-		const mappedOrders = await mapOrders(orders, 'operator');
+		const mappedOrders = await mapOrders(orders, true);
 
 		res.status(200).send({
 			message: 'ok',

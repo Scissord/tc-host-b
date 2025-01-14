@@ -10,7 +10,7 @@ import * as OrderCancelReason from '#root/models/order_cancel_reason.js';
 import { getKeyValue } from '#services/redis/redis.js';
 import hideString from '#utils/hideString.js';
 
-export async function mapOrders(orders, entity) {
+export async function mapOrders(orders, hide) {
   const reservedOrders = await getKeyValue('reservedOrders') || [];
   const [
     products,
@@ -45,7 +45,7 @@ export async function mapOrders(orders, entity) {
 
     return {
       ...order,
-      phone: entity === 'user' ? order.phone : hideString(order.phone),
+      phone: hide ? order.phone : hideString(order.phone),
       webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-',
       operator: operators.find((o) => +o.id === +order.operator_id)?.name ?? '-',
       city: cities.find((c) => +c.id === +order.city_id) || null,

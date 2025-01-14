@@ -8,8 +8,8 @@ export const seed = async (knex) => {
   const groups = [
     {
       name: 'orders',
-      actions: ['get', 'get_order', 'create', 'update', 'delete'],
-      titles: ['Получить заказы', 'Получить заказ', 'Создать заказ', 'Изменить заказ', 'Удалить заказ']
+      actions: ['get'],
+      titles: ['Получить все заказы']
     },
     {
       name: 'products',
@@ -88,15 +88,9 @@ export const seed = async (knex) => {
     },
     {
       name: 'statistics',
-      actions: ['user', 'webmaster', 'operator'],
-      titles: ['Получить общую статистику', 'Получить статистику по вебмастерам', 'Получить статистику по операторам']
+      actions: ['user'],
+      titles: ['Получить общую статистику']
     }
-    // { 
-    //   name: 'admin', 
-    //   actions: ['superadmin_page', 'department_head'], 
-    //   titles: ['Страница, для редактирования всего', 'Руководитель отдела'], 
-    //   extraFields: [{ entity_id: 1, entity_type: "department" }] 
-    // },
   ];
 
   const abilities = groups.flatMap((group, groupIndex) =>
