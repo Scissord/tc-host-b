@@ -23,7 +23,7 @@ export const getUserOrders = async (req, res) => {
 		const {
 			limit,
 			page,
-			sub_status,
+			// sub_status,
 			id,
 			fio,
 			products: items,
@@ -36,7 +36,7 @@ export const getUserOrders = async (req, res) => {
 			utm_term,
 			webmaster,
 			operator,
-			order_sub_status,
+			// order_sub_status,
 			additional1,
 			additional2,
 			additional3,
@@ -50,7 +50,6 @@ export const getUserOrders = async (req, res) => {
 			created_at,
 			updated_at,
 		} = req.query;
-		console.log(req.query)
 		let hide = false;
 		if (req.operator) {
 			hide = true;
