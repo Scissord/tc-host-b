@@ -45,7 +45,7 @@ export async function mapOrders(orders, hide) {
 
     return {
       ...order,
-      phone: hide ? order.phone : hideString(order.phone),
+      phone: hide ? hideString(order.phone) : order.phone,
       webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-',
       operator: operators.find((o) => +o.id === +order.operator_id)?.name ?? '-',
       city: cities.find((c) => +c.id === +order.city_id) || null,
