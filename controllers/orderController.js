@@ -164,6 +164,7 @@ export const getOrder = async (req, res) => {
 		};
 
 		const { order_id } = req.params;
+		console.log(order_id)
 		const order = await Order.findWithItems(order_id);
 		const transformedOrder = await mapOrder(order)
 		console.log(transformedOrder);
