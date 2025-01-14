@@ -274,7 +274,7 @@ export const getUserOrdersPaginated = async function (
         q.where('o.updated_at', 'ilike', `%${updated_at}%`)
       }
     })
-    .where('o.sub_status_id', sub_status)
+    // .where('o.sub_status_id', sub_status)
     .groupBy('o.id')
     .orderBy('o.id', 'desc')
     .paginate({
