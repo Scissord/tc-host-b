@@ -144,21 +144,18 @@ export const getGenders = async (req, res) => {
   }
 };
 
-export const getUsers = async (req, res) => {
+export const getOperators = async (req, res) => {
   try {
-    const users = await User.get();
+    const operators = await Operator.get();
 
-    const transformedUsers = users.reduce((acc, u) => {
-      acc[u.id] = {
-        login: u.login,
-      };
-
+    const transformedOperators = operators.reduce((acc, o) => {
+      acc[o.id] = o.name;
       return acc;
     }, {});
 
-    res.status(200).json(transformedUsers);
+    res.status(200).json(transformedOperators);
   } catch (err) {
-    console.log("Error in getUsers dialer controller", err.message);
+    console.log("Error in getOperators dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
