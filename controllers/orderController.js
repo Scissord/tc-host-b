@@ -237,7 +237,19 @@ export const create = async (req, res) => {
 			});
 		};
 
+		if (Array.isArray(items)) {
+			if (
+				data.phone.startsWith('77') &&
+				data.phone.length === 11 &&
+				items.length > 0 &&
+				items.some(item => item.product_id)
+			) {
+				data.sub_status_id = 21;
+			};
+		};
+
 		const order = await Order.create(data);
+
 		if (items) {
 			for (const item of items) {
 				await OrderItem.create({
