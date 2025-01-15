@@ -37,7 +37,6 @@ export const getWhereIn = async (field, values) => {
   return await db('order as o')
     .select('o.*')
     .whereIn(field, values)
-    .groupBy('o.id')
     .orderBy('o.id', 'desc');
 };
 
