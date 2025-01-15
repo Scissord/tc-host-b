@@ -1,17 +1,31 @@
 import express from "express";
 import * as controller from '#controllers/orderController.js';
+import verify from '#root/middleware/verify.js';
 import withExtraData from "#middleware/withExtraData.js";
 import checkAbility from "#middleware/checkAbility.js";
 import checkEntity from "#middleware/checkEntity.js";
 
 const router = express.Router();
 
-router.get("/user", withExtraData({ ability_name: 'get_orders' }, checkAbility), controller.getUserOrders);
-router.get("/webmaster", withExtraData({ entity: 'webmaster' }, checkEntity), controller.getWebmasterOrders);
-router.get("/operator", withExtraData({ entity: 'operator' }, checkEntity), controller.getOperatorOrders);
-router.get("/:order_id", withExtraData({ ability_name: 'get_order_orders' }, checkAbility), controller.getOrder);
+// Получить все заказы для пользователя
+router.get("/user", verify, withExtraData({ ability_name: 'get_orders' }, checkAbility), controller.getUserOrders);
+
+// Получить заказы вебмастера
+router.get("/webmaster", verify, withExtraData({ entity: 'webmaster' }, checkEntity), controller.getWebmasterOrders);
+
+// Получить заказы для оператора -> команда(статусы)
+router.get("/operator", verify, withExtraData({ entity: 'operator' }, checkEntity), controller.getOperatorOrders);
+
+// Зайти в заказ
+router.get("/:order_id", verify, controller.getOrder);
+
+// Создать заказ
 router.post("", controller.create);
-router.patch("/:order_id", controller.update);
-router.patch("/status/update", controller.changeStatus);
+
+// Обновить заказ
+router.patch("/:order_id", verify, controller.update);
+
+// Перетащить заказ
+router.patch("/status/update", verify, controller.changeStatus);
 
 export default router;

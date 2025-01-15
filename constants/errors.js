@@ -19,7 +19,10 @@ const ERRORS = {
   // ability
   USER_CANT: 'Пользователь не может выполнить это действие!',
   // fields
+  REQUIRED_FIELDS: 'Укажите поля для обновления!',
+  REQUIRED_ID: 'Укажите id!',
   REQUIRED_PHONE: 'Укажите телефон!',
+  REQUIRED_STATUS: 'Укажите статус!',
   // role
   ROLE_EXIST: 'У пользователя уже есть роль!',
   // permission

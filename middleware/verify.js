@@ -1,5 +1,7 @@
 import jwt from 'jsonwebtoken';
 import * as User from '#models/user.js';
+import * as Webmaster from '#models/webmaster.js';
+import * as Operator from '#models/operator.js';
 import ERRORS from '#constants/errors.js';
 
 const verify = async (req, res, next) => {
@@ -7,8 +9,8 @@ const verify = async (req, res, next) => {
   try {
     // 1. Make sure you have accessToken;
     const token = req.headers['authorization'];
-    if (!token) return res.status(401).send({ 
-      message: ERRORS.NO_ACCESS 
+    if (!token) return res.status(401).send({
+      message: ERRORS.NO_ACCESS
     });
 
     // 2. Delete Bearer
@@ -35,35 +37,43 @@ const verify = async (req, res, next) => {
 
           // 8. Check if user exist
           const user = await User.find(decodedRefresh.userId);
-          if (!user) return res.status(401).send({ 
-            message: ERRORS.USER_NOT_FOUND 
+          if (!user) return res.status(401).send({
+            message: ERRORS.USER_NOT_FOUND
           });
 
           // 9. refreshToken is valid, but need new accessToken
-          return res.status(401).send({ 
+          return res.status(401).send({
             message: ERRORS.INVALID_ACCESS
           });
         } catch (refreshError) {
           // 10. If refreshToken invalid too
-          return res.status(401).send({ 
-            message: ERRORS.INVALID_REFRESH 
+          return res.status(401).send({
+            message: ERRORS.INVALID_REFRESH
           });
         };
       } else {
         // 11. If token is not expired, but other error
-        return res.status(401).send({ 
+        return res.status(401).send({
           message: ERRORS.INVALID_ACCESS
         });
       };
     };
 
     const user = await User.find(decoded.userId);
-    if (!user) return res.status(401).send({ 
-      message: ERRORS.USER_NOT_FOUND 
+    if (!user) return res.status(401).send({
+      message: ERRORS.USER_NOT_FOUND
     });
 
     req.user = user;
 
+    const webmaster = await Webmaster.findWhere({ user_id: user.id });
+    if (webmaster) {
+      req.webmaster = webmaster;
+    };
+    const operator = await Operator.findWhere({ user_id: user.id });
+    if (operator) {
+      req.operator = operator;
+    };
     next();
   } catch (err) {
     console.log("Error in verify middleware", err.message);

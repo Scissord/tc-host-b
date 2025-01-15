@@ -1,11 +1,22 @@
 import * as Order from '#models/order.js';
 import * as SubStatus from '#models/sub_status.js';
-import * as Product from '#models/product.js';
-import * as Webmaster from '#models/webmaster.js';
-import * as Operator from '#models/operator.js';
-import * as City from '#models/city.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
+import { mapOrders, mapOrder } from '#services/order/map.js';
+import hideString from '#utils/hideString.js';
 import ERRORS from '#constants/errors.js';
+
+export const getOrdersChatsByStatuses = async (req, res) => {
+	try {
+		const { sub_statuses, limit, offset } = req.query
+		const statusesArray = sub_statuses ? sub_statuses.split(',').map(Number) : [];
+
+		const chats = await Order.getOrdersChatsByStatuses(statusesArray, limit, offset)
+		return res.status(200).send({ chats })
+	} catch (err) {
+		console.log("Error in get getOrderChats controller", err.message);
+		res.status(500).send({ error: "Internal Server Error" });
+	};
+};
 
 export const getUserOrders = async (req, res) => {
 	try {
@@ -39,6 +50,10 @@ export const getUserOrders = async (req, res) => {
 			created_at,
 			updated_at,
 		} = req.query;
+		let hide = false;
+		if (req.operator) {
+			hide = true;
+		};
 
 		// validate here on fields
 
@@ -73,31 +88,11 @@ export const getUserOrders = async (req, res) => {
 			updated_at,
 		);
 
-		const [products, webmasters, operators, cities, subStatuses] = await Promise.all([
-			Product.get(), Webmaster.get(), Operator.get(), City.get(), SubStatus.get()
-		]);
-
-		const enhancedOrders = orders.map((order) => {
-			return {
-				...order,
-				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name,
-				operator: operators.find((o) => +o.id === +order.operator_id)?.name,
-				city: cities.find((c) => +c.id === +order.city_id) || null,
-				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) || null,
-				items: order.items.map((item) => {
-					const product = products.find((p) => +p.id === +item.product_id);
-					return {
-						...item,
-						name: product ? product.name : null,
-						price: product ? product.price : null,
-					};
-				}),
-			}
-		});
+		const mappedOrders = await mapOrders(orders, hide);
 
 		res.status(200).send({
 			message: 'ok',
-			orders: enhancedOrders,
+			orders: mappedOrders,
 			lastPage, pages
 		});
 	} catch (err) {
@@ -118,31 +113,11 @@ export const getWebmasterOrders = async (req, res) => {
 			req.webmaster.id
 		);
 
-		const [products, webmasters, operators, cities, subStatuses] = await Promise.all([
-			Product.get(), Webmaster.get(), Operator.get(), City.get(), SubStatus.get()
-		]);
-
-		const enhancedOrders = orders.map((order) => {
-			return {
-				...order,
-				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name,
-				operator: operators.find((o) => +o.id === +order.operator_id)?.name,
-				city: cities.find((c) => +c.id === +order.city_id) || null,
-				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) || null,
-				items: order.items.map((item) => {
-					const product = products.find((p) => +p.id === +item.product_id);
-					return {
-						...item,
-						name: product ? product.name : null,
-						price: product ? product.price : null,
-					};
-				}),
-			}
-		});
+		const mappedOrders = await mapOrders(orders, true);
 
 		res.status(200).send({
 			message: 'ok',
-			orders: enhancedOrders,
+			orders: mappedOrders,
 			lastPage, pages
 		});
 	} catch (err) {
@@ -155,8 +130,6 @@ export const getOperatorOrders = async (req, res) => {
 	try {
 		const { limit, page, sub_status } = req.query;
 
-		// validate here on fields
-
 		const {
 			orders,
 			lastPage,
@@ -167,31 +140,11 @@ export const getOperatorOrders = async (req, res) => {
 			sub_status,
 		);
 
-		const [products, webmasters, operators, cities, subStatuses] = await Promise.all([
-			Product.get(), Webmaster.get(), Operator.get(), City.get(), SubStatus.get()
-		]);
-
-		const enhancedOrders = orders.map((order) => {
-			return {
-				...order,
-				webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name,
-				operator: operators.find((o) => +o.id === +order.operator_id)?.name,
-				city: cities.find((c) => +c.id === +order.city_id) || null,
-				status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) || null,
-				items: order.items.map((item) => {
-					const product = products.find((p) => +p.id === +item.product_id);
-					return {
-						...item,
-						name: product ? product.name : null,
-						price: product ? product.price : null,
-					};
-				}),
-			}
-		});
+		const mappedOrders = await mapOrders(orders, true);
 
 		res.status(200).send({
 			message: 'ok',
-			orders: enhancedOrders,
+			orders: mappedOrders,
 			lastPage, pages
 		});
 	} catch (err) {
@@ -202,11 +155,26 @@ export const getOperatorOrders = async (req, res) => {
 
 export const getOrder = async (req, res) => {
 	try {
-		const { order_id } = req.params;
-		const order = await Order.find(order_id);
-		delete order.phone;
+		console.log(req.params)
+		// webmaster can't enter the page
+		if (req.webmaster) {
+			return res.status(403).send({
+				message: ERRORS.USER_CANT
+			});
+		};
 
-		return res.status(200).send({ order })
+		const { order_id } = req.params;
+		console.log(order_id)
+		const order = await Order.findWithItems(order_id);
+		const transformedOrder = await mapOrder(order)
+		console.log(transformedOrder);
+
+		// for operators don't show phone
+		if (req.operator) {
+			transformedOrder.phone = hideString(transformedOrder.phone) ?? '-';
+		};
+
+		return res.status(200).send({ order: transformedOrder })
 	} catch (err) {
 		console.log("Error in get getOrder controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
@@ -257,19 +225,19 @@ export const create = async (req, res) => {
 			});
 		};
 
-		data.status_id = 1;
-		data.sub_status_id = 1;
+		data.status_id = 0;
+		data.sub_status_id = 0;
 
-		// const cachedOrder = await getKeyValue(phone);
-		// if (cachedOrder) {
-		// 	return res.status(400).send({ 
-		// 		message: "Order for this phone number already exists" 
-		// 	});
-		// }
+		const cachedOrder = await getKeyValue(data.phone);
+		if (cachedOrder) {
+			return res.status(400).send({
+				message: "Заказ по этому номеру был создан недавно!"
+			});
+		};
 
 		const order = await Order.create(data);
 
-		// await setKeyValue(phone, JSON.stringify(order), 60); 
+		await setKeyValue(data.phone, order, 60);
 
 		return res.status(200).send({ message: 'ok', order });
 	} catch (err) {
@@ -293,11 +261,10 @@ export const update = async (req, res) => {
 			};
 		};
 
-
 		// 2. update order
-		const order = await Order.update(order_id, data);
+		await Order.update(order_id, data);
 
-		res.status(200).send({ message: 'ok', order });
+		res.status(200).send({ message: 'ok' });
 	} catch (err) {
 		console.log("Error in update user controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });

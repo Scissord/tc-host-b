@@ -10,7 +10,6 @@ const checkEntity = async (req, res, next, extraData) => {
         message: ERRORS.NOT_WEBMASTER
       });
     };
-    req.webmaster = webmaster;
   };
   if (extraData.entity === 'operator') {
     const operator = await Operator.findWhere({ user_id: req.user.id });
@@ -19,7 +18,6 @@ const checkEntity = async (req, res, next, extraData) => {
         message: ERRORS.NOT_OPERATOR
       });
     };
-    req.operator = operator;
   };
   next();
 };

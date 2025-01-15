@@ -8,8 +8,8 @@ export const seed = async (knex) => {
   const groups = [
     {
       name: 'orders',
-      actions: ['get', 'get_order', 'create', 'update', 'delete'],
-      titles: ['Получить заказы', 'Получить заказ', 'Создать заказ', 'Изменить заказ', 'Удалить заказ']
+      actions: ['get'],
+      titles: ['Получить все заказы']
     },
     {
       name: 'products',
@@ -62,11 +62,6 @@ export const seed = async (knex) => {
       titles: ['Получить заголовки заказов', 'Создать заголовок для таблицы заказов', 'Изменить заголовок для таблицы заказов', 'Удалить заголовок для таблицы заказов']
     },
     {
-      name: 'statistics',
-      actions: ['get', 'supervisor_statistic', 'webmaster_statistic', 'operator_statistic'],
-      titles: ['Получить статистику', 'Получить статистику начальника отдела', 'Получить статистику вебмастера', 'Получить статистику оператора']
-    },
-    {
       name: 'roles',
       actions: ['get', 'create', 'update', 'delete'],
       titles: ['Получить роли', 'Создать роль', 'Изменить роль', 'Удалить роль']
@@ -86,12 +81,11 @@ export const seed = async (knex) => {
       actions: ['get', 'create', 'delete'],
       titles: ['Получить список выданных доступов для пользователей и ролей', 'Выдать доступ пользователю или роли', 'Удалить доступ пользователю или роли']
     },
-    // { 
-    //   name: 'admin', 
-    //   actions: ['superadmin_page', 'department_head'], 
-    //   titles: ['Страница, для редактирования всего', 'Руководитель отдела'], 
-    //   extraFields: [{ entity_id: 1, entity_type: "department" }] 
-    // },
+    {
+      name: 'statistics',
+      actions: ['user'],
+      titles: ['Получить общую статистику']
+    }
   ];
 
   const abilities = groups.flatMap((group, groupIndex) =>
@@ -104,4 +98,5 @@ export const seed = async (knex) => {
   );
 
   await knex('ability').insert(abilities);
+  await knex.raw("SELECT setval('ability_id_seq', (SELECT MAX(id) FROM ability))");
 };

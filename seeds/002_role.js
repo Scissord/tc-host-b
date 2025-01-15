@@ -26,4 +26,6 @@ export const seed = async (knex) => {
       title: 'Вебмастер тимлид',
     },
   ]);
+
+  await knex.raw("SELECT setval('role_id_seq', (SELECT MAX(id) FROM role))");
 };

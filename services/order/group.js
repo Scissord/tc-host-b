@@ -1,0 +1,339 @@
+export const groupByDate = (orders) => {
+  const grouped = orders.reduce((acc, order) => {
+    const day = new Date(order.created_at).toLocaleDateString('ru-KZ');
+
+    if (!acc[day]) {
+      acc[day] = {
+        day,
+        total: 0, // Инициализация общего количества заказов
+        statuses: {
+          '1': { count: 0, percent: 0 },
+          '2': { count: 0, percent: 0 },
+          '3': { count: 0, percent: 0 },
+          '4': { count: 0, percent: 0 },
+          '5': { count: 0, percent: 0 },
+          '6': { count: 0, percent: 0 },
+          '7': { count: 0, percent: 0 },
+        },
+      };
+    }
+
+    // Увеличиваем общее количество заказов за день
+    acc[day].total += 1;
+
+    // Инициализируем статус, если его ещё нет
+    if (!acc[day].statuses[order.status_id]) {
+      acc[day].statuses[order.status_id] = {
+        count: 0,
+        percent: 0, // Процент будет рассчитан позже
+      };
+    }
+
+    // Увеличиваем количество для данного статуса
+    acc[day].statuses[order.status_id].count += 1;
+
+    return acc;
+  }, {});
+
+  // Рассчитываем проценты и преобразуем структуру
+  return Object.values(grouped).map(({ day, total, statuses }) => {
+    const groupedStatuses = Object.entries(statuses).reduce((acc, [statusId, data]) => {
+      acc[statusId] = {
+        count: data.count,
+        percent: ((data.count / total) * 100).toFixed(2),
+      };
+      return acc;
+    }, {});
+
+    return {
+      label: day,
+      total, // Включаем общее количество заказов
+      statuses: groupedStatuses,
+    };
+  });
+};
+
+export const groupByRegion = (orders) => {
+  const grouped = orders.reduce((acc, order) => {
+    const region = order.region;
+
+    if (!acc[region]) {
+      acc[region] = {
+        region,
+        total: 0, // Инициализация общего количества заказов
+        statuses: {
+          '1': { count: 0, percent: 0 },
+          '2': { count: 0, percent: 0 },
+          '3': { count: 0, percent: 0 },
+          '4': { count: 0, percent: 0 },
+          '5': { count: 0, percent: 0 },
+          '6': { count: 0, percent: 0 },
+          '7': { count: 0, percent: 0 },
+        },
+      };
+    }
+
+    // Увеличиваем общее количество заказов для региона
+    acc[region].total += 1;
+
+    // Инициализируем статус, если его ещё нет
+    if (!acc[region].statuses[order.status_id]) {
+      acc[region].statuses[order.status_id] = {
+        count: 0,
+        percent: 0, // Процент будет рассчитан позже
+      };
+    }
+
+    // Увеличиваем количество для данного статуса
+    acc[region].statuses[order.status_id].count += 1;
+
+    return acc;
+  }, {});
+
+  // Рассчитываем проценты и преобразуем структуру
+  return Object.values(grouped).map(({ region, total, statuses }) => {
+    const groupedStatuses = Object.entries(statuses).reduce((acc, [statusId, data]) => {
+      acc[statusId] = {
+        count: data.count,
+        percent: ((data.count / total) * 100).toFixed(2),
+      };
+      return acc;
+    }, {});
+
+    return {
+      label: region,
+      total, // Включаем общее количество заказов
+      statuses: groupedStatuses,
+    };
+  });
+};
+
+export const groupByCity = (orders) => {
+  const grouped = orders.reduce((acc, order) => {
+    const city = order.city_name;
+
+    if (!acc[city]) {
+      acc[city] = {
+        city,
+        total: 0, // Инициализация общего количества заказов
+        statuses: {
+          '1': { count: 0, percent: 0 },
+          '2': { count: 0, percent: 0 },
+          '3': { count: 0, percent: 0 },
+          '4': { count: 0, percent: 0 },
+          '5': { count: 0, percent: 0 },
+          '6': { count: 0, percent: 0 },
+          '7': { count: 0, percent: 0 },
+        },
+      };
+    }
+
+    // Увеличиваем общее количество заказов для города
+    acc[city].total += 1;
+
+    // Инициализируем статус, если его ещё нет
+    if (!acc[city].statuses[order.status_id]) {
+      acc[city].statuses[order.status_id] = {
+        count: 0,
+        percent: 0, // Процент будет рассчитан позже
+      };
+    }
+
+    // Увеличиваем количество для данного статуса
+    acc[city].statuses[order.status_id].count += 1;
+
+    return acc;
+  }, {});
+
+  // Рассчитываем проценты и преобразуем структуру
+  return Object.values(grouped).map(({ city, total, statuses }) => {
+    const groupedStatuses = Object.entries(statuses).reduce((acc, [statusId, data]) => {
+      acc[statusId] = {
+        count: data.count,
+        percent: ((data.count / total) * 100).toFixed(2),
+      };
+      return acc;
+    }, {});
+
+    return {
+      label: city,
+      total, // Включаем общее количество заказов
+      statuses: groupedStatuses,
+    };
+  });
+};
+
+export const groupByProduct = (orders, items) => {
+  const grouped = items.reduce((acc, item) => {
+    const productId = item.product_id;
+    const productName = item.product_name;
+
+    // Находим заказ, соответствующий элементу
+    const order = orders.find((order) => order.id === item.order_id);
+
+    if (!order) return acc; // Пропускаем, если заказ не найден
+
+    if (!acc[productId]) {
+      acc[productId] = {
+        product_id: productId,
+        product_name: productName,
+        total: 0, // Инициализация общего количества товаров
+        statuses: {
+          '1': { count: 0, percent: 0 },
+          '2': { count: 0, percent: 0 },
+          '3': { count: 0, percent: 0 },
+          '4': { count: 0, percent: 0 },
+          '5': { count: 0, percent: 0 },
+          '6': { count: 0, percent: 0 },
+          '7': { count: 0, percent: 0 },
+        },
+      };
+    }
+
+    // Увеличиваем общее количество товаров
+    acc[productId].total += 1;
+
+    // Инициализируем статус, если его ещё нет
+    if (!acc[productId].statuses[order.status_id]) {
+      acc[productId].statuses[order.status_id] = {
+        count: 0,
+        percent: 0, // Процент будет рассчитан позже
+      };
+    }
+
+    // Увеличиваем количество для данного статуса
+    acc[productId].statuses[order.status_id].count += 1;
+
+    return acc;
+  }, {});
+
+  // Рассчитываем проценты и преобразуем структуру
+  return Object.values(grouped).map(({ product_id, product_name, total, statuses }) => {
+    const groupedStatuses = Object.entries(statuses).reduce((acc, [statusId, data]) => {
+      acc[statusId] = {
+        count: data.count,
+        percent: ((data.count / total) * 100).toFixed(2),
+      };
+      return acc;
+    }, {});
+
+    return {
+      label: product_name,
+      product_id,
+      total,
+      statuses: groupedStatuses,
+    };
+  });
+};
+
+export const groupWebmasters = (orders, webmasters) => {
+  const grouped = orders.reduce((acc, order) => {
+    const webmaster = webmasters.find((wm) => +wm.id === +order.webmaster_id);
+
+    if (!webmaster) return acc; // Если вебмастер не найден, пропускаем заказ
+
+    if (!acc[webmaster.id]) {
+      acc[webmaster.id] = {
+        webmaster: {
+          id: webmaster.id,
+          name: webmaster.name,
+        },
+        total: 0, // Инициализация общего количества заказов
+        statuses: {
+          '1': { count: 0, percent: 0 },
+          '2': { count: 0, percent: 0 },
+          '3': { count: 0, percent: 0 },
+          '4': { count: 0, percent: 0 },
+          '5': { count: 0, percent: 0 },
+          '6': { count: 0, percent: 0 },
+          '7': { count: 0, percent: 0 },
+        },
+      };
+    }
+
+    // Увеличиваем общее количество заказов
+    acc[webmaster.id].total += 1;
+
+    // Увеличиваем количество для данного статуса
+    if (!acc[webmaster.id].statuses[order.status_id]) {
+      acc[webmaster.id].statuses[order.status_id] = { count: 0, percent: 0 };
+    }
+
+    acc[webmaster.id].statuses[order.status_id].count += 1;
+
+    return acc;
+  }, {});
+
+  // Рассчитываем проценты
+  return Object.values(grouped).map(({ webmaster, total, statuses }) => {
+    const groupedStatuses = Object.entries(statuses).reduce((acc, [statusId, data]) => {
+      acc[statusId] = {
+        count: data.count,
+        percent: ((data.count / total) * 100).toFixed(2),
+      };
+      return acc;
+    }, {});
+
+    return {
+      label: webmaster.name,
+      total,
+      statuses: groupedStatuses,
+    };
+  });
+};
+
+export const groupOperators = (orders, operators) => {
+  const grouped = orders.reduce((acc, order) => {
+    const operator = operators.find((op) => +op.id === +order.operator_id);
+
+    if (!operator) return acc; // Если оператор не найден, пропускаем заказ
+
+    if (!acc[operator.id]) {
+      acc[operator.id] = {
+        operator: {
+          id: operator.id,
+          name: operator.name,
+        },
+        total: 0, // Инициализация общего количества заказов
+        statuses: {
+          '1': { count: 0, percent: 0 },
+          '2': { count: 0, percent: 0 },
+          '3': { count: 0, percent: 0 },
+          '4': { count: 0, percent: 0 },
+          '5': { count: 0, percent: 0 },
+          '6': { count: 0, percent: 0 },
+          '7': { count: 0, percent: 0 },
+        },
+      };
+    }
+
+    // Увеличиваем общее количество заказов
+    acc[operator.id].total += 1;
+
+    // Увеличиваем количество для данного статуса
+    if (!acc[operator.id].statuses[order.status_id]) {
+      acc[operator.id].statuses[order.status_id] = { count: 0, percent: 0 };
+    }
+
+    acc[operator.id].statuses[order.status_id].count += 1;
+
+    return acc;
+  }, {});
+
+  // Рассчитываем проценты
+  return Object.values(grouped).map(({ operator, total, statuses }) => {
+    const groupedStatuses = Object.entries(statuses).reduce((acc, [statusId, data]) => {
+      acc[statusId] = {
+        count: data.count,
+        percent: ((data.count / total) * 100).toFixed(2),
+      };
+      return acc;
+    }, {});
+
+    return {
+      label: operator.name,
+      total,
+      statuses: groupedStatuses,
+    };
+  });
+};

@@ -2,7 +2,7 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-export const up = function(knex) {
+export const up = function (knex) {
   return knex.schema
     .createTable('user_token', (table) => {
       table.bigIncrements('id').primary();
@@ -11,7 +11,7 @@ export const up = function(knex) {
         .references('id')
         .inTable('user')
         .onDelete('CASCADE');
-        
+
       table.string('refresh_token', 255).notNullable();
       table.timestamp('expires_at').notNullable();
     });
@@ -21,6 +21,6 @@ export const up = function(knex) {
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-export const down = function(knex) {
+export const down = function (knex) {
   return knex.schema.dropTableIfExists('user_token');
 };

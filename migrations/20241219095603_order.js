@@ -2,7 +2,7 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-export const up = function(knex) {
+export const up = function (knex) {
   return knex.schema
     .createTable('order', (table) => {
       table.bigIncrements('id').primary();
@@ -19,6 +19,7 @@ export const up = function(knex) {
       table.string('address', 255).nullable();
       table.string('postal_code', 255).nullable();
       table.string('comment', 255).nullable();
+      table.integer('age').nullable();
       table.string('utm_term', 255).nullable();
       table.integer('webmaster_id')
         .unsigned()
@@ -48,6 +49,36 @@ export const up = function(knex) {
         .inTable('sub_status')
         .onDelete('CASCADE');
 
+      table.tinyint('gender_id')
+        .unsigned()
+        .nullable()
+        .references('id')
+        .inTable('gender')
+        .onDelete('CASCADE');
+
+      table.tinyint('payment_method_id')
+        .unsigned()
+        .nullable()
+        .references('id')
+        .inTable('payment_method')
+        .onDelete('CASCADE');
+
+      table.tinyint('delivery_method_id')
+        .unsigned()
+        .nullable()
+        .references('id')
+        .inTable('delivery_method')
+        .onDelete('CASCADE');
+
+      table.tinyint('order_cancel_reason_id')
+        .unsigned()
+        .nullable()
+        .references('id')
+        .inTable('order_cancel_reason')
+        .onDelete('CASCADE');
+
+      table.integer('total_sum').defaultTo(0);
+
       table.string('additional1', 255).nullable();
       table.string('additional2', 255).nullable();
       table.string('additional3', 255).nullable();
@@ -61,6 +92,8 @@ export const up = function(knex) {
 
       table.timestamp('created_at').defaultTo(knex.fn.now());
       table.timestamp('updated_at').defaultTo(knex.fn.now());
+      table.timestamp('delivery_at').defaultTo(null);
+      table.timestamp('logist_recall_at').defaultTo(null);
       table.timestamp('approved_at').defaultTo(null);
       table.timestamp('cancelled_at').defaultTo(null);
       table.timestamp('shipped_at').defaultTo(null);
@@ -72,6 +105,6 @@ export const up = function(knex) {
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-export const down = function(knex) {
+export const down = function (knex) {
   return knex.schema.dropTable('order');
 };

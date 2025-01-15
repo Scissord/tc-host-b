@@ -21,3 +21,7 @@ export const updateWhere = async (query, data) => {
 export const hardDelete = async (id) => {
   return await userTokenRepository.delete(id);
 };
+
+export const findWhere = async function (query) {
+  return await userTokenRepository.findWhere(query);
+};
