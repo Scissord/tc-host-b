@@ -10,7 +10,7 @@ export const get = async (req, res) => {
 
 		res.status(200).send({ message: 'ok', operators });
 	} catch (err) {
-		console.log("Error in get webmaster controller", err.message);
+		console.log("Error in get operator controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
 	}
 };
@@ -125,7 +125,7 @@ export const softDelete = async (req, res) => {
 
 		res.status(200).send({ message: 'ok', operator });
 	} catch (err) {
-		console.log("Error in softDelete webmaster controller", err.message);
+		console.log("Error in softDelete operator controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
 	}
 };

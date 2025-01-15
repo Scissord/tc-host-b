@@ -48,12 +48,21 @@ export const create = async (data) => {
   return await orderRepository.create(data);
 };
 
+export const createMany = async (data) => {
+  return await orderRepository.createMany(data);
+};
+
+
 export const update = async (id, data) => {
   return await orderRepository.update(id, data);
 };
 
 export const hardDelete = async (id) => {
   return await orderRepository.delete(id);
+};
+
+export const hardDeleteAll = async () => {
+  return await orderRepository.hardDeleteAll();
 };
 
 export const find = async (id) => {

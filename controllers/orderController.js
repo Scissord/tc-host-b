@@ -1,12 +1,23 @@
+import axios from 'axios';
 import * as Order from '#models/order.js';
 import * as OrderSignals from '#services/signals/orderSignals.js';
 import * as OrderItem from '#models/order_item.js';
 import * as SubStatus from '#models/sub_status.js';
+import * as City from '#models/city.js';
+import * as Gender from '#models/gender.js';
+import * as PaymentMethod from '#models/payment_method.js';
+import * as DeliveryMethod from '#models/delivery_method.js';
+import * as OrderCancelReason from '#models/order_cancel_reason.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import { mapOrders, mapOrder } from '#services/order/map.js';
-
+import { chunkArray } from '#utils/chunkArray.js';
+import { groupToStatus } from '#services/leadvertex/groupToStatus.js';
 import hideString from '#utils/hideString.js';
 import ERRORS from '#constants/errors.js';
+
+import knex from '#models/knex.js';
+
+const db = knex();
 
 export const getOrdersChatsByStatuses = async (req, res) => {
 	try {
@@ -296,6 +307,147 @@ export const update = async (req, res) => {
 		res.status(200).send({ message: 'ok' });
 	} catch (err) {
 		console.log("Error in update user controller", err.message);
+		res.status(500).send({ error: "Internal Server Error" });
+	}
+};
+
+export const sync = async (req, res) => {
+	try {
+		// 29.01.2025
+		// 15.01.2025
+
+		// Получаем текущие заказы
+		const orders_from_db = await Order.get();
+		const current_orders = orders_from_db.map(({ id, ...rest }) => ({ ...rest }));
+
+		// Получаем их items
+		const order_items_from_db = await OrderItem.get();
+		const current_items = order_items_from_db.map(({ id, ...rest }) => rest);
+
+		// Удаляем items
+		await OrderItem.hardDeleteAll();
+		await db.raw("SELECT setval('order_item_id_seq', 1, false)");
+
+		// Удаляем сами orders
+		await Order.hardDeleteAll();
+		await db.raw("SELECT setval('order_id_seq', 100000, false)");
+
+		// Создаём новые orders
+		const orders = await Order.createMany(current_orders);
+
+		// Создаём маппинг старых и новых order_id
+		const orderIdMap = {};
+		orders_from_db.forEach((oldOrder, index) => {
+			orderIdMap[oldOrder.id] = orders[index].id;
+		});
+
+		// Обновляем items с новыми order_id
+		const updated_items = current_items.map(item => ({
+			...item,
+			order_id: orderIdMap[item.order_id], // Заменяем старый order_id на новый
+		}));
+
+		// Создаём новые items
+		await OrderItem.create(updated_items);
+
+		db.raw("SELECT setval('order_id_seq', 1, false)");
+
+		const genders = await Gender.get();
+		const cities = await City.get();
+		const payment_methods = await PaymentMethod.get();
+		const delivery_methods = await DeliveryMethod.get();
+		const order_cancel_reasons = await OrderCancelReason.get();
+
+		// достаём список статусов из leadvertex
+		const response_statuses = await axios({
+			method: 'GET',
+			url: 'https://talkcall-kz.leadvertex.ru/api/admin/getStatusList.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa'
+		});
+
+		// достаём ids по статусам
+		for (const [status, data] of Object.entries(response_statuses.data)) {
+			const response_ids = await axios({
+				method: 'GET',
+				url: `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsInStatus.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&status=${status}`
+			});
+
+			const chunkedArray = chunkArray(response_ids.data, 100);
+			for (const ids of chunkedArray) {
+				const idsString = ids.join(',');
+				// достаём все старые заказы по статусам
+				const response_orders = await axios({
+					method: 'GET',
+					url: `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersByIds.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&ids=${idsString}`
+				});
+
+				// const newOrders = await Promise.all(
+				Object.entries(response_orders.data).map(async ([order_id, order]) => {
+					const newOrder = await Order.create({
+						id: order_id,
+						fio: order.fio,
+						phone: order.phone,
+						region: order.region,
+						city_id: cities.find((c) => c.name === order.city)?.id ?? null,
+						address: order.address,
+						postal_code: order.postIndex,
+						comment: order.comment,
+						age: order.additional6 || "",
+						utm_term: order.utm_term,
+						webmaster_id: order?.webmaster?.id || null,
+						operator_id: order.operatorID || null,
+						status_id: groupToStatus(order.statusGroup),
+						sub_status_id: order.status || 0,
+						gender_id: genders.find((g) => g.name === order.additional4)?.id ?? null,
+						payment_method_id: payment_methods.find((pm) => pm.name === order.additional12)?.id ?? null,
+						delivery_method_id: delivery_methods.find((dm) => dm.name === order.additional2)?.id ?? null,
+						order_cancel_reason_id: order_cancel_reasons.find((ocr) => ocr.name === order.additional7)?.id ?? null,
+						total_sum: order.total || "",
+						created_at: order.datetime || null,
+						updated_at: order.lastUpdate || null,
+						delivery_at: order.additional1 || null,
+						logist_recall_at: order.additional3 || null,
+						approved_at: order.approvedAt || null,
+						cancelled_at: order.canceledAt || null,
+						shipped_at: order.shippedAt || null,
+						buyout_at: order.buyoutAt || null,
+						additional1: order.domain,
+						additional2: order.timeSpent,
+						additional3: order.externalWebmaster,
+						additional4: order.russianpostTrack,
+						additional5: order.refundedAt,
+						additional6: order.additional5,
+						additional7: order.additional7,
+						additional8: order.additional8,
+						additional9: order.additional10,
+						additional10: order.additional15,
+					});
+
+					console.log('order', order);
+
+					if (order.goods) {
+						for (const [product_id, order_item] of Object.entries(order.goods)) {
+							const orderItem = await OrderItem.create({
+								order_id: newOrder.id,
+								quantity: order_item.quantity,
+								product_id,
+							});
+
+							console.log('orderItem', orderItem);
+						};
+					};
+
+					return newOrder;
+				})
+				// );
+
+				// await Promise.all(newOrders);
+			};
+		};
+
+		db.raw("SELECT setval('order_id_seq', (SELECT MAX(id) FROM order))");
+		res.status(200).send({ message: 'ok' });
+	} catch (err) {
+		console.log("Error in sync order controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
 	}
 };
