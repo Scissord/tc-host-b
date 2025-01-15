@@ -364,6 +364,8 @@ export const sync = async (req, res) => {
 			url: 'https://talkcall-kz.leadvertex.ru/api/admin/getStatusList.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa'
 		});
 
+		let i = 0;
+
 		// достаём ids по статусам
 		for (const [status, data] of Object.entries(response_statuses.data)) {
 			const response_ids = await axios({
@@ -380,7 +382,6 @@ export const sync = async (req, res) => {
 					url: `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersByIds.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&ids=${idsString}`
 				});
 
-				// const newOrders = await Promise.all(
 				Object.entries(response_orders.data).map(async ([order_id, order]) => {
 					const newOrder = await Order.create({
 						id: order_id,
@@ -422,8 +423,6 @@ export const sync = async (req, res) => {
 						additional10: order.additional15,
 					});
 
-					console.log('order', order);
-
 					if (order.goods) {
 						for (const [product_id, order_item] of Object.entries(order.goods)) {
 							const orderItem = await OrderItem.create({
@@ -431,16 +430,15 @@ export const sync = async (req, res) => {
 								quantity: order_item.quantity,
 								product_id,
 							});
-
-							console.log('orderItem', orderItem);
 						};
 					};
 
+					i++;
+
 					return newOrder;
 				})
-				// );
 
-				// await Promise.all(newOrders);
+				console.log(i);
 			};
 		};
 
