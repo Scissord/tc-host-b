@@ -116,7 +116,84 @@ export const seed = async (knex) => {
     team_id: 1
   }));
 
-  await knex('operator').insert(operatorData);
+  await knex('operator').insert([
+    ...operatorData,
+    {
+      id: 103391,
+      user_id: 133,
+      team_id: 1,
+    },
+    {
+      id: 103392,
+      user_id: 134,
+      team_id: 1,
+    },
+    {
+      id: 103393,
+      user_id: 135,
+      team_id: 1,
+    },
+    {
+      id: 103394,
+      user_id: 136,
+      team_id: 1,
+    },
+    {
+      id: 103395,
+      user_id: 137,
+      team_id: 1,
+    },
+    {
+      id: 103396,
+      user_id: 138,
+      team_id: 1,
+    },
+    {
+      id: 103397,
+      user_id: 139,
+      team_id: 1,
+    },
+    {
+      id: 103398,
+      user_id: 140,
+      team_id: 1,
+    },
+    {
+      id: 103399,
+      user_id: 141,
+      team_id: 1,
+    },
+    {
+      id: 103400,
+      user_id: 142,
+      team_id: 1,
+    },
+    {
+      id: 103401,
+      user_id: 143,
+      team_id: 1,
+    },
+    {
+      id: 103402,
+      user_id: 144,
+      team_id: 1,
+    },
+    {
+      id: 103403,
+      user_id: 145,
+      team_id: 1,
+    },
+    {
+      id: 103404,
+      user_id: 146,
+      team_id: 1,
+    },
+    {
+      id: 103405,
+      user_id: 147,
+      team_id: 1,
+    },
+  ]);
 
   await knex.raw("SELECT setval('operator_id_seq', (SELECT MAX(id) FROM operator))");
 };
