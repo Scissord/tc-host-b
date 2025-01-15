@@ -16,10 +16,7 @@ export const getWhere = async (query) => {
 export const getForSocket = async (condition) => {
   const result = await db('order as o')
     .select('o.*')
-    .select(db.raw('COALESCE(json_agg(oi.*) FILTER (WHERE oi.id IS NOT NULL), \'[]\') as items'))
-    .leftJoin('order_item as oi', 'oi.order_id', 'o.id')
     .where(condition)
-    .groupBy('o.id')
     .orderBy('o.id', 'desc')
     .paginate({
       perPage: 20,
@@ -64,17 +61,6 @@ export const hardDeleteAll = async () => {
 
 export const find = async (id) => {
   return await orderRepository.find(id);
-};
-
-export const findWithItems = async (id) => {
-  return await db('order as o')
-    .select('o.*')
-    .select(db.raw('COALESCE(json_agg(oi.*) FILTER (WHERE oi.id IS NOT NULL), \'[]\') as items'))
-    .leftJoin('order_item as oi', 'oi.order_id', 'o.id')
-    .where('o.id', id)
-    .groupBy('o.id')
-    .orderBy('o.id', 'desc')
-    .first();
 };
 
 export const updateWhereIn = async (ids, data) => {
@@ -156,45 +142,7 @@ export const getUserOrdersPaginated = async function (
   updated_at,
 ) {
   const result = await db('order as o')
-    .select(
-      'o.id',
-      db.raw('MAX(o.fio) as fio'),
-      db.raw('MAX(o.phone) as phone'),
-      db.raw('MAX(o.region) as region'),
-      db.raw('MAX(o.city_id) as city_id'),
-      db.raw('MAX(o.address) as address'),
-      db.raw('MAX(o.postal_code) as postal_code'),
-      db.raw('MAX(o.comment) as comment'),
-      db.raw('MAX(o.age) as age'),
-      db.raw('MAX(o.utm_term) as utm_term'),
-      db.raw('MAX(o.webmaster_id) as webmaster_id'),
-      db.raw('MAX(o.operator_id) as operator_id'),
-      db.raw('MAX(o.status_id) as status_id'),
-      db.raw('MAX(o.sub_status_id) as sub_status_id'),
-      db.raw('MAX(o.gender_id) as gender_id'),
-      db.raw('MAX(o.payment_method_id) as payment_method_id'),
-      db.raw('MAX(o.delivery_method_id) as delivery_method_id'),
-      db.raw('MAX(o.order_cancel_reason_id) as order_cancel_reason_id'),
-      db.raw('MAX(o.total_sum) as total_sum'),
-      db.raw('MAX(o.additional1) as additional1'),
-      db.raw('MAX(o.additional2) as additional2'),
-      db.raw('MAX(o.additional3) as additional3'),
-      db.raw('MAX(o.additional4) as additional4'),
-      db.raw('MAX(o.additional5) as additional5'),
-      db.raw('MAX(o.additional6) as additional6'),
-      db.raw('MAX(o.additional7) as additional7'),
-      db.raw('MAX(o.additional8) as additional8'),
-      db.raw('MAX(o.additional9) as additional9'),
-      db.raw('MAX(o.additional10) as additional10'),
-      db.raw('MAX(o.created_at) as created_at'),
-      db.raw('MAX(o.updated_at) as updated_at'),
-      db.raw('MAX(o.delivery_at) as delivery_at'),
-      db.raw('MAX(o.logist_recall_at) as logist_recall_at'),
-      db.raw('MAX(o.approved_at) as approved_at'),
-      db.raw('MAX(o.cancelled_at) as cancelled_at'),
-      db.raw('MAX(o.shipped_at) as shipped_at'),
-      db.raw('MAX(o.buyout_at) as buyout_at'),
-    )
+    .select('o.*')
     .modify((q) => {
       if (id) {
         const ids = id.replace(/,/g, ' ').split(' ').map(item => item.trim()).filter(item => item);
@@ -320,7 +268,6 @@ export const getUserOrdersPaginated = async function (
         q.where('o.sub_status_id', sub_status);
       }
     })
-    .groupBy('o.id')
     .orderBy('o.id', 'desc')
     .paginate({
       perPage: limit,
@@ -362,47 +309,8 @@ export const getWebmasterOrdersPaginated = async function (
   webmaster_id
 ) {
   const result = await db('order as o')
-    .select(
-      'o.id',
-      db.raw('MAX(o.fio) as fio'),
-      db.raw('MAX(o.phone) as phone'),
-      db.raw('MAX(o.region) as region'),
-      db.raw('MAX(o.city_id) as city_id'),
-      db.raw('MAX(o.address) as address'),
-      db.raw('MAX(o.postal_code) as postal_code'),
-      db.raw('MAX(o.comment) as comment'),
-      db.raw('MAX(o.age) as age'),
-      db.raw('MAX(o.utm_term) as utm_term'),
-      db.raw('MAX(o.webmaster_id) as webmaster_id'),
-      db.raw('MAX(o.operator_id) as operator_id'),
-      db.raw('MAX(o.status_id) as status_id'),
-      db.raw('MAX(o.sub_status_id) as sub_status_id'),
-      db.raw('MAX(o.gender_id) as gender_id'),
-      db.raw('MAX(o.payment_method_id) as payment_method_id'),
-      db.raw('MAX(o.delivery_method_id) as delivery_method_id'),
-      db.raw('MAX(o.order_cancel_reason_id) as order_cancel_reason_id'),
-      db.raw('MAX(o.total_sum) as total_sum'),
-      db.raw('MAX(o.additional1) as additional1'),
-      db.raw('MAX(o.additional2) as additional2'),
-      db.raw('MAX(o.additional3) as additional3'),
-      db.raw('MAX(o.additional4) as additional4'),
-      db.raw('MAX(o.additional5) as additional5'),
-      db.raw('MAX(o.additional6) as additional6'),
-      db.raw('MAX(o.additional7) as additional7'),
-      db.raw('MAX(o.additional8) as additional8'),
-      db.raw('MAX(o.additional9) as additional9'),
-      db.raw('MAX(o.additional10) as additional10'),
-      db.raw('MAX(o.created_at) as created_at'),
-      db.raw('MAX(o.updated_at) as updated_at'),
-      db.raw('MAX(o.delivery_at) as delivery_at'),
-      db.raw('MAX(o.logist_recall_at) as logist_recall_at'),
-      db.raw('MAX(o.approved_at) as approved_at'),
-      db.raw('MAX(o.cancelled_at) as cancelled_at'),
-      db.raw('MAX(o.shipped_at) as shipped_at'),
-      db.raw('MAX(o.buyout_at) as buyout_at'),
-    )
+    .select('o.*')
     .where('o.webmaster_id', webmaster_id)
-    .groupBy('o.id')
     .orderBy('o.id', 'desc')
     .paginate({
       perPage: limit,
@@ -444,47 +352,8 @@ export const getOperatorOrdersPaginated = async function (
   sub_status,
 ) {
   const result = await db('order as o')
-    .select(
-      'o.id',
-      db.raw('MAX(o.fio) as fio'),
-      db.raw('MAX(o.phone) as phone'),
-      db.raw('MAX(o.region) as region'),
-      db.raw('MAX(o.city_id) as city_id'),
-      db.raw('MAX(o.address) as address'),
-      db.raw('MAX(o.postal_code) as postal_code'),
-      db.raw('MAX(o.comment) as comment'),
-      db.raw('MAX(o.age) as age'),
-      db.raw('MAX(o.utm_term) as utm_term'),
-      db.raw('MAX(o.webmaster_id) as webmaster_id'),
-      db.raw('MAX(o.operator_id) as operator_id'),
-      db.raw('MAX(o.status_id) as status_id'),
-      db.raw('MAX(o.sub_status_id) as sub_status_id'),
-      db.raw('MAX(o.gender_id) as gender_id'),
-      db.raw('MAX(o.payment_method_id) as payment_method_id'),
-      db.raw('MAX(o.delivery_method_id) as delivery_method_id'),
-      db.raw('MAX(o.order_cancel_reason_id) as order_cancel_reason_id'),
-      db.raw('MAX(o.total_sum) as total_sum'),
-      db.raw('MAX(o.additional1) as additional1'),
-      db.raw('MAX(o.additional2) as additional2'),
-      db.raw('MAX(o.additional3) as additional3'),
-      db.raw('MAX(o.additional4) as additional4'),
-      db.raw('MAX(o.additional5) as additional5'),
-      db.raw('MAX(o.additional6) as additional6'),
-      db.raw('MAX(o.additional7) as additional7'),
-      db.raw('MAX(o.additional8) as additional8'),
-      db.raw('MAX(o.additional9) as additional9'),
-      db.raw('MAX(o.additional10) as additional10'),
-      db.raw('MAX(o.created_at) as created_at'),
-      db.raw('MAX(o.updated_at) as updated_at'),
-      db.raw('MAX(o.delivery_at) as delivery_at'),
-      db.raw('MAX(o.logist_recall_at) as logist_recall_at'),
-      db.raw('MAX(o.approved_at) as approved_at'),
-      db.raw('MAX(o.cancelled_at) as cancelled_at'),
-      db.raw('MAX(o.shipped_at) as shipped_at'),
-      db.raw('MAX(o.buyout_at) as buyout_at'),
-    )
+    .select('o.*')
     .where('o.sub_status_id', sub_status)
-    .groupBy('o.id', 'o.fio', 'o.phone')
     .orderBy('o.id', 'desc')
     .paginate({
       perPage: limit,

@@ -177,7 +177,9 @@ export const getOrder = async (req, res) => {
 		};
 
 		const { order_id } = req.params;
-		const order = await Order.findWithItems(order_id);
+		const order = await Order.find(order_id);
+		const items = await OrderItem.getWhereIn('oi.order_id', [order_id]);
+		order.items = items;
 		const transformedOrder = await mapOrder(order)
 
 		// for operators don't show phone
