@@ -8,6 +8,7 @@ const router = express.Router();
 router.get("", controller.get);
 router.get("/free", controller.getFree);
 router.post("", withExtraData({ ability_name: 'create_operators' }, checkAbility), controller.create);
+router.post("/with_user", withExtraData({ ability_name: 'create_operators' }, checkAbility), controller.createWithUser);
 router.patch("/:operator_id", withExtraData({ ability_name: 'update_operators' }, checkAbility), controller.update);
 router.delete("/:operator_id", withExtraData({ ability_name: 'delete_operators' }, checkAbility), controller.softDelete);
 
