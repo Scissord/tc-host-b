@@ -44,6 +44,7 @@ export const getWhereIn = async (field, values) => {
 };
 
 export const create = async (data) => {
+  delete data.items;
   return await orderRepository.create(data);
 };
 
@@ -273,11 +274,10 @@ export const getUserOrdersPaginated = async function (
       if (updated_at) {
         q.where('o.updated_at', 'ilike', `%${updated_at}%`)
       }
-      if (sub_status  && !id) {
+      if (sub_status && !id) {
         q.where('o.sub_status_id', sub_status);
-    }
+      }
     })
-
     .groupBy('o.id')
     .orderBy('o.id', 'desc')
     .paginate({

@@ -1,5 +1,6 @@
 import * as Order from '#models/order.js';
 import * as OrderSignals from '#services/signals/orderSignals.js';
+import * as OrderItem from '#models/order_item.js';
 import * as SubStatus from '#models/sub_status.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import { mapOrders, mapOrder } from '#services/order/map.js';
@@ -220,6 +221,7 @@ export const changeStatus = async (req, res) => {
 export const create = async (req, res) => {
 	try {
 		const data = req.body;
+		const items = req.body.items;
 
 		if (!data.phone) {
 			return res.status(400).send({
@@ -232,15 +234,38 @@ export const create = async (req, res) => {
 
 		const cachedOrder = await getKeyValue(data.phone);
 		if (cachedOrder) {
-			return res.status(400).send({
+			return res.status(200).send({
 				message: "Заказ по этому номеру был создан недавно!"
 			});
+		};
+
+		if (Array.isArray(items)) {
+			if (
+				data.phone.startsWith('77') &&
+				data.phone.length === 11 &&
+				items.length > 0 &&
+				items.some(item => item.product_id)
+			) {
+				data.sub_status_id = 21;
+			};
 		};
 
 		const order = await Order.create(data);
 		await OrderSignals.postbackKeitaroSignal(order.utm_term, order.additional1, 0)
 
+		if (items) {
+			for (const item of items) {
+				await OrderItem.create({
+					order_id: order.id,
+					product_id: item.product_id,
+					quantity: item.quantity,
+				});
+			};
+		};
+
 		await setKeyValue(data.phone, order, 60);
+
+		console.log('created order:', order)
 
 		return res.status(200).send({ message: 'ok', order });
 	} catch (err) {

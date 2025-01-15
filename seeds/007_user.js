@@ -202,6 +202,96 @@ export const seed = async (knex) => {
     },
     ...webmasters,
     ...operators,
+    {
+      id: 133,
+      login: 'SrailovBekaris_Mars',
+      password: '$2a$10$aGBU/U6Hry8tmNiC9jeiT.5GBhFK.zBTVUHSbEucSJudfpZ5weSvC',
+      name: 'SrailovBekaris_Mars'
+    },
+    {
+      id: 134,
+      login: 'AbdikhalikovZhantore_Saturn',
+      password: '$2a$10$3eg.0O2VAR/nNFNY5iyOkO7eIWA.o/Ndi1IiELHCaMPt/wEJm4MPe',
+      name: 'AbdikhalikovZhantore_Saturn'
+    },
+    {
+      id: 135,
+      login: 'SaparbekAsel_Saturn',
+      password: '$2a$10$nuDnIqks9SIBPG2G2HAo8.NK4YSAoFMhd7TNhT9E5J9VN.c7aHLcC',
+      name: 'SaparbekAsel_Saturn'
+    },
+    {
+      id: 136,
+      login: 'TaskaraevDanyar_Mars',
+      password: '$2a$10$uZ.P2FXzY1WR/6/YEnVaRePdmrM5RkfwxPR6WFe0qyJjSS9G.q0TG',
+      name: 'TaskaraevDanyar_Mars'
+    },
+    {
+      id: 137,
+      login: 'ErimbetovaBalausa_Saturn',
+      password: '$2a$10$qLjfiZ0Tp/PTEsacr0qDtO/P.8XpVdN.JqPPA.wHa5g5EQaVtjEpe',
+      name: 'ErimbetovaBalausa_Saturn'
+    },
+    {
+      id: 138,
+      login: 'KalibekNurbatyr_Saturn',
+      password: '$2a$10$Sj/BXuPFqL279Rzmfolf2uUkTztm3pHI0XV1nsK6o0AZuxHz1bWdS',
+      name: 'KalibekNurbatyr_Saturn'
+    },
+    {
+      id: 139,
+      login: 'ErgashovAgabek_Mars',
+      password: '$2a$10$1GL6xbg4ZZSndWgsswbIIesBFHk5572OaNkd.sKVd9ZN0LJsTD8KG',
+      name: 'ErgashovAgabek_Mars'
+    },
+    {
+      id: 140,
+      login: 'MedeuAlikhan_Mars',
+      password: '$2a$10$nORMQ/9FaguHs8bfn.HfeOcWMarOuvurhI9v0PeL7PS7pm/R0xFa6',
+      name: 'MedeuAlikhan_Mars'
+    },
+    {
+      id: 141,
+      login: 'ZakirBeket_Saturn',
+      password: '$2a$10$Pz7O9iHaAJPsdixOaQuV6ez8LkdNNBHWqHmQeoEZYLCHp4opwPAfm',
+      name: 'ZakirBeket_Saturn'
+    },
+    {
+      id: 142,
+      login: 'TursyntashAyana_Saturn',
+      password: '$2a$10$qsid0.oOHU1dOppehO0SP.YmNHNJKD3SBW0V9Wp7pV4NR2p66wU1y',
+      name: 'TursyntashAyana_Saturn'
+    },
+    {
+      id: 143,
+      login: 'KungeiNurdaulet_Mars',
+      password: '$2a$10$asxYQ5Cc/b5/DZxMPcTX9OTxjJ3B/nNMGQDPKb..9Uk8WKbHRq4li',
+      name: 'KungeiNurdaulet_Mars'
+    },
+    {
+      id: 144,
+      login: 'BolegenErsultan_Mars',
+      password: '$2a$10$sZMRGJ51QgKAOjEyY2g8bO71rXaO.2LQMFovJmk6QdXffE7xabeIm',
+      name: 'BolegenErsultan_Mars'
+    },
+    {
+      id: 145,
+      login: 'MusaevaMadina_Mars',
+      password: '$2a$10$z7sApaLNLPuf1PKyWfNqHeAPKpFD.bkTBSUl8SQPz9E7rwICvySR6',
+      name: 'MusaevaMadina_Mars'
+    },
+    {
+      id: 146,
+      login: 'KasymNurzhigit_Mars',
+      password: '$2a$10$WeTca9Fk004013wwYhRsVeQfMm6KRcKbWNCaLn2MbFAbxb2Idxjse',
+      name: 'KasymNurzhigit_Mars'
+    },
+    {
+      id: 147,
+      login: 'LesKemenger_Mars',
+      password: '$2a$10$q0OV9GrbFlMN82gh061nFO8BJ1uV7L6mGYmLtuU1qX6VtzjG35hl6',
+      name: 'LesKemenger_Mars'
+    },
   ];
 
   await Promise.all(

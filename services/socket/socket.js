@@ -42,8 +42,6 @@ const io = new Server(server, {
   },
 });
 
-const reservedOrders = [];
-
 io.on("connection", async (socket) => {
   const { user_id } = socket.handshake.query;
 
@@ -57,7 +55,7 @@ io.on("connection", async (socket) => {
       user_id,
       sockets: [socket.id]
     });
-  }
+  };
 
   await setKeyValue('onlineUsers', onlineUsers);
 
@@ -77,14 +75,14 @@ io.on("connection", async (socket) => {
     } else {
       const orders = await Order.getWhereIn('o.id', data.ids);
       mappedOrders = await mapOrders(orders, 'operator');
-    }
+    };
 
     const payload = {
       old_sub_status_id: data.old_sub_status_id,
       new_sub_status_id: data.new_sub_status_id,
       ids: data.ids,
       orders: mappedOrders,
-    }
+    };
 
     if (total !== null) {
       payload.total = total;
