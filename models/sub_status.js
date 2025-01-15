@@ -12,8 +12,8 @@ export const get = async () => {
     .select('ss.id', 'ss.name', 's.color')
     .where('ss.deleted_at', null)
     .count('o.id as orders_count')
-    .groupBy('ss.id', 'ss.name', 's.color',)
-    .orderBy('ss.id', 'asc');
+    .groupBy('ss.id', 'ss.name', 's.color')
+    .orderBy('ss.index', 'asc');
 
   return sub_statuses;
 };
