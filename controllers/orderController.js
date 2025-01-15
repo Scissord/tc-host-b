@@ -158,7 +158,6 @@ export const getOperatorOrders = async (req, res) => {
 
 export const getOrder = async (req, res) => {
 	try {
-		console.log(req.params)
 		// webmaster can't enter the page
 		if (req.webmaster) {
 			return res.status(403).send({
@@ -167,10 +166,8 @@ export const getOrder = async (req, res) => {
 		};
 
 		const { order_id } = req.params;
-		console.log(order_id)
 		const order = await Order.findWithItems(order_id);
 		const transformedOrder = await mapOrder(order)
-		console.log(transformedOrder);
 
 		// for operators don't show phone
 		if (req.operator) {
