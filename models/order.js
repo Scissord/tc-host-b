@@ -160,8 +160,6 @@ export const getUserOrdersPaginated = async function (
 ) {
   const result = await db('order as o')
     .select('o.*')
-    .select(db.raw('COALESCE(json_agg(oi.*) FILTER (WHERE oi.id IS NOT NULL), \'[]\') as items'))
-    .leftJoin('order_item as oi', 'oi.order_id', 'o.id')
     .modify((q) => {
       if (id) {
         const ids = id.replace(/,/g, ' ').split(' ').map(item => item.trim()).filter(item => item);
@@ -287,7 +285,7 @@ export const getUserOrdersPaginated = async function (
         q.where('o.sub_status_id', sub_status);
       }
     })
-    .groupBy('o.id', 'o.fio', 'o.phone')
+    .groupBy('o.id')
     .orderBy('o.id', 'desc')
     .paginate({
       perPage: limit,
@@ -330,10 +328,8 @@ export const getWebmasterOrdersPaginated = async function (
 ) {
   const result = await db('order as o')
     .select('o.*')
-    .select(db.raw('COALESCE(json_agg(oi.*) FILTER (WHERE oi.id IS NOT NULL), \'[]\') as items'))
-    .leftJoin('order_item as oi', 'oi.order_id', 'o.id')
     .where('o.webmaster_id', webmaster_id)
-    .groupBy('o.id', 'o.fio', 'o.phone')
+    .groupBy('o.id')
     .orderBy('o.id', 'desc')
     .paginate({
       perPage: limit,
@@ -376,8 +372,6 @@ export const getOperatorOrdersPaginated = async function (
 ) {
   const result = await db('order as o')
     .select('o.*')
-    .select(db.raw('COALESCE(json_agg(oi.*) FILTER (WHERE oi.id IS NOT NULL), \'[]\') as items'))
-    .leftJoin('order_item as oi', 'oi.order_id', 'o.id')
     .where('o.sub_status_id', sub_status)
     .groupBy('o.id', 'o.fio', 'o.phone')
     .orderBy('o.id', 'desc')

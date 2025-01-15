@@ -11,7 +11,7 @@ export const get = async () => {
 
 export const getWhereIn = async (field, values) => {
   return await db('order_item as oi')
-    .select('oi.*', 'p.name as product_name')
+    .select('oi.*', 'p.name as product_name', 'p.id as product_id')
     .leftJoin('product as p', 'p.id', 'oi.product_id')
     .whereIn(field, values)
 };
