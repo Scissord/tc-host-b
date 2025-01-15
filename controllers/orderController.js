@@ -1,7 +1,9 @@
 import * as Order from '#models/order.js';
+import * as OrderSignals from '#services/signals/orderSignals.js';
 import * as SubStatus from '#models/sub_status.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import { mapOrders, mapOrder } from '#services/order/map.js';
+
 import hideString from '#utils/hideString.js';
 import ERRORS from '#constants/errors.js';
 
@@ -236,6 +238,7 @@ export const create = async (req, res) => {
 		};
 
 		const order = await Order.create(data);
+		await OrderSignals.postbackKeitaroSignal(order.utm_term, order.additional1, 0)
 
 		await setKeyValue(data.phone, order, 60);
 
@@ -250,7 +253,7 @@ export const update = async (req, res) => {
 	try {
 		const { order_id } = req.params;
 		const data = req.body;
-
+		const keitaroStatuses = [1, 4];
 		// 1. check if new status not match
 		if (data.sub_status_id) {
 			const order = await Order.find(order_id);
@@ -258,6 +261,10 @@ export const update = async (req, res) => {
 				const sub_status = await SubStatus.find(data.sub_status_id);
 				data.status_id = sub_status.status_id;
 				data.sub_status_id = sub_status.id;
+				// 1. Keitaro postbackSignal
+				if (keitaroStatuses.includes(sub_status.status_id)) {
+					await OrderSignals.postbackKeitaroSignal(order.utm_term, order.additional1, sub_status.status_id)
+				}
 			};
 		};
 
