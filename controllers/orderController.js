@@ -218,11 +218,9 @@ export const changeStatus = async (req, res) => {
 
 export const create = async (req, res) => {
 	try {
-
 		const data = req.body;
 		const items = req.body.items;
 
-		console.log(data);
 		if (!data.phone) {
 			return res.status(400).send({
 				message: ERRORS.REQUIRED_PHONE
@@ -234,7 +232,7 @@ export const create = async (req, res) => {
 
 		const cachedOrder = await getKeyValue(data.phone);
 		if (cachedOrder) {
-			return res.status(400).send({
+			return res.status(200).send({
 				message: "Заказ по этому номеру был создан недавно!"
 			});
 		};
@@ -251,6 +249,8 @@ export const create = async (req, res) => {
 		};
 
 		await setKeyValue(data.phone, order, 60);
+
+		console.log('created order:', order)
 
 		return res.status(200).send({ message: 'ok', order });
 	} catch (err) {
