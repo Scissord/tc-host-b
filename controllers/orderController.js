@@ -218,11 +218,11 @@ export const changeStatus = async (req, res) => {
 
 export const create = async (req, res) => {
 	try {
-		console.log(data);
 
 		const data = req.body;
 		const items = req.body.items;
 
+		console.log(data);
 		if (!data.phone) {
 			return res.status(400).send({
 				message: ERRORS.REQUIRED_PHONE
