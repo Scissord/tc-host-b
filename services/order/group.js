@@ -7,13 +7,13 @@ export const groupByDate = (orders) => {
         day,
         total: 0, // Инициализация общего количества заказов
         statuses: {
+          '0': { count: 0, percent: 0 },
           '1': { count: 0, percent: 0 },
           '2': { count: 0, percent: 0 },
           '3': { count: 0, percent: 0 },
           '4': { count: 0, percent: 0 },
           '5': { count: 0, percent: 0 },
           '6': { count: 0, percent: 0 },
-          '7': { count: 0, percent: 0 },
         },
       };
     }
@@ -62,13 +62,13 @@ export const groupByRegion = (orders) => {
         region,
         total: 0, // Инициализация общего количества заказов
         statuses: {
+          '0': { count: 0, percent: 0 },
           '1': { count: 0, percent: 0 },
           '2': { count: 0, percent: 0 },
           '3': { count: 0, percent: 0 },
           '4': { count: 0, percent: 0 },
           '5': { count: 0, percent: 0 },
           '6': { count: 0, percent: 0 },
-          '7': { count: 0, percent: 0 },
         },
       };
     }
@@ -117,13 +117,13 @@ export const groupByCity = (orders) => {
         city,
         total: 0, // Инициализация общего количества заказов
         statuses: {
+          '0': { count: 0, percent: 0 },
           '1': { count: 0, percent: 0 },
           '2': { count: 0, percent: 0 },
           '3': { count: 0, percent: 0 },
           '4': { count: 0, percent: 0 },
           '5': { count: 0, percent: 0 },
           '6': { count: 0, percent: 0 },
-          '7': { count: 0, percent: 0 },
         },
       };
     }
@@ -179,13 +179,13 @@ export const groupByProduct = (orders, items) => {
         product_name: productName,
         total: 0, // Инициализация общего количества товаров
         statuses: {
+          '0': { count: 0, percent: 0 },
           '1': { count: 0, percent: 0 },
           '2': { count: 0, percent: 0 },
           '3': { count: 0, percent: 0 },
           '4': { count: 0, percent: 0 },
           '5': { count: 0, percent: 0 },
           '6': { count: 0, percent: 0 },
-          '7': { count: 0, percent: 0 },
         },
       };
     }
@@ -240,13 +240,13 @@ export const groupWebmasters = (orders, webmasters) => {
         },
         total: 0, // Инициализация общего количества заказов
         statuses: {
+          '0': { count: 0, percent: 0 },
           '1': { count: 0, percent: 0 },
           '2': { count: 0, percent: 0 },
           '3': { count: 0, percent: 0 },
           '4': { count: 0, percent: 0 },
           '5': { count: 0, percent: 0 },
           '6': { count: 0, percent: 0 },
-          '7': { count: 0, percent: 0 },
         },
       };
     }
@@ -296,13 +296,13 @@ export const groupOperators = (orders, operators) => {
         },
         total: 0, // Инициализация общего количества заказов
         statuses: {
+          '0': { count: 0, percent: 0 },
           '1': { count: 0, percent: 0 },
           '2': { count: 0, percent: 0 },
           '3': { count: 0, percent: 0 },
           '4': { count: 0, percent: 0 },
           '5': { count: 0, percent: 0 },
           '6': { count: 0, percent: 0 },
-          '7': { count: 0, percent: 0 },
         },
       };
     }
