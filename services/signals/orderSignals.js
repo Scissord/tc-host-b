@@ -16,6 +16,7 @@ export const postbackKeitaroSignal = async (utm_term, domain, status) => {
 
     try {
         const response = await axios.get(process.env.KEITARO_POSTBACK, { params });
+        console.log(response.status)
     } catch (error) {
         if (error.response) {
             console.error(`Ошибка от сервера: ${error.response.status} ${error.response.statusText}`);
