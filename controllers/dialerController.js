@@ -293,14 +293,16 @@ export const getOrdersByIds = async (req, res) => {
       OrderCancelReason.get(),
     ]);
 
-    const transformedStatuses = orders.reduce((acc, order) => {
-      acc[order.id] = {
+    const transformedStatuses = await Promise.all(orders.map(async (order) => {
+      const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
+
+      return {
         ...order,
         webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-',
         operator: operators.find((o) => +o.id === +order.operator_id)?.name ?? '-',
         city: cities.find((c) => +c.id === +order.city_id) || null,
         status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) || null,
-        items: order.items.map((item) => {
+        items: items.map((item) => {
           const product = products.find((p) => +p.id === +item.product_id);
           return {
             ...item,
@@ -311,12 +313,17 @@ export const getOrdersByIds = async (req, res) => {
         gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
         payment_method: paymentMethods.find((p) => +p.id === order.payment_id)?.name ?? '-',
         delivery_method: deliveryMethods.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
-        order_cancel_reason: orderCancelReasons.find((cr) => +cr.id === +order.cancel_reason_id)?.name ?? '-'
+        order_cancel_reason: orderCancelReasons.find((cr) => +cr.id === +order.cancel_reason_id)?.name ?? '-',
       };
+    }));
+
+    // Convert the result into an object with order IDs as keys (similar to your original code)
+    const transformedStatusesObject = transformedStatuses.reduce((acc, transformedOrder) => {
+      acc[transformedOrder.id] = transformedOrder;
       return acc;
     }, {});
 
-    res.status(200).json(transformedStatuses);
+    res.status(200).json(transformedStatusesObject);
   } catch (err) {
     console.log("Error in getOrdersByIds dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
