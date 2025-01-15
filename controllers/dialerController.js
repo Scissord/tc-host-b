@@ -181,7 +181,7 @@ export const getOrderCancelReasons = async (req, res) => {
 
 export const updateOrder = async (req, res) => {
   try {
-    const { id } = req.query;
+    const { id, operator_id } = req.query;
     const data = req.body;
 
     if (!id) {
@@ -196,6 +196,9 @@ export const updateOrder = async (req, res) => {
       });
     };
 
+    if (operator_id) {
+      data.operator_id = operator_id;
+    };
     const order = await Order.update(id, data);
 
     res.status(200).json(order);
