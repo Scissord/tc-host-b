@@ -36,8 +36,6 @@ export const getForSocket = async (condition) => {
 export const getWhereIn = async (field, values) => {
   return await db('order as o')
     .select('o.*')
-    .select(db.raw('COALESCE(json_agg(oi.*) FILTER (WHERE oi.id IS NOT NULL), \'[]\') as items'))
-    .leftJoin('order_item as oi', 'oi.order_id', 'o.id')
     .whereIn(field, values)
     .groupBy('o.id')
     .orderBy('o.id', 'desc');

@@ -318,7 +318,7 @@ export const getOrdersByIds = async (req, res) => {
 
     res.status(200).json(transformedStatuses);
   } catch (err) {
-    console.log("Error in getOrderIdsInSubStatus dialer controller", err.message);
+    console.log("Error in getOrdersByIds dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
