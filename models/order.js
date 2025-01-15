@@ -44,6 +44,7 @@ export const getWhereIn = async (field, values) => {
 };
 
 export const create = async (data) => {
+  delete data.items;
   return await orderRepository.create(data);
 };
 

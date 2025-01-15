@@ -1,4 +1,5 @@
 import * as Order from '#models/order.js';
+import * as OrderItem from '#models/order_item.js';
 import * as SubStatus from '#models/sub_status.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import { mapOrders, mapOrder } from '#services/order/map.js';
@@ -218,6 +219,7 @@ export const changeStatus = async (req, res) => {
 export const create = async (req, res) => {
 	try {
 		const data = req.body;
+		const items = req.body.items;
 
 		if (!data.phone) {
 			return res.status(400).send({
@@ -236,6 +238,15 @@ export const create = async (req, res) => {
 		};
 
 		const order = await Order.create(data);
+		if (items) {
+			for (const item of items) {
+				await OrderItem.create({
+					order_id: order.id,
+					product_id: item.product_id,
+					quantity: item.quantity,
+				});
+			};
+		};
 
 		await setKeyValue(data.phone, order, 60);
 

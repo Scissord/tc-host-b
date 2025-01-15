@@ -39,6 +39,11 @@ router.get("/get_delivery_methods", checkDialer, controller.getDeliveryMethods);
 // https://api.talkcall-crm.com/api/dialer/get_genders?token=""
 router.get("/get_genders", checkDialer, controller.getGenders);
 
+// Получение списка пользователей
+// http://localhost:8080/api/dialer/get_users?token=90f42555-0c00-4c54-b70e-2da4385683a4
+// https://api.talkcall-crm.com/api/dialer/get_users?token=""
+router.get("/get_users", checkDialer, controller.getUsers);
+
 // Получение причин отказов
 // http://localhost:8080/api/dialer/get_order_cancel_reasons?token=90f42555-0c00-4c54-b70e-2da4385683a4
 // https://api.talkcall-crm.com/api/dialer/get_order_cancel_reasons?token=""

@@ -1,4 +1,5 @@
 import { parse } from 'comma-separated-tokens';
+import * as User from '#models/user.js';
 import * as Order from '#models/order.js';
 import * as OrderItem from '#models/order_item.js';
 import * as Webmaster from '#models/webmaster.js';
@@ -139,6 +140,25 @@ export const getGenders = async (req, res) => {
     res.status(200).json(transformedGenders);
   } catch (err) {
     console.log("Error in getGenders dialer controller", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const getUsers = async (req, res) => {
+  try {
+    const users = await User.get();
+
+    const transformedUsers = users.reduce((acc, u) => {
+      acc[u.id] = {
+        login: u.login,
+      };
+
+      return acc;
+    }, {});
+
+    res.status(200).json(transformedUsers);
+  } catch (err) {
+    console.log("Error in getUsers dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
