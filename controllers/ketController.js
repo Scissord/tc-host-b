@@ -12,7 +12,7 @@ dotenv.config();
 export const sendAcceptedOrders = async (req, res) => {
     try {
 		const {sub_status_id} = req.body
-		query = { 
+		const query = { 
 			sub_status_id: sub_status_id
 		}
         const orders = await Order.getWhere(query);
@@ -84,7 +84,7 @@ export const sendAcceptedOrders = async (req, res) => {
         console.log("Все заказы успешно отправлены:", newOrders);
         res.status(200).json({ message: "Orders successfully sent." });
     } catch (error) {
-        console.error("Error in sendCourierOrders dialer controller", error.message);
+        console.error("Error in sendAcceptedOrders dialer controller", error.message);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
