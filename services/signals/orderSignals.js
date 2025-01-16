@@ -10,7 +10,7 @@ export const postbackKeitaroSignal = async (utm_term, domain, status) => {
         offer_domain: domain,
         lead_status: 0,
         sale_status: 1,
-        rejected_status: 4,
+        rejected_status: -1,
         from: 'api.talkcall-crm.com',
     };
 

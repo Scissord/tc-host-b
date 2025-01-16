@@ -1,5 +1,5 @@
 export const getCityCode = (city) => {
-    сity_codes = {
+    const сity_codes = {
         'AKSAI': '1',
         'AKTAU': '2',
         'AKTOBE': '3',
@@ -31,7 +31,7 @@ export const getCityCode = (city) => {
         'Kentau': '93',
     }
 
-    return goods_codes[city] || undefined;
+    return сity_codes[city] || undefined;
 }
 
     
