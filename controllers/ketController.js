@@ -24,7 +24,6 @@ export const sendAcceptedOrders = async (req, res) => {
         const newOrders = [];
 
         for (const order of orders) {
-            const city = await City.find(order.city_id);
             const orderItems = await OrderGood.getWhereIn('o.id', [order.id]);
 
             if (!orderItems || orderItems.length === 0) {
@@ -36,7 +35,11 @@ export const sendAcceptedOrders = async (req, res) => {
             const orderName = KetUtils.getOrderName({ goodID: firstItem.product_id, quantity: firstItem.quantity });
 
 			if (+sub_status_id === 15){
+				const city = await City.find(order.city_id);
+				console.log(city)
 				const cityCode = getCityCode(city.name);
+				console.log(cityCode)
+				console.log(city)
 				const newOrder = {
 					phone: order.phone,
 					price: order.total_sum,
