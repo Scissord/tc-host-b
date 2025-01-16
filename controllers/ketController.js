@@ -33,10 +33,10 @@ export const sendAcceptedOrders = async (req, res) => {
             }
 
             const firstItem = orderItems[0]; 
-            const cityCode = getCityCode(city.name);
             const orderName = KetUtils.getOrderName({ goodID: firstItem.product_id, quantity: firstItem.quantity });
 
 			if (+sub_status_id === 15){
+				const cityCode = getCityCode(city.name);
 				const newOrder = {
 					phone: order.phone,
 					price: order.total_sum,
