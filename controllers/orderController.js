@@ -59,6 +59,10 @@ export const getUserOrders = async (req, res) => {
 			additional10,
 			created_at,
 			updated_at,
+			sort_by,
+			order_by,
+			start,
+			end,
 		} = req.query;
 		let hide = false;
 		if (req.operator) {
@@ -96,6 +100,10 @@ export const getUserOrders = async (req, res) => {
 			additional10,
 			created_at,
 			updated_at,
+			sort_by,
+			order_by,
+			start,
+			end,
 		);
 
 		const mappedOrders = await mapOrders(orders, hide);
@@ -336,6 +344,7 @@ export const update = async (req, res) => {
 	try {
 		const { order_id } = req.params;
 		const data = req.body;
+
 		const keitaroStatuses = [1, 4];
 		// 1. check if new status not match
 		if (data.sub_status_id) {

@@ -179,6 +179,32 @@ export const getOrderCancelReasons = async (req, res) => {
   }
 };
 
+export const toggleOrder = async (req, res) => {
+  try {
+    const { id, is_blocked } = req.query;
+    const data = req.body;
+
+    if (!id) {
+      return res.status(400).send({
+        message: ERRORS.REQUIRED_ID
+      });
+    };
+
+    if (!is_blocked) {
+      return res.status(400).send({
+        message: ERRORS.REQUIRED_IS_BLOCKED
+      });
+    };
+
+    // here need to send socket to frontend
+
+    res.status(200).json();
+  } catch (err) {
+    console.log("Error in toggleOrder dialer controller", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 export const updateOrder = async (req, res) => {
   try {
     const { id } = req.query;

@@ -146,6 +146,10 @@ export const getUserOrdersPaginated = async function (
   additional10,
   created_at,
   updated_at,
+  sort_by = 'o.id',
+  order_by = 'desc',
+  start = null,
+  end = null,
 ) {
   const result = await db('order as o')
     .select('o.*')
@@ -273,8 +277,11 @@ export const getUserOrdersPaginated = async function (
       if (sub_status && !id) {
         q.where('o.sub_status_id', sub_status);
       }
+      if (start && end) {
+        q.whereBetween('o.delivery_at', [start, end]);
+      }
     })
-    .orderBy('o.id', 'desc')
+    .orderBy(sort_by ?? 'o.id', order_by ?? 'desc')
     .paginate({
       perPage: limit,
       currentPage: page,

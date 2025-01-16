@@ -23,6 +23,7 @@ const ERRORS = {
   REQUIRED_ID: 'Укажите id!',
   REQUIRED_PHONE: 'Укажите телефон!',
   REQUIRED_STATUS: 'Укажите статус!',
+  REQUIRED_IS_BLOCKED: 'Укажите состояние блокирования',
   // user
   USER_EXIST: 'Пользователь уже создан!',
   // role

@@ -15,6 +15,7 @@ export const seed = async (knex) => {
     { name: "shipped_at", label: "Дата отправки" },
     { name: "cancelled_at", label: "Дата отмены" },
     { name: "buyout_at", label: "Дата выкупа" },
+    { name: "delivery_at", label: "Дата доставки" },
     { name: "comment", label: "Комментарий" },
     { name: "price", label: "Цена" },
     { name: "total_sum", label: "Итого" },
@@ -42,7 +43,6 @@ export const seed = async (knex) => {
     { name: "additional8", label: "Язык" },
     { name: "additional9", label: "HOLD" },
     { name: "additional10", label: "ID дизайнера" },
-    { name: "delivery_at", label: "Дата доставки" },
   ];
 
   const columns = rawColumns.map((column, index) => ({
