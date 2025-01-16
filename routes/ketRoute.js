@@ -3,6 +3,6 @@ import * as controller from '#controllers/ketController.js';
 
 const router = express.Router();
 
-router.get("", controller.sendAcceptedOrders);
+router.post("", controller.sendAcceptedOrders);
 
 export default router;
