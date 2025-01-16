@@ -1,13 +1,19 @@
+import axios from 'axios';
 import * as Order from '#models/order.js';
 import * as OrderSignals from '#services/signals/orderSignals.js';
 import * as OrderItem from '#models/order_item.js';
 import * as SubStatus from '#models/sub_status.js';
+import * as City from '#models/city.js';
+import * as Gender from '#models/gender.js';
+import * as PaymentMethod from '#models/payment_method.js';
+import * as DeliveryMethod from '#models/delivery_method.js';
+import * as OrderCancelReason from '#models/order_cancel_reason.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import { mapOrders, mapOrder } from '#services/order/map.js';
-
+import { chunkArray } from '#utils/chunkArray.js';
+import { groupToStatus } from '#services/leadvertex/groupToStatus.js';
 import hideString from '#utils/hideString.js';
 import ERRORS from '#constants/errors.js';
-
 
 export const getOrdersChatsByStatuses = async (req, res) => {
 	try {
@@ -167,7 +173,9 @@ export const getOrder = async (req, res) => {
 		};
 
 		const { order_id } = req.params;
-		const order = await Order.findWithItems(order_id);
+		const order = await Order.find(order_id);
+		const items = await OrderItem.getWhereIn('oi.order_id', [order_id]);
+		order.items = items;
 		const transformedOrder = await mapOrder(order)
 
 		// for operators don't show phone
@@ -300,4 +308,3 @@ export const update = async (req, res) => {
 		res.status(500).send({ error: "Internal Server Error" });
 	}
 };
-

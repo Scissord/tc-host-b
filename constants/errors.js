@@ -23,6 +23,8 @@ const ERRORS = {
   REQUIRED_ID: 'Укажите id!',
   REQUIRED_PHONE: 'Укажите телефон!',
   REQUIRED_STATUS: 'Укажите статус!',
+  // user
+  USER_EXIST: 'Пользователь уже создан!',
   // role
   ROLE_EXIST: 'У пользователя уже есть роль!',
   // permission

@@ -50,6 +50,14 @@ const repository = (tableName) => {
       return createdRecord;
     },
 
+    createMany: async (data) => {
+      const createdRecords = await db(tableName)
+        .insert(data)
+        .returning('*');
+
+      return createdRecords;
+    },
+
     // update record data by id
     update: async (id, data) => {
       const [updatedRecord] = await db(tableName)
@@ -96,6 +104,12 @@ const repository = (tableName) => {
 
       return id;
     },
+
+    // hard delete all records
+    hardDeleteAll: async () => {
+      return await db(tableName).del()
+    },
+
     // hard delete by array of ids
     hardDeleteByIds: async (ids) => {
       if (!Array.isArray(ids) || ids.length === 0) {
