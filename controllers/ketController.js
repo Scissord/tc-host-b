@@ -78,7 +78,8 @@ export const sendAcceptedOrders = async (req, res) => {
             console.log("Нет новых заказов для отправки.");
             return res.status(200).json({ message: "No new orders to send." });
         }
-
+		
+		console.log(newOrders)
         await Ketkz.sendOrders(newOrders);
 
         console.log("Все заказы успешно отправлены:", newOrders);
