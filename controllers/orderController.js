@@ -175,9 +175,11 @@ export const getOperatorOrders = async (req, res) => {
 			additional10,
 			created_at,
 			updated_at,
+			sort_by,
+			order_by,
+			start,
+			end,
 		} = req.query;
-
-		console.log(req.query);
 
 		const { orders, lastPage, pages } = await Order.getOperatorOrdersPaginated(
 			limit,
@@ -208,6 +210,10 @@ export const getOperatorOrders = async (req, res) => {
 			additional10,
 			created_at,
 			updated_at,
+			sort_by,
+			order_by,
+			start,
+			end,
 		);
 
 		const mappedOrders = await mapOrders(orders, true);
