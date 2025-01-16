@@ -12,9 +12,11 @@ dotenv.config();
 export const sendAcceptedOrders = async (req, res) => {
     try {
 		const {sub_status_id} = req.body
-		const query = { 
-			sub_status_id: sub_status_id
+		
+		const query = {
+			sub_status_id
 		}
+		
         const orders = await Order.getWhere(query);
 
         if (!orders || orders.length === 0) {
@@ -25,13 +27,14 @@ export const sendAcceptedOrders = async (req, res) => {
 
         for (const order of orders) {
             const orderItems = await OrderGood.getWhereIn('o.id', [order.id]);
-
+			console.log(orderItems)
             if (!orderItems || orderItems.length === 0) {
                 console.log(`Заказ ${order.id} не содержит товаров.`);
                 continue; 
             }
 
             const firstItem = orderItems[0]; 
+
             const orderName = KetUtils.getOrderName({ goodID: firstItem.product_id, quantity: firstItem.quantity });
 
 			if (+sub_status_id === 15){
@@ -62,7 +65,7 @@ export const sendAcceptedOrders = async (req, res) => {
 					order_id: order.id,
 					name: order.fio,
 					country: 'kz',
-					addr: order.region,   // ЧЕКАТЬ CТОЛБИК ЕСТЬ ЛИ 
+					addr: order.region,   
 					kz_delivery: "32",
 					offer: orderName,
 					secret: process.env.KETKZ_SECRET,
@@ -96,40 +99,44 @@ export const sendAcceptedOrders = async (req, res) => {
 
 export const sendCourierOrder = async (req, res) => {
 	try {
-		const { order_id } = req.body
-		const order = await Order.find(order_id)
-		
+		const { order_ids } = req.body
+
 		const newOrders = []
 
-		const city = await City.find(order.city_id);
-        const orderItems = await OrderGood.getWhereIn('o.id', [order.id]);
+		for (const order_id of order_ids) {
 
-        if (!orderItems || orderItems.length === 0) {
-            console.log(`Заказ ${order.id} не содержит товаров.`);
-        }
+			const order = await Order.find(order_id)
+			
+			const city = await City.find(order.city_id);
+			const orderItems = await OrderGood.getWhereIn('o.id', [order.id]);
 
-        const firstItem = orderItems[0]; 
-        const cityCode = getCityCode(city.name);
-        const orderName = KetUtils.getOrderName({ goodID: firstItem.product_id, quantity: firstItem.quantity });
+			if (!orderItems || orderItems.length === 0) {
+				console.log(`Заказ ${order.id} не содержит товаров.`);
+			}
 
-		const newOrder = {
-			phone: order.phone,
-			price: order.total_sum,
-			order_id: order.id,
-			name: order.fio,
-			country: 'kz',
-			addr: order.address,
-			city: city.name,
-			kz_delivery: cityCode,
-			offer: orderName,
-			secret: process.env.KETKZ_SECRET,
-			date_delivery: order.delivery_at,
-			client_id: process.env.KETKZ_UID,
-		};
-		newOrders.push(newOrder);
+			const firstItem = orderItems[0]; 
+			const cityCode = getCityCode(city.name);
+			const orderName = KetUtils.getOrderName({ goodID: firstItem.product_id, quantity: firstItem.quantity });
+
+			const newOrder = {
+				phone: order.phone,
+				price: order.total_sum,
+				order_id: order.id,
+				name: order.fio,
+				country: 'kz',
+				addr: order.address,
+				city: city.name,
+				kz_delivery: cityCode,
+				offer: orderName,
+				secret: process.env.KETKZ_SECRET,
+				date_delivery: order.delivery_at,
+				client_id: process.env.KETKZ_UID,
+			};
+			newOrders.push(newOrder);
+
+		}
 
 		await Ketkz.sendOrders(newOrders);
-		
 	} catch (error) {
 		console.error("Error in sendCourierOrder dialer controller", error.message);
         res.status(500).json({ error: "Internal Server Error" });
