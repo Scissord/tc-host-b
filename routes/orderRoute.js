@@ -29,6 +29,6 @@ router.patch("/:order_id", verify, controller.update);
 router.patch("/status/update", verify, controller.changeStatus);
 
 // Синхронизация со старыми заказами
-router.get("/sync/leadvertex", controller.sync);
+// router.get("/sync/leadvertex", controller.sync);
 
 export default router;
