@@ -1,4 +1,4 @@
-const getOrderName = (goodID, quantity) => {
+export const getOrderName = (goodID, quantity) => {
     const goodsCodes = {
         198508: "Prostrong",
         196548: "Be_clean",
