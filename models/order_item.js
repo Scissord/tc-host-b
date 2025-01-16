@@ -8,13 +8,14 @@ const orderItemRepository = repository('order_item');
 export const get = async () => {
   return await orderItemRepository.getAll();
 };
-
 export const getWhereIn = async (field, values) => {
   return await db('order_item as oi')
     .select('oi.*', 'p.name as product_name', 'p.id as product_id')
     .leftJoin('product as p', 'p.id', 'oi.product_id')
-    .whereIn(field, values)
+    .leftJoin('order as o', 'o.id', 'oi.order_id') 
+    .whereIn(field, values);
 };
+
 
 export const create = async (data) => {
   return await orderItemRepository.create(data);
