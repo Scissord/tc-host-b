@@ -10,7 +10,7 @@ export function getOrderName (goodID, quantity) {
         200501: "Eropower",
         212257: "ManBalance",
         193976: "Cardio_Sei_VARIKOZ",
-        202914: "Flex_balance",
+        212256: "Flex_balance",
         204116: "Body_balance",
         212251: "LibidoFortis",
         212253: "AlcoBalance",
