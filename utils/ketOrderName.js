@@ -17,7 +17,8 @@ export function getOrderName (goodID, quantity) {
 
     if (goodsCodes[goodID]) {
         const goodName = goodsCodes[goodID];
-        return `${goodName} - ${quantity}`;
+        const quantitys = quantity
+        return `${goodName} - ${quantitys}`;
     } else {
         return null;
     }
