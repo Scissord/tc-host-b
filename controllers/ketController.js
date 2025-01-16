@@ -12,6 +12,9 @@ dotenv.config();
 export const sendAcceptedOrders = async (req, res) => {
     try {
 		const {sub_status_id} = req.body
+		query = { 
+			sub_status_id: sub_status_id
+		}
         const orders = await Order.getWhere(query);
 
         if (!orders || orders.length === 0) {
