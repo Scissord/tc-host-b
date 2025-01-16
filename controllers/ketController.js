@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import * as Order from '#models/order.js';
 import * as Ketkz from '#services/ketkz/ketkz.js';
 import { getCityCode } from '#utils/cityCode.js';
-import { getOrderName } from '#utils/ketOrderName.js'
+import * as KetUtils from '#utils/ketOrderName.js'
 import * as OrderGood from '#models/order_item.js'
 import * as City from '#models/city.js'
 
@@ -31,7 +31,7 @@ export const sendAcceptedOrders = async (req, res) => {
 
             const firstItem = orderItems[0]; 
             const cityCode = getCityCode(city.name);
-            const orderName = getOrderName({ goodID: firstItem.product_id, quantity: firstItem.quantity });
+            const orderName = KetUtils.getOrderName({ goodID: firstItem.product_id, quantity: firstItem.quantity });
 
 			if (+sub_status_id === 15){
 				const newOrder = {
