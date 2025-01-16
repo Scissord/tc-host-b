@@ -27,7 +27,7 @@ export const sendAcceptedOrders = async (req, res) => {
 
         for (const order of orders) {
             const orderItems = await OrderGood.getWhereIn('o.id', [order.id]);
-			console.log(orderItems)
+			console.log(`Заказы товары ${orderItems}`);
             if (!orderItems || orderItems.length === 0) {
                 console.log(`Заказ ${order.id} не содержит товаров.`);
                 continue; 
