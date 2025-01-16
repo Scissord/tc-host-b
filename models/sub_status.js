@@ -36,7 +36,7 @@ export const getForOperator = async (ids) => {
     .whereIn('ss.id', ids)
     .count('o.id as orders_count')
     .groupBy('ss.id', 'ss.name', 's.color')
-    .orderBy('ss.id', 'asc');
+    .orderBy('ss.index', 'asc');
 
   return sub_statuses;
 };
