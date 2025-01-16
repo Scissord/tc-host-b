@@ -107,7 +107,7 @@ export const sendCourierOrder = async (req, res) => {
 
         const firstItem = orderItems[0]; 
         const cityCode = getCityCode(city.name);
-        const orderName = getOrderName({ goodID: firstItem.product_id, quantity: firstItem.quantity });
+        const orderName = KetUtils.getOrderName({ goodID: firstItem.product_id, quantity: firstItem.quantity });
 
 		const newOrder = {
 			phone: order.phone,
