@@ -3,154 +3,56 @@
  * @returns { Promise<void> } 
  */
 export const seed = async (knex) => {
-  await knex('order_column').del()
-  await knex('order_column').insert([
-    {
-      id: 1,
-      name: "id",
-      label: "ID",
-    },
-    {
-      id: 2,
-      name: "fio",
-      label: "ФИО",
-    },
-    {
-      id: 3,
-      name: "products",
-      label: "Товары",
-    },
-    {
-      id: 4,
-      name: "phone",
-      label: "Телефон",
-    },
-    {
-      id: 5,
-      name: "region",
-      label: "Регион",
-    },
-    {
-      id: 6,
-      name: "city",
-      label: "Город",
-    },
-    {
-      id: 7,
-      name: "address",
-      label: "Адрес",
-    },
-    {
-      id: 8,
-      name: "postal_code",
-      label: "Почтовый индекс",
-    },
-    {
-      id: 9,
-      name: "comment",
-      label: "Комментарий",
-    },
-    {
-      id: 10,
-      name: "utm_term",
-      label: "utm_term",
-    },
-    {
-      id: 11,
-      name: "webmaster",
-      label: "Вебмастер",
-    },
-    {
-      id: 12,
-      name: "operator",
-      label: "Оператор",
-    },
-    {
-      id: 13,
-      name: "order_sub_status",
-      label: "Статус",
-    },
-    {
-      id: 14,
-      name: "gender",
-      label: "Пол",
-    },
-    {
-      id: 15,
-      name: "payment",
-      label: "Способ оплаты",
-    },
-    {
-      id: 16,
-      name: "delivery",
-      label: "Способ доставки",
-    },
-    {
-      id: 17,
-      name: "cancel_reason",
-      label: "Причина отмены",
-    },
-    {
-      id: 18,
-      name: "additional1",
-      label: "additional1",
-    },
-    {
-      id: 19,
-      name: "additional2",
-      label: "additional2",
-    },
-    {
-      id: 20,
-      name: "additional3",
-      label: "additional3",
-    },
-    {
-      id: 21,
-      name: "additional4",
-      label: "additional4",
-    },
-    {
-      id: 22,
-      name: "additional5",
-      label: "additional5",
-    },
-    {
-      id: 23,
-      name: "additional6",
-      label: "additional6",
-    },
-    {
-      id: 24,
-      name: "additional7",
-      label: "additional7",
-    },
-    {
-      id: 25,
-      name: "additional8",
-      label: "additional8",
-    },
-    {
-      id: 26,
-      name: "additional9",
-      label: "additional9",
-    },
-    {
-      id: 27,
-      name: "additional10",
-      label: "additional10",
-    },
-    {
-      id: 28,
-      name: "created_at",
-      label: "Дата",
-    },
-    {
-      id: 29,
-      name: "updated_at",
-      label: "Обновляли",
-    },
-  ]);
+  const rawColumns = [
+    { name: "id", label: "ID" },
+    { name: "operator", label: "Оператор" },
+    { name: "products", label: "Товары" },
+    { name: "webmaster", label: "Вебмастер" },
+    { name: "additional1", label: 'Домен' },
+    { name: "created_at", label: "Дата" },
+    { name: "updated_at", label: "Посленее изменение" },
+    { name: "approved_at", label: "Дата апрува" },
+    { name: "shipped_at", label: "Дата отправки" },
+    { name: "cancelled_at", label: "Дата отмены" },
+    { name: "buyout_at", label: "Дата выкупа" },
+    { name: "comment", label: "Комментарий" },
+    { name: "price", label: "Цена" },
+    { name: "total_sum", label: "Итого" },
+    { name: "logist_reacall_at", label: "Время перезвона" },
+    { name: "quantity", label: "Количество" },
+    { name: "fio", label: "ФИО" },
+    { name: "phone", label: "Телефон" },
+    { name: "region", label: "Регион" },
+    { name: "city", label: "Город" },
+    { name: "address", label: "Адрес" },
+    { name: "postal_code", label: "Почтовый индекс" },
+    { name: "age", label: "Возвраст" },
+    { name: "utm_term", label: "utm_term" },
+    { name: "sub_status_id", label: "Статус" },
+    { name: "gender", label: "Пол" },
+    { name: "payment_method", label: "Способ оплаты" },
+    { name: "delivery_method", label: "Способ доставки" },
+    { name: "order_cancel_reason", label: "Причина отмены" },
+    { name: "additional2", label: "additional2" },
+    { name: "additional3", label: "additional3" },
+    { name: "additional4", label: "additional4" },
+    { name: "additional5", label: "additional5" },
+    { name: "additional6", label: "additional6" },
+    { name: "additional7", label: "additional7" },
+    { name: "additional8", label: "additional8" },
+    { name: "additional9", label: "additional9" },
+    { name: "additional10", label: "additional10" },
+    { name: "delivery_at", label: "Дата доставки" },
+  ];
+
+  const columns = rawColumns.map((column, index) => ({
+    id: index + 1,
+    index: index + 1,
+    ...column,
+  }));
+
+  await knex("order_column").del();
+  await knex("order_column").insert(columns);
 
   await knex.raw("SELECT setval('order_column_id_seq', (SELECT MAX(id) FROM order_column))");
 };

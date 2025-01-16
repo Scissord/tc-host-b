@@ -1,3 +1,4 @@
+import * as Order from '#models/order.js';
 import * as OrderItem from '#models/order_item.js';
 import * as SubStatus from '#models/sub_status.js';
 import * as Product from '#models/product.js';
@@ -37,15 +38,12 @@ export async function mapOrders(orders, hide) {
 
   const mappedOrders = await Promise.all(
     orders.map(async (order) => {
+      const doubles = await Order.getDoubles(order.id, order.phone);
       const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
 
-      let is_disabled = false;
-      let reserved_by = '';
       const reserver = reservedOrders.find((ro) => +ro.order_id === +order.id);
-      if (reserver) {
-        is_disabled = true;
-        reserved_by = reserver.name ?? '';
-      }
+      const is_disabled = !!reserver;
+      const reserved_by = reserver?.name || '';
 
       return {
         ...order,
@@ -66,6 +64,8 @@ export async function mapOrders(orders, hide) {
         payment_method: paymentMethods.find((p) => +p.id === order.payment_method_id)?.name ?? '-',
         delivery_method: deliveryMethods.find((d) => +d.id === +order.delivery_method_id)?.name ?? '-',
         order_cancel_reason: orderCancelReasons.find((cr) => +cr.id === +order.order_cancel_reason_id)?.name ?? '-',
+        doubles,
+        is_doubles_open: false,
         is_checked: false,
         is_disabled,
         reserved_by,

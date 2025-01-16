@@ -3,7 +3,7 @@ import repository from './repository.js';
 const orderColumnRepository = repository('order_column');
 
 export const get = async () => {
-  return await orderColumnRepository.getAll();
+  return await orderColumnRepository.getAll('index', 'asc');
 };
 
 export const create = async (data) => {

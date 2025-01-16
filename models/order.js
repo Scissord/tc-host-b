@@ -37,6 +37,13 @@ export const getWhereIn = async (field, values) => {
     .orderBy('o.id', 'desc');
 };
 
+export const getDoubles = async (id, phone) => {
+  return await db('order as o')
+    .where('o.phone', 'ILIKE', `%${phone}%`)
+    .whereNot('o.id', id)
+    .pluck('o.id');
+};
+
 export const create = async (data) => {
   delete data.items;
   return await orderRepository.create(data);
@@ -45,7 +52,6 @@ export const create = async (data) => {
 export const createMany = async (data) => {
   return await orderRepository.createMany(data);
 };
-
 
 export const update = async (id, data) => {
   return await orderRepository.update(id, data);
