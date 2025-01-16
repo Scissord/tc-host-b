@@ -15,10 +15,6 @@ import { groupToStatus } from '#services/leadvertex/groupToStatus.js';
 import hideString from '#utils/hideString.js';
 import ERRORS from '#constants/errors.js';
 
-import knex from '#models/knex.js';
-
-const db = knex();
-
 export const getOrdersChatsByStatuses = async (req, res) => {
 	try {
 		const { sub_statuses, limit, offset } = req.query
@@ -142,16 +138,68 @@ export const getWebmasterOrders = async (req, res) => {
 
 export const getOperatorOrders = async (req, res) => {
 	try {
-		const { limit, page, sub_status } = req.query;
-
 		const {
-			orders,
-			lastPage,
-			pages
-		} = await Order.getOperatorOrdersPaginated(
 			limit,
 			page,
 			sub_status,
+			id,
+			fio,
+			products: items,
+			phone,
+			region,
+			city,
+			address,
+			postal_code,
+			comment,
+			utm_term,
+			webmaster,
+			operator,
+			order_sub_status,
+			additional1,
+			additional2,
+			additional3,
+			additional4,
+			additional5,
+			additional6,
+			additional7,
+			additional8,
+			additional9,
+			additional10,
+			created_at,
+			updated_at,
+		} = req.query;
+
+		console.log(req.query);
+
+		const { orders, lastPage, pages } = await Order.getOperatorOrdersPaginated(
+			limit,
+			page,
+			sub_status,
+			id,
+			fio,
+			items,
+			phone,
+			region,
+			city,
+			address,
+			postal_code,
+			comment,
+			utm_term,
+			webmaster,
+			operator,
+			order_sub_status,
+			additional1,
+			additional2,
+			additional3,
+			additional4,
+			additional5,
+			additional6,
+			additional7,
+			additional8,
+			additional9,
+			additional10,
+			created_at,
+			updated_at,
 		);
 
 		const mappedOrders = await mapOrders(orders, true);

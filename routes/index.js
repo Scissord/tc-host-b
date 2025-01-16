@@ -24,6 +24,7 @@ import paymentMethodRoutes from './paymentMethodRoute.js';
 import deliveryMethodRoutes from './deliveryMethodRoute.js';
 import orderCancelReasonRoutes from './orderCancelReasonRoute.js';
 import whMessageRoutes from './whMessage.js';
+import ketRoute from './ketRoute.js'
 
 const router = Router();
 
@@ -50,6 +51,7 @@ router.use('/delivery_methods', verify, deliveryMethodRoutes);
 router.use('/order_cancel_reasons', verify, orderCancelReasonRoutes);
 router.use('/dialer', dialerRoutes);
 router.use('/message', whMessageRoutes);
+router.use('/ket', ketRoute);
 router.use('/uploads', verify, express.static('uploads'));
 
 export default router;
