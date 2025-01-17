@@ -25,18 +25,19 @@ export const sendAcceptedOrders = async (req, res) => {
 		const orderIds = [];
 
 		for (const order of orders) {
+			
+			const cityIds = [4, 5];
+			if (cityIds.includes(order.city_id)) {
+				console.log(`City ID ${order.city_id} is in the array.`);
+			} else {
+				continue;
+			}
+
 			const orderItems = await OrderGood.getWhereIn('o.id', [order.id]);
 			if (!orderItems || orderItems.length === 0) {
 				console.log(`Заказ ${order.id} не содержит товаров.`);
 				continue;
 			}
-			const cityIds = [4, 5];
-
-			if (cityIds.includes(order.city_id)) {
-					console.log(`City ID ${order.city_id} is in the array.`);
-				} else {
-					continue;
-				}
 
 			const firstItem = orderItems[0];
 			const orderName = KetUtils.getOrderName(firstItem.product_id, firstItem.quantity);
