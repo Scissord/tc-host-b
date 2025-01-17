@@ -31,12 +31,7 @@ export const sendAcceptedOrders = async (req, res) => {
 		const orderIds = [];
 
 		for (const order of orders) {
-			// const cityIds = [4, 5];
-			// if (cityIds.includes(order.city_id)) {
-			// 	console.log(`City ID ${order.city_id} is in the array.`);
-			// } else {
-			// 	continue;
-			// }
+			
 
 			const orderItems = await OrderGood.getWhereIn('o.id', [order.id]);
 			if (!orderItems || orderItems.length === 0) {
@@ -49,6 +44,11 @@ export const sendAcceptedOrders = async (req, res) => {
 			
 			if (+sub_status === 15) {
 				const city = await City.find(order.city_id);
+				if (!city) {
+					console.log(`City not found for order with ID: ${order.id}, city_id: ${order.city_id}`);
+					continue; // Пропускаем текущую итерацию, если city не найден
+				}
+				
 				const cityCode = getCityCode(city.name);
 				const newOrder = {
 					phone: order.phone,
