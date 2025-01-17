@@ -34,15 +34,12 @@ export const sendAcceptedOrders = async (req, res) => {
             }
 
             const firstItem = orderItems[0]; 
-			console.log(`Товар ${firstItem} ${firstItem.product_id} m ${firstItem.quantity}`);
+	
             const orderName = KetUtils.getOrderName(firstItem.product_id, firstItem.quantity );
-			console.log(`Имя товара ${orderName} `);
+
 			if (+sub_status_id === 15){
 				const city = await City.find(order.city_id);
-				console.log(city)
 				const cityCode = getCityCode(city.name);
-				console.log(cityCode)
-				console.log(city)
 				const newOrder = {
 					phone: order.phone,
 					price: order.total_sum,
@@ -97,48 +94,48 @@ export const sendAcceptedOrders = async (req, res) => {
 };
 
 
-// export const sendCourierOrder = async (req, res) => {
-// 	try {
-// 		const { order_ids } = req.body
+export const sendCourierOrder = async (req, res) => {
+	try {
+		const { order_ids } = req.body
 
-// 		const newOrders = []
+		const newOrders = []
 
-// 		for (const order_id of order_ids) {
+		for (const order_id of order_ids) {
 
-// 			const order = await Order.find(order_id)
+			const order = await Order.find(order_id)
 			
-// 			const city = await City.find(order.city_id);
-// 			const orderItems = await OrderGood.getWhereIn('o.id', [order.id]);
+			const city = await City.find(order.city_id);
+			const orderItems = await OrderGood.getWhereIn('o.id', [order.id]);
 
-// 			if (!orderItems || orderItems.length === 0) {
-// 				console.log(`Заказ ${order.id} не содержит товаров.`);
-// 			}
+			if (!orderItems || orderItems.length === 0) {
+				console.log(`Заказ ${order.id} не содержит товаров.`);
+			}
 
-// 			const firstItem = orderItems[0]; 
-// 			const cityCode = getCityCode(city.name);
-// 			const orderName = KetUtils.getOrderName({ goodID: firstItem.product_id, quantity: firstItem.quantity });
+			const firstItem = orderItems[0]; 
+			const cityCode = getCityCode(city.name);
+			const orderName = KetUtils.getOrderName(firstItem.product_id, firstItem.quantity );
 
-// 			const newOrder = {
-// 				phone: order.phone,
-// 				price: order.total_sum,
-// 				order_id: order.id,
-// 				name: order.fio,
-// 				country: 'kz',
-// 				addr: order.address,
-// 				city: city.name,
-// 				kz_delivery: cityCode,
-// 				offer: orderName,
-// 				secret: process.env.KETKZ_SECRET,
-// 				date_delivery: order.delivery_at,
-// 				client_id: process.env.KETKZ_UID,
-// 			};
-// 			newOrders.push(newOrder);
+			const newOrder = {
+				phone: order.phone,
+				price: order.total_sum,
+				order_id: order.id,
+				name: order.fio,
+				country: 'kz',
+				addr: order.address,
+				city: city.name,
+				kz_delivery: cityCode,
+				offer: orderName,
+				secret: process.env.KETKZ_SECRET,
+				date_delivery: order.delivery_at,
+				client_id: process.env.KETKZ_UID,
+			};
+			newOrders.push(newOrder);
 
-// 		}
+		}
 
-// 		await Ketkz.sendOrders(newOrders);
-// 	} catch (error) {
-// 		console.error("Error in sendCourierOrder dialer controller", error.message);
-//         res.status(500).json({ error: "Internal Server Error" });
-// 	}
-// }
+		await Ketkz.sendOrders(newOrders);
+	} catch (error) {
+		console.error("Error in sendCourierOrder dialer controller", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+	}
+}
