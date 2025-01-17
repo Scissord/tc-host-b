@@ -68,7 +68,8 @@ export const sendAcceptedOrders = async (req, res) => {
 					secret: process.env.KETKZ_SECRET,
 					date_delivery: order.delivery_at,
 					client_id: process.env.KETKZ_UID,
-					deliv_desc:order.address
+					deliv_desc:order.address,
+					index: order.postal_code
 				};
 
 				newOrders.push(newOrder);
