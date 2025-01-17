@@ -1,19 +1,22 @@
-import axios from 'axios';
 import * as Order from '#models/order.js';
 import * as OrderSignals from '#services/signals/orderSignals.js';
 import * as OrderItem from '#models/order_item.js';
 import * as SubStatus from '#models/sub_status.js';
-import * as City from '#models/city.js';
-import * as Gender from '#models/gender.js';
-import * as PaymentMethod from '#models/payment_method.js';
-import * as DeliveryMethod from '#models/delivery_method.js';
-import * as OrderCancelReason from '#models/order_cancel_reason.js';
+import * as Product from '#models/product.js';
+import * as Log from '#models/log.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import { mapOrders, mapOrder } from '#services/order/map.js';
-import { chunkArray } from '#utils/chunkArray.js';
-import { groupToStatus } from '#services/leadvertex/groupToStatus.js';
 import hideString from '#utils/hideString.js';
 import ERRORS from '#constants/errors.js';
+// for sync
+// import axios from 'axios';
+// import * as City from '#models/city.js';
+// import * as Gender from '#models/gender.js';
+// import * as PaymentMethod from '#models/payment_method.js';
+// import * as DeliveryMethod from '#models/delivery_method.js';
+// import * as OrderCancelReason from '#models/order_cancel_reason.js';
+// import { chunkArray } from '#utils/chunkArray.js';
+// import { groupToStatus } from '#services/leadvertex/groupToStatus.js';
 
 export const getOrdersChatsByStatuses = async (req, res) => {
 	try {
@@ -260,13 +263,25 @@ export const changeStatus = async (req, res) => {
 	try {
 		const { ids, old_sub_status_id, new_sub_status_id } = req.body;
 
+		const responsible_id = req.operator?.id || req.user.id;
+		const responsible = req.operator?.id ? 'оператором' : 'пользователем';
+
 		if (ids.length === 0) {
 			const subStatus = await SubStatus.find(old_sub_status_id);
 			const orders = await Order.getWhere({ sub_status_id: old_sub_status_id });
 			await Order.updateWhereIn(orders.map(order => order.id), {
 				status_id: subStatus.status_id,
 				sub_status_id: new_sub_status_id
-			})
+			});
+
+			await Log.create({
+				order_id: ids,
+				operator_id: responsible_id,
+				old_sub_status_id: old_sub_status_id,
+				new_sub_status_id: new_sub_status_id,
+				action: `Все заказы из статуса ${old_sub_status_id} перенесены в ${new_sub_status_id}, ${responsible} №${responsible_id}.`,
+				ip: req.ip,
+			});
 
 			return res.status(200).send({
 				message: 'ok',
@@ -279,6 +294,17 @@ export const changeStatus = async (req, res) => {
 			status_id: newSubStatus.status_id,
 			sub_status_id: new_sub_status_id
 		});
+
+		for (const id of ids) {
+			await Log.create({
+				order_id: id,
+				operator_id: responsible_id,
+				old_sub_status_id: old_sub_status_id,
+				new_sub_status_id: new_sub_status_id,
+				action: `Изменение статуса у заказа №${id}, ${responsible} №${responsible_id}.`,
+				ip: req.ip,
+			});
+		};
 
 		res.status(200).send({
 			message: 'ok',
@@ -323,21 +349,34 @@ export const create = async (req, res) => {
 		};
 
 		const order = await Order.create(data);
-		await OrderSignals.postbackKeitaroSignal(order.utm_term, order.additional1, 0)
+		process.env.NODE_ENV === "production" && await OrderSignals.postbackKeitaroSignal(order.utm_term, order.additional1, 0)
 
 		if (items) {
-			for (const item of items) {
-				await OrderItem.create({
+			const products = await Product.get();
+			const order_items = await Promise.all(items.map(async (item) => {
+				const order_item = await OrderItem.create({
 					order_id: order.id,
 					product_id: item.product_id,
 					quantity: item.quantity,
 				});
-			};
+				order_item.name = products.find((p) => +p.id === +order_item.product_id)?.name ?? '-';
+				return order_item;
+			}));
+			order.items = order_items;
 		};
 
 		await setKeyValue(data.phone, order, 60);
 
-		console.log('created order:', order)
+		await Log.create({
+			order_id: order.id,
+			operator_id: order.operator_id,
+			old_sub_status_id: order.sub_status_id,
+			new_sub_status_id: order.sub_status_id,
+			action: `Заказ №${order.id} был создан.`,
+			old_metadata: { ...data, items: Array.isArray(items) ? items : [] },
+			new_metadata: { ...order },
+			ip: req.ip,
+		});
 
 		return res.status(200).send({ message: 'ok', order });
 	} catch (err) {

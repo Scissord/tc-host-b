@@ -1,48 +1,44 @@
 import dotenv from 'dotenv';
 
 import * as Order from '#models/order.js';
-import * as Ketkz from '#services/ketkz/ketkz.js';
-import { getCityCode } from '#utils/cityCode.js';
-import * as KetUtils from '#utils/ketOrderName.js'
 import * as OrderGood from '#models/order_item.js'
 import * as City from '#models/city.js'
+import * as Ketkz from '#services/ketkz/ketkz.js';
+import * as KetUtils from '#utils/ketOrderName.js'
+import { getCityCode } from '#utils/cityCode.js';
+import ERRORS from '#constants/errors.js';
 
 dotenv.config();
 
 export const sendAcceptedOrders = async (req, res) => {
-    try {
-		const {sub_status_id} = req.body
+	try {
+		const { sub_status_id } = req.body
 		
-		const query = {
-			sub_status_id
-		}
-		
-        const orders = await Order.getWhere(query);
+		const orders = await Order.getWhere({ sub_status_id });
 
-        if (!orders || orders.length === 0) {
-            return res.status(404).json({ error: "No orders found with the specified criteria." });
-        }
+		if (!orders || orders.length === 0) {
+			return res.status(400).send({
+				message: ERRORS.ORDERS_NOT_FOUND,
+			});
+		};
 
-        const newOrders = [];
+		const newOrders = [];
 
-        for (const order of orders) {
-            const orderItems = await OrderGood.getWhereIn('o.id', [order.id]);
-			console.log(`Заказы товары ${orderItems}`);
-            if (!orderItems || orderItems.length === 0) {
-                console.log(`Заказ ${order.id} не содержит товаров.`);
-                continue; 
-            }
+		for (const order of orders) {
+			const orderItems = await OrderGood.getWhereIn('o.id', [order.id]);
+			if (!orderItems || orderItems.length === 0) {
+				console.log(`Заказ ${order.id} не содержит товаров.`);
+				continue; 
+			}
 
-            const firstItem = orderItems[0]; 
+			const firstItem = orderItems[0]; 
 			console.log(`Товар ${firstItem} ${firstItem.product_id} m ${firstItem.quantity}`);
-            const orderName = KetUtils.getOrderName(firstItem.product_id, firstItem.quantity );
+			const orderName = KetUtils.getOrderName(firstItem.product_id, firstItem.quantity );
 			console.log(`Имя товара ${orderName} `);
-			if (+sub_status_id === 15){
+
+			if (+sub_status_id === 15) {
 				const city = await City.find(order.city_id);
-				console.log(city)
 				const cityCode = getCityCode(city.name);
-				console.log(cityCode)
-				console.log(city)
 				const newOrder = {
 					phone: order.phone,
 					price: order.total_sum,
@@ -75,25 +71,22 @@ export const sendAcceptedOrders = async (req, res) => {
 				};
 
 				newOrders.push(newOrder);
-			}
-            
+			};
+		};
 
-        }
+		if (newOrders.length === 0) {
+			console.log("Нет новых заказов для отправки.");
+			return res.status(200).json({ message: "No new orders to send." });
+		}
 
-        if (newOrders.length === 0) {
-            console.log("Нет новых заказов для отправки.");
-            return res.status(200).json({ message: "No new orders to send." });
-        }
-		
-		console.log(newOrders)
-        await Ketkz.sendOrders(newOrders);
+		await Ketkz.sendOrders(newOrders);
 
-        console.log("Все заказы успешно отправлены:", newOrders);
-        res.status(200).json({ message: "Orders successfully sent." });
-    } catch (error) {
-        console.error("Error in sendAcceptedOrders dialer controller", error.message);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
+		// console.log("Все заказы успешно отправлены:", newOrders);
+		res.status(200).send({ message: "Заказы успешно отправились." });
+	} catch (error) {
+		console.error("Error in sendAcceptedOrders ket controller", error.message);
+		res.status(500).send({ error: "Internal Server Error" });
+	}
 };
 
 
