@@ -332,8 +332,7 @@ export const getOrdersByIds = async (req, res) => {
           const product = products.find((p) => +p.id === +item.product_id);
           return {
             ...item,
-            name: product ? product.name : '-',
-            price: product ? product.price : '-',
+            name: product ? product.name : null,
           };
         }),
         gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',

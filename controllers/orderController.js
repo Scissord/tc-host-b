@@ -8,6 +8,7 @@ import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import { mapOrders, mapOrder } from '#services/order/map.js';
 import hideString from '#utils/hideString.js';
 import ERRORS from '#constants/errors.js';
+import globalPrice from '#constants/price.js';
 // for sync
 // import axios from 'axios';
 // import * as City from '#models/city.js';
@@ -263,8 +264,8 @@ export const changeStatus = async (req, res) => {
 	try {
 		const { ids, old_sub_status_id, new_sub_status_id } = req.body;
 
-		// const responsible_id = req.operator?.id || req.user.id;
-		// const responsible = req.operator?.id ? 'оператором' : 'пользователем';
+		const responsible_id = req.operator?.id || req.user.id;
+		const responsible = req.operator?.id ? 'оператором' : 'пользователем';
 
 		if (ids.length === 0) {
 			const subStatus = await SubStatus.find(old_sub_status_id);
@@ -274,14 +275,14 @@ export const changeStatus = async (req, res) => {
 				sub_status_id: new_sub_status_id
 			});
 
-			// await Log.create({
-			// 	order_id: ids,
-			// 	operator_id: responsible_id,
-			// 	old_sub_status_id: old_sub_status_id,
-			// 	new_sub_status_id: new_sub_status_id,
-			// 	action: `Все заказы из статуса ${old_sub_status_id} перенесены в ${new_sub_status_id}, ${responsible} №${responsible_id}.`,
-			// 	ip: req.ip,
-			// });
+			await Log.create({
+				order_id: ids,
+				operator_id: responsible_id,
+				old_sub_status_id: old_sub_status_id,
+				new_sub_status_id: new_sub_status_id,
+				action: `Все заказы из статуса ${old_sub_status_id} перенесены в ${new_sub_status_id}, ${responsible} №${responsible_id}.`,
+				ip: req.ip,
+			});
 
 			return res.status(200).send({
 				message: 'ok',
@@ -295,16 +296,16 @@ export const changeStatus = async (req, res) => {
 			sub_status_id: new_sub_status_id
 		});
 
-		// for (const id of ids) {
-		// 	await Log.create({
-		// 		order_id: id,
-		// 		operator_id: responsible_id,
-		// 		old_sub_status_id: old_sub_status_id,
-		// 		new_sub_status_id: new_sub_status_id,
-		// 		action: `Изменение статуса у заказа №${id}, ${responsible} №${responsible_id}.`,
-		// 		ip: req.ip,
-		// 	});
-		// };
+		for (const id of ids) {
+			await Log.create({
+				order_id: id,
+				operator_id: responsible_id,
+				old_sub_status_id: old_sub_status_id,
+				new_sub_status_id: new_sub_status_id,
+				action: `Изменение статуса у заказа №${id}, ${responsible} №${responsible_id}.`,
+				ip: req.ip,
+			});
+		};
 
 		res.status(200).send({
 			message: 'ok',
@@ -338,6 +339,7 @@ export const create = async (req, res) => {
 		};
 
 		if (Array.isArray(items)) {
+			// to send to Обработка
 			if (
 				data.phone.startsWith('77') &&
 				data.phone.length === 11 &&
@@ -346,18 +348,25 @@ export const create = async (req, res) => {
 			) {
 				data.sub_status_id = 21;
 			};
+			// to count total_sum
+			if (items.length > 0) {
+				data.total_sum = items.reduce((sum, item) => sum + item.price, 0);
+			} else {
+				data.total_sum = 0;
+			};
 		};
 
 		const order = await Order.create(data);
 		process.env.NODE_ENV === "production" && await OrderSignals.postbackKeitaroSignal(order.utm_term, order.additional1, 0)
 
-		if (items) {
+		if (Array.isArray(items) && items) {
 			const products = await Product.get();
 			const order_items = await Promise.all(items.map(async (item) => {
 				const order_item = await OrderItem.create({
 					order_id: order.id,
 					product_id: item.product_id,
-					quantity: item.quantity,
+					price: item.price || globalPrice,
+					quantity: item.quantity || 1,
 				});
 				order_item.name = products.find((p) => +p.id === +order_item.product_id)?.name ?? '-';
 				return order_item;
@@ -367,16 +376,16 @@ export const create = async (req, res) => {
 
 		await setKeyValue(data.phone, order, 60);
 
-		// await Log.create({
-		// 	order_id: order.id,
-		// 	operator_id: order.operator_id,
-		// 	old_sub_status_id: order.sub_status_id,
-		// 	new_sub_status_id: order.sub_status_id,
-		// 	action: `Заказ №${order.id} был создан.`,
-		// 	old_metadata: { ...data, items: Array.isArray(items) ? items : [] },
-		// 	new_metadata: { ...order },
-		// 	ip: req.ip,
-		// });
+		await Log.create({
+			order_id: order.id,
+			operator_id: order.operator_id,
+			old_sub_status_id: order.sub_status_id,
+			new_sub_status_id: order.sub_status_id,
+			action: `Заказ №${order.id} был создан.`,
+			old_metadata: { ...data, items: Array.isArray(items) ? items : [] },
+			new_metadata: { ...order },
+			ip: req.ip,
+		});
 
 		return res.status(200).send({ message: 'ok', order });
 	} catch (err) {
@@ -388,25 +397,65 @@ export const create = async (req, res) => {
 export const update = async (req, res) => {
 	try {
 		const { order_id } = req.params;
-		const data = req.body;
+		const order = req.body.order;
+		const items = req.body.items;
+
+		const responsible_id = req.operator?.id || req.user.id;
+		const responsible = req.operator?.id ? 'оператором' : 'пользователем';
 
 		const keitaroStatuses = [1, 4];
+
 		// 1. check if new status not match
-		if (data.sub_status_id) {
-			const order = await Order.find(order_id);
-			if (+order.sub_status_id !== +data.sub_status_id) {
-				const sub_status = await SubStatus.find(data.sub_status_id);
-				data.status_id = sub_status.status_id;
-				data.sub_status_id = sub_status.id;
-				// 1. Keitaro postbackSignal
-				if (keitaroStatuses.includes(sub_status.status_id)) {
-					await OrderSignals.postbackKeitaroSignal(order.utm_term, order.additional1, sub_status.status_id)
-				}
+		const oldOrder = await Order.find(order_id);
+		if (+oldOrder.sub_status_id !== +order.sub_status_id) {
+			const new_sub_status = await SubStatus.find(order.sub_status_id);
+			order.status_id = new_sub_status.status_id;
+			order.sub_status_id = new_sub_status.id;
+			// 1. Keitaro postbackSignal
+			if (keitaroStatuses.includes(new_sub_status.status_id)) {
+				await OrderSignals.postbackKeitaroSignal(oldOrder.utm_term, oldOrder.additional1, new_sub_status.status_id)
 			};
 		};
 
 		// 2. update order
-		await Order.update(order_id, data);
+		const updatedOrder = await Order.update(order_id, order);
+
+		// 3. update order_item
+		if (Array.isArray(items) && items) {
+			const products = await Product.get();
+			const order_items = await Promise.all(items.map(async (item) => {
+				let order_item = await OrderItem.find(item.id);
+				if (!order_item) {
+					order_item = await OrderItem.create({
+						order_id: updatedOrder.id,
+						product_id: item.product_id,
+						price: item.price || globalPrice,
+						quantity: item.quantity || 1,
+					});
+				} else {
+					order_item = await OrderItem.update(item.id, {
+						product_id: item.product_id,
+						quantity: item.quantity || 1,
+						price: item.price || globalPrice,
+					});
+				};
+				order_item.name = products.find((p) => +p.id === +order_item.product_id)?.name ?? '-';
+				return order_item;
+			}));
+			updatedOrder.items = order_items;
+		};
+
+		// 4. create log
+		await Log.create({
+			order_id,
+			operator_id: responsible_id,
+			old_sub_status_id: order.sub_status_id,
+			new_sub_status_id: updatedOrder.sub_status_id,
+			old_metadata: { ...order, items: Array.isArray(items) ? items : [] },
+			new_metadata: { ...updatedOrder },
+			action: `Изменение заказа №${updatedOrder.id}, ${responsible} №${responsible_id}.`,
+			ip: req.ip,
+		});
 
 		res.status(200).send({ message: 'ok' });
 	} catch (err) {

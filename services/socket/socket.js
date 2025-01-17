@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import http from "http";
 import express from "express";
 import * as Order from "#models/order.js";
+import * as Log from '#models/log.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import { mapOrders } from "#services/order/map.js";
 
@@ -99,6 +100,7 @@ io.on("connection", async (socket) => {
   socket.on("sendEntryOrder", async (data) => {
     // console.log("Entry Order:", data);
 
+    // to redis
     const reservedOrders = await getKeyValue('reservedOrders') || [];
     reservedOrders.push({
       order_id: data.order_id,
@@ -118,6 +120,12 @@ io.on("connection", async (socket) => {
         });
       });
     });
+
+    // create log
+    await Log.create({
+      order_id: data.order_id,
+      action: `${data.name} вошел (-a) в заказ №${data.order_id}.`
+    })
   });
 
   socket.on("sendExitOrder", async (data) => {
@@ -151,6 +159,12 @@ io.on("connection", async (socket) => {
         });
       });
     });
+
+    // create log
+    await Log.create({
+      order_id: data.order_id,
+      action: `${data.name} вышел (-a) из заказа №${data.order_id}.`
+    })
   });
 
   socket.on("privateMessage", (data) => {
