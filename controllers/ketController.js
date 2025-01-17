@@ -12,12 +12,12 @@ dotenv.config();
 
 export const sendAcceptedOrders = async (req, res) => {
 	try {
-		const { sub_status_id } = req.body
+		const { sub_status } = req.body
 		const tomorrow = new Date();
 		tomorrow.setDate(tomorrow.getDate() + 1);
-		const formattedTomorrow = tomorrow.toISOString().split('T')[0]; // П
+		const formattedTomorrow = tomorrow.toISOString().split('T')[0]; 
 		const orders = await Order.getWhere({
-            sub_status_id,
+            sub_status_id: sub_status,
             delivery_at: formattedTomorrow,
         });
 
@@ -31,12 +31,12 @@ export const sendAcceptedOrders = async (req, res) => {
 		const orderIds = [];
 
 		for (const order of orders) {
-			const cityIds = [4, 5];
-			if (cityIds.includes(order.city_id)) {
-				console.log(`City ID ${order.city_id} is in the array.`);
-			} else {
-				continue;
-			}
+			// const cityIds = [4, 5];
+			// if (cityIds.includes(order.city_id)) {
+			// 	console.log(`City ID ${order.city_id} is in the array.`);
+			// } else {
+			// 	continue;
+			// }
 
 			const orderItems = await OrderGood.getWhereIn('o.id', [order.id]);
 			if (!orderItems || orderItems.length === 0) {
@@ -47,7 +47,7 @@ export const sendAcceptedOrders = async (req, res) => {
 			const firstItem = orderItems[0];
 			const orderName = KetUtils.getOrderName(firstItem.product_id, firstItem.quantity);
 			
-			if (+sub_status_id === 15) {
+			if (+sub_status === 15) {
 				const city = await City.find(order.city_id);
 				const cityCode = getCityCode(city.name);
 				const newOrder = {
