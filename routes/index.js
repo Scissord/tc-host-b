@@ -53,7 +53,7 @@ router.use('/delivery_methods', verify, deliveryMethodRoutes);
 router.use('/order_cancel_reasons', verify, orderCancelReasonRoutes);
 router.use('/dialer', dialerRoutes);
 router.use('/message', whMessageRoutes);
-router.use('/ket', verify, ketRoutes);
+router.use('/ket', ketRoutes);
 router.use('/uploads', verify, express.static('uploads'));
 
 export default router;
