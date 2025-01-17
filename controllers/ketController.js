@@ -14,10 +14,12 @@ dotenv.config();
 export const sendAcceptedOrders = async (req, res) => {
 	try {
 		const { sub_status_id } = req.body
-		const tomorrow = moment().add(1, 'days').format('YYYY-MM-DD');
+		const tomorrow = new Date();
+		tomorrow.setDate(tomorrow.getDate() + 1);
+		const formattedTomorrow = tomorrow.toISOString().split('T')[0]; // П
 		const orders = await Order.getWhere({
             sub_status_id,
-            delivery_at: tomorrow,
+            delivery_at: formattedTomorrow,
         });
 
 		if (!orders || orders.length === 0) {
