@@ -210,16 +210,38 @@ export const updateOrder = async (req, res) => {
     const { id } = req.query;
     const data = req.body;
 
+    // 1. check for id
     if (!id) {
       return res.status(400).send({
         message: ERRORS.REQUIRED_ID
       });
     };
 
+    // 2. check for data
     if (Object.keys(data).length === 0) {
       return res.status(400).send({
         message: ERRORS.REQUIRED_FIELDS
       });
+    };
+
+    // 3. if 1, 4 or 12 change approved_by and cancelled_by
+    if (data.operator_id && (+data.sub_status_id === 1 || +data.sub_status_id === 4)) {
+      await Order.update(id, {
+        approved_by_id: data.operator_id,
+        approved_by_entity: 'оператором',
+      });
+    };
+
+    if (data.operator_id && +order.sub_status_id === 12) {
+      await Order.update(id, {
+        cancelled_by_id: data.operator_id,
+        cancelled_by_entity: 'оператором',
+      });
+    };
+
+    if (data.sub_status_id) {
+      const new_sub_status = await SubStatus.find(data.sub_status_id);
+      data.status_id = new_sub_status.status_id;
     };
 
     const order = await Order.update(id, data);

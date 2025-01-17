@@ -275,6 +275,22 @@ export const changeStatus = async (req, res) => {
 				sub_status_id: new_sub_status_id
 			});
 
+			for (const order of orders) {
+				if (+new_sub_status_id === 1 || +new_sub_status_id === 4) {
+					await Order.update(order.id, {
+						approved_by_id: responsible_id,
+						approved_by_entity: responsible,
+					});
+				};
+
+				if (+new_sub_status_id === 12) {
+					await Order.update(order.id, {
+						cancelled_by_id: responsible_id,
+						cancelled_by_entity: responsible,
+					});
+				};
+			};
+
 			await Log.create({
 				order_id: ids,
 				operator_id: responsible_id,
@@ -295,6 +311,22 @@ export const changeStatus = async (req, res) => {
 			status_id: newSubStatus.status_id,
 			sub_status_id: new_sub_status_id
 		});
+
+		for (const order of orders) {
+			if (+new_sub_status_id === 1 || +new_sub_status_id === 4) {
+				await Order.update(order.id, {
+					approved_by_id: responsible_id,
+					approved_by_entity: responsible,
+				});
+			};
+
+			if (+new_sub_status_id === 12) {
+				await Order.update(order.id, {
+					cancelled_by_id: responsible_id,
+					cancelled_by_entity: responsible,
+				});
+			};
+		};
 
 		for (const id of ids) {
 			await Log.create({
@@ -445,7 +477,22 @@ export const update = async (req, res) => {
 			updatedOrder.items = order_items;
 		};
 
-		// 4. create log
+		// 4. if 1, 4 or 12 change approved_by and cancelled_by
+		if (+order.sub_status_id === 1 || +order.sub_status_id === 4) {
+			await Order.update(order_id, {
+				approved_by_id: responsible_id,
+				approved_by_entity: responsible,
+			});
+		};
+
+		if (+order.sub_status_id === 12) {
+			await Order.update(order_id, {
+				cancelled_by_id: responsible_id,
+				cancelled_by_entity: responsible,
+			});
+		};
+
+		// 5. create log
 		await Log.create({
 			order_id,
 			operator_id: responsible_id,
