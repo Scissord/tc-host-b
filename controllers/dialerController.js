@@ -225,14 +225,14 @@ export const updateOrder = async (req, res) => {
     };
 
     // 3. if 1, 4 or 12 change approved_by and cancelled_by
-    if (data.operator_id && (+data.sub_status_id === 1 || +data.sub_status_id === 4)) {
+    if (data?.operator_id && (+data?.sub_status_id === 1 || +data?.sub_status_id === 4)) {
       await Order.update(id, {
         approved_by_id: data.operator_id,
         approved_by_entity: 'оператором',
       });
     };
 
-    if (data.operator_id && +order.sub_status_id === 12) {
+    if (data?.operator_id && +order?.sub_status_id === 12) {
       await Order.update(id, {
         cancelled_by_id: data.operator_id,
         cancelled_by_entity: 'оператором',
