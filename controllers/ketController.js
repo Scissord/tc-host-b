@@ -1,4 +1,6 @@
 import dotenv from 'dotenv';
+import moment from 'moment';
+
 import * as Order from '#models/order.js';
 import * as OrderGood from '#models/order_item.js'
 import * as City from '#models/city.js'
@@ -12,8 +14,11 @@ dotenv.config();
 export const sendAcceptedOrders = async (req, res) => {
 	try {
 		const { sub_status_id } = req.body
-
-		const orders = await Order.getWhere({ sub_status_id });
+		const tomorrow = moment().add(1, 'days').format('YYYY-MM-DD');
+		const orders = await Order.getWhere({
+            sub_status_id,
+            delivery_at: tomorrow,
+        });
 
 		if (!orders || orders.length === 0) {
 			return res.status(400).send({
@@ -25,7 +30,6 @@ export const sendAcceptedOrders = async (req, res) => {
 		const orderIds = [];
 
 		for (const order of orders) {
-			
 			const cityIds = [4, 5];
 			if (cityIds.includes(order.city_id)) {
 				console.log(`City ID ${order.city_id} is in the array.`);
