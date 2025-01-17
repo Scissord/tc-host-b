@@ -237,7 +237,7 @@ export const updateOrder = async (req, res) => {
       });
     };
 
-    if (data?.operator_id && +order?.sub_status_id === 12) {
+    if (data?.operator_id && +data?.sub_status_id === 12) {
       await Order.update(id, {
         cancelled_by_id: data.operator_id,
         cancelled_by_entity: 'оператором',
