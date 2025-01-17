@@ -263,8 +263,8 @@ export const changeStatus = async (req, res) => {
 	try {
 		const { ids, old_sub_status_id, new_sub_status_id } = req.body;
 
-		const responsible_id = req.operator?.id || req.user.id;
-		const responsible = req.operator?.id ? 'оператором' : 'пользователем';
+		// const responsible_id = req.operator?.id || req.user.id;
+		// const responsible = req.operator?.id ? 'оператором' : 'пользователем';
 
 		if (ids.length === 0) {
 			const subStatus = await SubStatus.find(old_sub_status_id);
@@ -274,14 +274,14 @@ export const changeStatus = async (req, res) => {
 				sub_status_id: new_sub_status_id
 			});
 
-			await Log.create({
-				order_id: ids,
-				operator_id: responsible_id,
-				old_sub_status_id: old_sub_status_id,
-				new_sub_status_id: new_sub_status_id,
-				action: `Все заказы из статуса ${old_sub_status_id} перенесены в ${new_sub_status_id}, ${responsible} №${responsible_id}.`,
-				ip: req.ip,
-			});
+			// await Log.create({
+			// 	order_id: ids,
+			// 	operator_id: responsible_id,
+			// 	old_sub_status_id: old_sub_status_id,
+			// 	new_sub_status_id: new_sub_status_id,
+			// 	action: `Все заказы из статуса ${old_sub_status_id} перенесены в ${new_sub_status_id}, ${responsible} №${responsible_id}.`,
+			// 	ip: req.ip,
+			// });
 
 			return res.status(200).send({
 				message: 'ok',
@@ -295,16 +295,16 @@ export const changeStatus = async (req, res) => {
 			sub_status_id: new_sub_status_id
 		});
 
-		for (const id of ids) {
-			await Log.create({
-				order_id: id,
-				operator_id: responsible_id,
-				old_sub_status_id: old_sub_status_id,
-				new_sub_status_id: new_sub_status_id,
-				action: `Изменение статуса у заказа №${id}, ${responsible} №${responsible_id}.`,
-				ip: req.ip,
-			});
-		};
+		// for (const id of ids) {
+		// 	await Log.create({
+		// 		order_id: id,
+		// 		operator_id: responsible_id,
+		// 		old_sub_status_id: old_sub_status_id,
+		// 		new_sub_status_id: new_sub_status_id,
+		// 		action: `Изменение статуса у заказа №${id}, ${responsible} №${responsible_id}.`,
+		// 		ip: req.ip,
+		// 	});
+		// };
 
 		res.status(200).send({
 			message: 'ok',
@@ -367,16 +367,16 @@ export const create = async (req, res) => {
 
 		await setKeyValue(data.phone, order, 60);
 
-		await Log.create({
-			order_id: order.id,
-			operator_id: order.operator_id,
-			old_sub_status_id: order.sub_status_id,
-			new_sub_status_id: order.sub_status_id,
-			action: `Заказ №${order.id} был создан.`,
-			old_metadata: { ...data, items: Array.isArray(items) ? items : [] },
-			new_metadata: { ...order },
-			ip: req.ip,
-		});
+		// await Log.create({
+		// 	order_id: order.id,
+		// 	operator_id: order.operator_id,
+		// 	old_sub_status_id: order.sub_status_id,
+		// 	new_sub_status_id: order.sub_status_id,
+		// 	action: `Заказ №${order.id} был создан.`,
+		// 	old_metadata: { ...data, items: Array.isArray(items) ? items : [] },
+		// 	new_metadata: { ...order },
+		// 	ip: req.ip,
+		// });
 
 		return res.status(200).send({ message: 'ok', order });
 	} catch (err) {
