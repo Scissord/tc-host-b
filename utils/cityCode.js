@@ -34,5 +34,4 @@ export const getCityCode = (city) => {
     return сity_codes[city] || undefined;
 }
 
-    
-   
+

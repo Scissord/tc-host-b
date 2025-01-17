@@ -30,6 +30,8 @@ const ERRORS = {
   ROLE_EXIST: 'У пользователя уже есть роль!',
   // permission
   PERMISSION_EXIST: 'У пользователя уже есть этот доступ!',
+  // orders
+  ORDERS_NOT_FOUND: 'Заказы не найдены!',
 };
 
 export default ERRORS;

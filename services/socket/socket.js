@@ -59,7 +59,7 @@ io.on("connection", async (socket) => {
 
   await setKeyValue('onlineUsers', onlineUsers);
 
-  console.log('connection', onlineUsers);
+  console.log('online:', onlineUsers.length);
 
   socket.on("sendStatus", async (data) => {
     // console.log(`Received message from ${socket.id}:`, data);
@@ -197,7 +197,7 @@ io.on("connection", async (socket) => {
 
     await setKeyValue('onlineUsers', onlineUsers);
 
-    // console.log('disconnect', onlineUsers);
+    console.log('online:', onlineUsers.length);
   });
 });
 
