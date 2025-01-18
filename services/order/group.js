@@ -251,26 +251,6 @@ export const calculateStatistics = (data) => {
   return data;
 };
 
-
-
-  // Рассчитываем проценты
-  return Object.values(grouped).map(({ webmaster, total, statuses }) => {
-    const groupedStatuses = Object.entries(statuses).reduce((acc, [statusId, data]) => {
-      acc[statusId] = {
-        count: data.count,
-        percent: ((data.count / total) * 100).toFixed(2),
-      };
-      return acc;
-    }, {});
-
-    return {
-      label: webmaster.name,
-      total,
-      statuses: groupedStatuses,
-    };
-  });
-};
-
 export const groupOperators = (orders, operators) => {
   const grouped = orders.reduce((acc, order) => {
     const operator = operators.find((op) => +op.id === +order.operator_id);
