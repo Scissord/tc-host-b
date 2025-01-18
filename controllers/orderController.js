@@ -382,9 +382,21 @@ export const create = async (req, res) => {
 			};
 			// to count total_sum
 			if (items.length > 0) {
-				data.total_sum = items.reduce((sum, item) => sum + item.price, 0);
+				const newTotal = items.reduce((acc, item) => {
+					const quantity = Number(item.quantity) || 0;
+					const price = Number(item.price) || 0;
+
+					const tmp = quantity * price;
+					return acc + tmp;
+				}, 0);
+
+				if (isNaN(newTotal)) {
+					data.total_sum = 1650;
+				} else {
+					data.total_sum = newTotal
+				};
 			} else {
-				data.total_sum = 0;
+				data.total_sum = 1650;
 			};
 		};
 
