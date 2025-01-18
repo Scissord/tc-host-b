@@ -280,6 +280,7 @@ export const changeOrderItem = async (req, res) => {
         order_id: id,
         product_id: order_item.product_id,
         quantity: order_item.quantity,
+        price: order_item.price
       });
       items.push(item);
     };
