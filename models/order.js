@@ -588,20 +588,23 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) =>
     .select(
       's.id as status_id',
       's.name as status_name',
-      db.raw('COALESCE(SUM(CASE WHEN o.id IS NOT NULL THEN 1 ELSE 0 END), 0) as count') // Если заказов нет, то 0
+      'o.webmaster_id',
+      db.raw('COALESCE(SUM(CASE WHEN o.id IS NOT NULL THEN 1 ELSE 0 END), 0) as count')
     )
     .leftJoin('order as o', function () {
       this.on('o.status_id', '=', 's.id')
-        .andOnBetween('o.created_at', [start, end]); // Условие диапазона дат
+        .andOnBetween('o.created_at', [start, end]); 
       if (webmaster_id) {
-        this.andOn('o.webmaster_id', '=', db.raw('?', [webmaster_id])); // Фильтр по webmaster_id
+        this.andOn('o.webmaster_id', '=', db.raw('?', [webmaster_id])); 
       }
     })
-    .groupBy('s.id', 's.name') // Группировка только по статусам
-    .orderBy('s.id', 'asc'); // Сортировка по ID статуса
+    .groupBy('s.id', 's.name', 'o.webmaster_id') 
+    .orderBy('s.id', 'asc')
+    .orderBy('o.webmaster_id', 'asc'); 
 
   return statistics;
 };
+
 
 
 
