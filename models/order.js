@@ -584,24 +584,25 @@ export const getOrdersStatisticForUser = async (start, end, webmaster_id = null,
 };
 
 export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) => {
-  const statistics = await db('order as o')
+  const statistics = await db('status as s')
     .select(
-      'o.status_id',
+      's.id as status_id',
       's.name as status_name',
-      db.raw('COUNT(o.id) as count') 
+      db.raw('COALESCE(SUM(CASE WHEN o.id IS NOT NULL THEN 1 ELSE 0 END), 0) as count') // Если заказов нет, то 0
     )
-    .leftJoin('status as s', 'o.status_id', 's.id') 
-    .modify((q) => {
+    .leftJoin('order as o', function () {
+      this.on('o.status_id', '=', 's.id')
+        .andOnBetween('o.created_at', [start, end]); // Условие диапазона дат
       if (webmaster_id) {
-        q.where('o.webmaster_id', webmaster_id);
+        this.andOn('o.webmaster_id', '=', db.raw('?', [webmaster_id])); // Фильтр по webmaster_id
       }
     })
-    .whereBetween('o.created_at', [start, end])
-    .groupBy('o.status_id', 's.name') 
-    .orderBy('o.status_id', 'asc'); 
+    .groupBy('s.id', 's.name') // Группировка только по статусам
+    .orderBy('s.id', 'asc'); // Сортировка по ID статуса
 
   return statistics;
 };
+
 
 
 export const getOrderStatisticForOperator = async (start, end, operator_id) => {
