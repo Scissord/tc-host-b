@@ -52,7 +52,7 @@ export const getWebmasterStatistic = async (req, res) => {
     // const webmasters = await Webmaster.get();
 
     // const statistics = groupWebmasters(orders, webmasters);
-    console.log(orders)
+    console.log(JSON.stringify(orders, null, 2));
     return res.status(200).send({ message: 'ok', orders })
 
   } catch (err) {
