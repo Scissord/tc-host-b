@@ -584,7 +584,7 @@ export const getOrdersStatisticForUser = async (start, end, webmaster_id = null,
 };
 
 export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) => {
-  const statistics = await db('status as s')
+  const rawStatistics = await db('status as s')
     .select(
       's.id as status_id',
       's.name as status_name',
@@ -593,17 +593,35 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) =>
     )
     .leftJoin('order as o', function () {
       this.on('o.status_id', '=', 's.id')
-        .andOnBetween('o.created_at', [start, end]); 
+        .andOnBetween('o.created_at', [start, end]);
       if (webmaster_id) {
-        this.andOn('o.webmaster_id', '=', db.raw('?', [webmaster_id])); 
+        this.andOn('o.webmaster_id', '=', db.raw('?', [webmaster_id]));
       }
     })
-    .groupBy('s.id', 's.name', 'o.webmaster_id') 
-    .orderBy('s.id', 'asc')
-    .orderBy('o.webmaster_id', 'asc'); 
+    .groupBy('s.id', 's.name', 'o.webmaster_id')
+    .orderBy('o.webmaster_id', 'asc')
+    .orderBy('s.id', 'asc');
 
-  return statistics;
+  const groupedStatistics = rawStatistics.reduce((acc, curr) => {
+    const { webmaster_id, status_id, status_name, count } = curr;
+
+   
+    if (!acc[webmaster_id]) {
+      acc[webmaster_id] = [];
+    }
+
+    acc[webmaster_id].push({
+      status_id,
+      status_name,
+      count
+    });
+
+    return acc;
+  }, {});
+
+  return groupedStatistics;
 };
+
 
 
 
