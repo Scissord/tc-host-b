@@ -605,7 +605,10 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) =>
   const groupedStatistics = rawStatistics.reduce((acc, curr) => {
     const { webmaster_id, status_id, status_name, count } = curr;
 
-   
+    if (webmaster_id === null) {
+      return acc;
+    }
+
     if (!acc[webmaster_id]) {
       acc[webmaster_id] = [];
     }
@@ -621,6 +624,7 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) =>
 
   return groupedStatistics;
 };
+
 
 
 
