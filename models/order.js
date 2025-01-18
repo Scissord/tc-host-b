@@ -584,23 +584,25 @@ export const getOrdersStatisticForUser = async (start, end, webmaster_id = null,
 };
 
 export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) => {
-  const orders = await db('order as o')
+  const statistics = await db('order as o')
     .select(
-      'o.id',
       'o.status_id',
-      'o.created_at',
-      'o.webmaster_id'
+      's.name as status_name',
+      db.raw('COUNT(o.id) as count') 
     )
+    .leftJoin('status as s', 'o.status_id', 's.id') 
     .modify((q) => {
       if (webmaster_id) {
         q.where('o.webmaster_id', webmaster_id);
-      };
+      }
     })
-    .andWhereBetween("o.created_at", [start, end])
-    .orderBy('o.created_at', 'desc');
+    .whereBetween('o.created_at', [start, end])
+    .groupBy('o.status_id', 's.name') 
+    .orderBy('o.status_id', 'asc'); 
 
-  return orders;
+  return statistics;
 };
+
 
 export const getOrderStatisticForOperator = async (start, end, operator_id) => {
   const orders = await db('order as o')

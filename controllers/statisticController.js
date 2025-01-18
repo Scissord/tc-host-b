@@ -49,11 +49,11 @@ export const getWebmasterStatistic = async (req, res) => {
     const { start, end, webmaster_id } = req.query;
   
     const orders = await Order.getOrderStatisticForWebmaster(start, end, webmaster_id);
-    const webmasters = await Webmaster.get();
+    // const webmasters = await Webmaster.get();
 
-    const statistics = groupWebmasters(orders, webmasters);
-    console.log(statistics)
-    return res.status(200).send({ message: 'ok', statistics })
+    // const statistics = groupWebmasters(orders, webmasters);
+    console.log(orders)
+    return res.status(200).send({ message: 'ok', orders })
 
   } catch (err) {
     console.log("Error in getWebmasterStatistic statistic controller", err.message);
