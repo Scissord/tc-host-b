@@ -227,38 +227,38 @@ export const groupByProduct = (orders, items) => {
 };
 
 export const calculateStatistics = (data) => {
-  // Проверяем, что data и data.statuses определены и являются массивом
-  if (!data || !Array.isArray(data.statuses)) {
-    throw new Error('Invalid data: statuses is undefined or not an array');
+  // Пробегаемся по каждому вебмастеру
+  for (const webmasterId in data) {
+    const webmasterData = data[webmasterId];
+    const totalOrders = webmasterData.statuses.reduce((sum, status) => sum + parseInt(status.count, 10), 0);
+    const approvedCount = parseInt(
+      webmasterData.statuses.find((status) => status.status_name === "Принят")?.count || 0,
+      10
+    );
+
+    // Добавляем проценты для каждого статуса
+    webmasterData.statuses = webmasterData.statuses.map((status) => {
+      const count = parseInt(status.count, 10);
+      let percent = 0;
+
+      if (status.status_name === "Принят") {
+        percent = ((count / totalOrders) * 100).toFixed(2); // Принято от общего количества
+      } else if (["Отправлен", "Выкуплено", "Возвращено"].includes(status.status_name)) {
+        percent = approvedCount > 0 ? ((count / approvedCount) * 100).toFixed(2) : 0; // Отправлено, Выкуплено, Возвращено от принятого
+      } else {
+        percent = ((count / totalOrders) * 100).toFixed(2); // Остальные статусы от общего количества
+      }
+
+      return {
+        ...status,
+        percent: parseFloat(percent) // Добавляем процент как число
+      };
+    });
   }
-
-  // Считаем общее количество заказов
-  const totalOrders = data.statuses.reduce((sum, status) => sum + parseInt(status.count, 10), 0);
-
-  // Считаем количество принятых заказов
-  const approvedCount = parseInt(data.statuses.find(status => status.status_name === "Принят")?.count || 0, 10);
-
-  // Добавляем проценты к каждому статусу
-  data.statuses = data.statuses.map((status) => {
-    const count = parseInt(status.count, 10);
-    let percent = 0;
-
-    if (status.status_name === "Принят") {
-      percent = ((count / totalOrders) * 100).toFixed(2); // Принято от общего количества
-    } else if (["Отправлен", "Выкуплено", "Возвращено"].includes(status.status_name)) {
-      percent = approvedCount > 0 ? ((count / approvedCount) * 100).toFixed(2) : 0; // Отправлено, Выкуплено, Возвращено от принятого
-    } else {
-      percent = ((count / totalOrders) * 100).toFixed(2); // Остальные статусы от общего количества
-    }
-
-    return {
-      ...status,
-      percent: parseFloat(percent) // Добавляем процент как число
-    };
-  });
 
   return data;
 };
+
 
 
 export const groupOperators = (orders, operators) => {
