@@ -588,7 +588,7 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) =>
     .select(
       's.id as status_id',
       's.name as status_name',
-      'o.webmaster_id',
+      'u.name as webmaster_name', 
       db.raw('COALESCE(SUM(CASE WHEN o.id IS NOT NULL THEN 1 ELSE 0 END), 0) as count')
     )
     .leftJoin('order as o', function () {
@@ -598,22 +598,24 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) =>
         this.andOn('o.webmaster_id', '=', db.raw('?', [webmaster_id]));
       }
     })
-    .groupBy('s.id', 's.name', 'o.webmaster_id')
-    .orderBy('o.webmaster_id', 'asc')
+    .leftJoin('webmaster as w', 'o.webmaster_id', 'w.id') 
+    .leftJoin('user as u', 'w.user_id', 'u.id') 
+    .groupBy('s.id', 's.name', 'u.name')
+    .orderBy('u.name', 'asc')
     .orderBy('s.id', 'asc');
 
   const groupedStatistics = rawStatistics.reduce((acc, curr) => {
-    const { webmaster_id, status_id, status_name, count } = curr;
+    const { webmaster_name, status_id, status_name, count } = curr;
 
-    if (webmaster_id === null) {
-      return acc;
+    if (!webmaster_name) {
+      return acc; 
     }
 
-    if (!acc[webmaster_id]) {
-      acc[webmaster_id] = [];
+    if (!acc[webmaster_name]) {
+      acc[webmaster_name] = [];
     }
 
-    acc[webmaster_id].push({
+    acc[webmaster_name].push({
       status_id,
       status_name,
       count
@@ -624,6 +626,7 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) =>
 
   return groupedStatistics;
 };
+
 
 
 
