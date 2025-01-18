@@ -236,6 +236,9 @@ export const calculateStatistics = (data) => {
       10
     );
 
+    // Добавляем общее количество заказов
+    webmasterData.total_count = totalOrders;
+
     // Добавляем проценты для каждого статуса
     webmasterData.statuses = webmasterData.statuses.map((status) => {
       const count = parseInt(status.count, 10);
@@ -258,6 +261,7 @@ export const calculateStatistics = (data) => {
 
   return data;
 };
+
 
 
 
