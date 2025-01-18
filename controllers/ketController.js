@@ -30,12 +30,12 @@ export const sendAcceptedOrders = async (req, res) => {
 		const orderIds = [];
 
 		for (const order of orders) {
-			const cityIds = [4, 5];
-			if (cityIds.includes(order.city_id)) {
-				console.log(`City ID ${order.city_id} is in the array.`);
-			} else {
-				continue;
-			}
+			// const cityIds = [4, 5];
+			// if (cityIds.includes(order.city_id)) {
+			// 	console.log(`City ID ${order.city_id} is in the array.`);
+			// } else {
+			// 	continue;
+			// }
 
 			const orderItems = await OrderGood.getWhereIn('o.id', [order.id]);
 			if (!orderItems || orderItems.length === 0) {
@@ -92,7 +92,7 @@ export const sendAcceptedOrders = async (req, res) => {
 		}
 
 		await Ketkz.sendOrders(newOrders);
-		await Order.updateWhereIn(orderIds, {sub_status_id: 13})
+		await Order.updateWhereIn(orderIds, {sub_status_id: 3})
 
 		res.status(200).send({ message: "Заказы успешно отправились." });
 	} catch (error) {
