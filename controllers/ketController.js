@@ -17,8 +17,7 @@ export const sendAcceptedOrders = async (req, res) => {
 		tomorrow.setDate(tomorrow.getDate() + 1);
 		const formattedTomorrow = tomorrow.toISOString().split('T')[0]; 
 		const orders = await Order.getWhere({
-            sub_status_id: sub_status,
-            delivery_at: formattedTomorrow,
+            sub_status_id: sub_status
         });
 
 		if (!orders || orders.length === 0) {
