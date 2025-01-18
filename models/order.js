@@ -589,7 +589,7 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) =>
       's.id as status_id',
       's.name as status_name',
       'w.id as webmaster_id',
-      'u.name as webmaster_name', // Имя вебмастера
+      'u.name as webmaster_name',
       db.raw('COALESCE(SUM(CASE WHEN o.id IS NOT NULL THEN 1 ELSE 0 END), 0) as count')
     )
     .leftJoin('order as o', function () {
@@ -599,17 +599,20 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) =>
         this.andOn('o.webmaster_id', '=', db.raw('?', [webmaster_id]));
       }
     })
-    .leftJoin('webmaster as w', 'o.webmaster_id', 'w.id') // Присоединение таблицы webmaster
-    .leftJoin('user as u', 'w.user_id', 'u.id') // Присоединение таблицы user для имени
+    .leftJoin('webmaster as w', 'o.webmaster_id', 'w.id')
+    .leftJoin('user as u', 'w.user_id', 'u.id')
     .groupBy('s.id', 's.name', 'w.id', 'u.name')
     .orderBy('w.id', 'asc')
     .orderBy('s.id', 'asc');
+
+  // Получаем список всех статусов
+  const allStatuses = await db('status').select('id as status_id', 'name as status_name');
 
   const groupedStatistics = rawStatistics.reduce((acc, curr) => {
     const { webmaster_id, webmaster_name, status_id, status_name, count } = curr;
 
     if (!webmaster_id) {
-      return acc; // Пропускаем записи без webmaster_id
+      return acc;
     }
 
     if (!acc[webmaster_id]) {
@@ -622,14 +625,34 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) =>
     acc[webmaster_id].statuses.push({
       status_id,
       status_name,
-      count
+      count: parseInt(count, 10)
     });
 
     return acc;
   }, {});
 
+  // Добавляем статусы с count = 0, если их нет в результатах
+  for (const webmasterId in groupedStatistics) {
+    const webmasterData = groupedStatistics[webmasterId];
+    const existingStatuses = webmasterData.statuses.map((status) => status.status_id);
+
+    allStatuses.forEach((status) => {
+      if (!existingStatuses.includes(status.status_id)) {
+        webmasterData.statuses.push({
+          status_id: status.status_id,
+          status_name: status.status_name,
+          count: 0
+        });
+      }
+    });
+
+    // Сортируем статусы для консистентности
+    webmasterData.statuses.sort((a, b) => a.status_id - b.status_id);
+  }
+
   return groupedStatistics;
 };
+
 
 
 
