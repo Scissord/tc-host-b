@@ -48,7 +48,7 @@ router.use('/webmasters', verify, webmasterRoutes);
 router.use('/roles', verify, roleRoutes);
 router.use('/permissions', verify, permissionRoutes);
 router.use('/assigned_roles', verify, assignedRoleRoutes);
-router.use('/statistics', verify, statisticRoutes);
+router.use('/statistics', statisticRoutes);
 router.use('/genders', verify, genderRoutes);
 router.use('/payment_methods', verify, paymentMethodRoutes);
 router.use('/delivery_methods', verify, deliveryMethodRoutes);
