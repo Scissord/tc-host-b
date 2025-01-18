@@ -210,9 +210,6 @@ export const updateOrder = async (req, res) => {
     const { id } = req.query;
     const data = req.body;
 
-    console.log('dialer', id);
-    console.log('dialer', data);
-
     // 1. check for id
     if (!id) {
       return res.status(400).send({
@@ -226,8 +223,6 @@ export const updateOrder = async (req, res) => {
         message: ERRORS.REQUIRED_FIELDS
       });
     };
-
-    console.log('before 3')
 
     // 3. if 1, 4 or 12 change approved_by and cancelled_by
     if (data?.operator_id && (+data?.sub_status_id === 1 || +data?.sub_status_id === 4)) {
