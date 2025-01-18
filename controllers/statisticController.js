@@ -7,7 +7,7 @@ import {
   groupByRegion,
   groupByCity,
   groupByProduct,
-  groupWebmasters,
+  calculateStatistics,
   groupOperators,
 } from '#services/order/group.js';
 
@@ -48,12 +48,11 @@ export const getWebmasterStatistic = async (req, res) => {
   try {
     const { start, end, webmaster_id } = req.query;
   
-    const orders = await Order.getOrderStatisticForWebmaster(start, end, webmaster_id);
-    // const webmasters = await Webmaster.get();
+    const statistic = await Order.getOrderStatisticForWebmaster(start, end, webmaster_id);
 
-    // const statistics = groupWebmasters(orders, webmasters);
+    const result = calculateStatistics(statistic);
     console.log(JSON.stringify(orders, null, 2));
-    return res.status(200).send({ message: 'ok', orders })
+    return res.status(200).send({ message: 'ok', result })
 
   } catch (err) {
     console.log("Error in getWebmasterStatistic statistic controller", err.message);
