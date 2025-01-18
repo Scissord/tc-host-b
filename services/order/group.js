@@ -227,29 +227,39 @@ export const groupByProduct = (orders, items) => {
 };
 
 export const calculateStatistics = (data) => {
+  // Проверяем, что data и data.statuses определены и являются массивом
+  if (!data || !Array.isArray(data.statuses)) {
+    throw new Error('Invalid data: statuses is undefined or not an array');
+  }
+
+  // Считаем общее количество заказов
   const totalOrders = data.statuses.reduce((sum, status) => sum + parseInt(status.count, 10), 0);
+
+  // Считаем количество принятых заказов
   const approvedCount = parseInt(data.statuses.find(status => status.status_name === "Принят")?.count || 0, 10);
 
+  // Добавляем проценты к каждому статусу
   data.statuses = data.statuses.map((status) => {
     const count = parseInt(status.count, 10);
     let percent = 0;
 
     if (status.status_name === "Принят") {
-      percent = ((count / totalOrders) * 100).toFixed(2); 
+      percent = ((count / totalOrders) * 100).toFixed(2); // Принято от общего количества
     } else if (["Отправлен", "Выкуплено", "Возвращено"].includes(status.status_name)) {
-      percent = approvedCount > 0 ? ((count / approvedCount) * 100).toFixed(2) : 0; 
+      percent = approvedCount > 0 ? ((count / approvedCount) * 100).toFixed(2) : 0; // Отправлено, Выкуплено, Возвращено от принятого
     } else {
-      percent = ((count / totalOrders) * 100).toFixed(2); 
+      percent = ((count / totalOrders) * 100).toFixed(2); // Остальные статусы от общего количества
     }
 
     return {
       ...status,
-      percent: parseFloat(percent) 
+      percent: parseFloat(percent) // Добавляем процент как число
     };
   });
 
   return data;
 };
+
 
 export const groupOperators = (orders, operators) => {
   const grouped = orders.reduce((acc, order) => {
