@@ -332,6 +332,7 @@ export const getOrdersByIds = async (req, res) => {
       paymentMethods,
       deliveryMethods,
       orderCancelReasons,
+      users,
     ] = await Promise.all([
       Product.get(),
       Webmaster.get(),
@@ -342,6 +343,7 @@ export const getOrdersByIds = async (req, res) => {
       PaymentMethod.get(),
       DeliveryMethod.get(),
       OrderCancelReason.get(),
+      User.get()
     ]);
 
     const transformedStatuses = await Promise.all(orders.map(async (order) => {
@@ -364,6 +366,19 @@ export const getOrdersByIds = async (req, res) => {
         payment_method: paymentMethods.find((p) => +p.id === order.payment_id)?.name ?? '-',
         delivery_method: deliveryMethods.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
         order_cancel_reason: orderCancelReasons.find((cr) => +cr.id === +order.cancel_reason_id)?.name ?? '-',
+        approved_by_login: (() => {
+          const operator = operators.find((o) => +o.id === +order.approved_by_id); 
+          if (!operator) return '-';
+          const user = users.find((u) => +u.id === +operator.user_id); 
+          return user?.login ?? '-'; 
+        })(),
+
+        cancelled_by_login: (() => {
+          const operator = operators.find((o) => +o.id === +order.cancelled_by_id); // Находим оператора
+          if (!operator) return '-';
+          const user = users.find((u) => +u.id === +operator.user_id); 
+          return user?.login ?? '-'; 
+        })(),
       };
     }));
 
