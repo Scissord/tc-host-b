@@ -588,7 +588,8 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) =>
     .select(
       's.id as status_id',
       's.name as status_name',
-      'u.name as webmaster_name', 
+      'w.id as webmaster_id',
+      'u.name as webmaster_name', // Имя вебмастера
       db.raw('COALESCE(SUM(CASE WHEN o.id IS NOT NULL THEN 1 ELSE 0 END), 0) as count')
     )
     .leftJoin('order as o', function () {
@@ -598,24 +599,27 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) =>
         this.andOn('o.webmaster_id', '=', db.raw('?', [webmaster_id]));
       }
     })
-    .leftJoin('webmaster as w', 'o.webmaster_id', 'w.id') 
-    .leftJoin('user as u', 'w.user_id', 'u.id') 
-    .groupBy('s.id', 's.name', 'u.name')
-    .orderBy('u.name', 'asc')
+    .leftJoin('webmaster as w', 'o.webmaster_id', 'w.id') // Присоединение таблицы webmaster
+    .leftJoin('user as u', 'w.user_id', 'u.id') // Присоединение таблицы user для имени
+    .groupBy('s.id', 's.name', 'w.id', 'u.name')
+    .orderBy('w.id', 'asc')
     .orderBy('s.id', 'asc');
 
   const groupedStatistics = rawStatistics.reduce((acc, curr) => {
-    const { webmaster_name, status_id, status_name, count } = curr;
+    const { webmaster_id, webmaster_name, status_id, status_name, count } = curr;
 
-    if (!webmaster_name) {
-      return acc; 
+    if (!webmaster_id) {
+      return acc; // Пропускаем записи без webmaster_id
     }
 
-    if (!acc[webmaster_name]) {
-      acc[webmaster_name] = [];
+    if (!acc[webmaster_id]) {
+      acc[webmaster_id] = {
+        webmaster_name,
+        statuses: []
+      };
     }
 
-    acc[webmaster_name].push({
+    acc[webmaster_id].statuses.push({
       status_id,
       status_name,
       count
@@ -626,6 +630,7 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) =>
 
   return groupedStatistics;
 };
+
 
 
 
