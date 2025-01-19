@@ -27,7 +27,7 @@ import deliveryMethodRoutes from './deliveryMethodRoute.js';
 import orderCancelReasonRoutes from './orderCancelReasonRoute.js';
 import whMessageRoutes from './whMessage.js';
 import ketRoutes from './ketRoute.js'
-
+import scheduledTasksRoutes from './scheduledTask.js'
 const router = Router();
 
 router.use('/auth', authRoutes);
@@ -56,6 +56,7 @@ router.use('/order_cancel_reasons', verify, orderCancelReasonRoutes);
 router.use('/dialer', dialerRoutes);
 router.use('/message', whMessageRoutes);
 router.use('/ket', ketRoutes);
+router.use('/tasks', scheduledTasksRoutes);
 router.use('/uploads', verify, express.static('uploads'));
 
 export default router;
