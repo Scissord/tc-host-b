@@ -61,13 +61,13 @@ export async function mapOrders(orders, hide) {
         }),
 
         created_at: order.created_at.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null,
-        updated_at: order.updated_at.toLocaleString() || null,
-        delivery_at: order.delivery_at?.toLocaleString() || null,
-        logist_recall_at: order.logist_recall_at?.toLocaleString() || null,
-        approved_at: order.approved_at?.toLocaleString() || null,
-        cancelled_at: order.cancelled_at?.toLocaleString() || null,
-        shipped_at: order.shipped_at?.toLocaleString() || null,
-        buyout_at: order.buyout_at?.toLocaleString() || null,
+        updated_at: order.updated_at.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null,
+        delivery_at: order.delivery_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null,
+        logist_recall_at: order.logist_recall_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null,
+        approved_at: order.approved_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null,
+        cancelled_at: order.cancelled_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null,
+        shipped_at: order.shipped_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null,
+        buyout_at: order.buyout_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null,
 
         gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
         payment_method: paymentMethods.find((p) => +p.id === order.payment_method_id)?.name ?? '-',
@@ -121,14 +121,14 @@ export async function mapOrder(order) {
     };
   });
 
-  order.created_at = order.created_at.toLocaleString();
-  order.updated_at = order.updated_at.toLocaleString();
-  order.delivery_at = order.delivery_at?.toLocaleString() || null;
-  order.logist_recall_at = order.logist_recall_at?.toLocaleString() || null;
-  order.approved_at = order.approved_at?.toLocaleString() || null;
-  order.cancelled_at = order.cancelled_at?.toLocaleString() || null;
-  order.shipped_at = order.shipped_at?.toLocaleString() || null;
-  order.buyout_at = order.buyout_at?.toLocaleString() || null;
+  order.created_at = order.created_at.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' });
+  order.updated_at = order.updated_at.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' });
+  order.delivery_at = order.delivery_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
+  order.logist_recall_at = order.logist_recall_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
+  order.approved_at = order.approved_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
+  order.cancelled_at = order.cancelled_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
+  order.shipped_at = order.shipped_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
+  order.buyout_at = order.buyout_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
 
   order.gender = genders.find((g) => +g.id === +order.gender_id)?.name ?? '-';
   order.payment_method = paymentMethods.find((p) => +p.id === order.payment_method_id)?.name ?? '-';
