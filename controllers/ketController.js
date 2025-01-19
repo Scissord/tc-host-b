@@ -186,8 +186,8 @@ export const transportOrders = async (req, res) => {
                 delete order.created_at;
 
                 order.additional9 = 'HOLD';
-                order.status_id = 30;
-                order.sub_status_id = 0;
+                order.status_id = 0;
+                order.sub_status_id = 30;
 
                 const new_order = await Order.create(order);
 
