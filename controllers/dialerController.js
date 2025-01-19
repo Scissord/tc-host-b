@@ -245,7 +245,7 @@ export const updateOrder = async (req, res) => {
       const new_sub_status = await SubStatus.find(data.sub_status_id);
       data.status_id = new_sub_status.status_id;
 
-      await OrderSignals.statusChangeSignal(+id, +new_sub_status)
+      await OrderSignals.statusChangeSignal(+id, +data.sub_status_id)
     };
 
     // 5. update order
