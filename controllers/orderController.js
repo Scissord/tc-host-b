@@ -673,3 +673,67 @@ export const update = async (req, res) => {
 // 		res.status(500).send({ error: "Internal Server Error" });
 // 	}
 // };
+
+
+export const transportOrders = async (req, res) => {
+    try {
+        const orders = await Order.getWhere({ sub_status_id: 12 });
+
+        if (!orders || orders.length === 0) {
+            return res.status(404).json({ message: 'No orders found for the specified status' });
+        }
+
+        const cutoffDate = new Date('2025-01-16T00:00:00Z'); // Дата отсечения
+
+        for (const order of orders) {
+            try {
+                const orderCreatedAt = new Date(order.created_at); // Преобразуем created_at в объект Date
+
+                if (orderCreatedAt < cutoffDate) {
+                    console.log(`Skipping order ID ${order.id} (created at ${order.created_at})`);
+                    continue; // Пропускаем заказы, созданные до cutoffDate
+                }
+
+                const orderItems = await OrderItem.getByOrderId([order.id]);
+                const cleanedOrderItems = orderItems.map(({ id, order_id, price, ...rest }) => ({
+                    ...rest,
+                    price: parseFloat(price), // Преобразуем price в число
+                    order_id: parseInt(order_id, 10), // Преобразуем order_id в число
+                }));
+
+                delete order.id;
+                delete order.webmaster_id;
+                delete order.utm_term;
+                delete order.operator_id;
+                delete order.approved_by_id;
+                delete order.cancelled_by_id;
+                delete order.cancelled_by_entity;
+                delete order.created_at;
+
+                order.additional9 = 'HOLD';
+                order.status_id = 30;
+                order.sub_status_id = 0;
+
+                const new_order = await Order.create(order);
+
+                const updatedOrderItems = cleanedOrderItems.map((item) => ({
+                    ...item,
+                    order_id: new_order.id,
+                }));
+
+                await Promise.all(
+                    updatedOrderItems.map((item) => OrderItem.create(item))
+                );
+            } catch (orderError) {
+                console.error(`Error processing order ID ${order.id}:`, orderError);
+            }
+        }
+
+        // Отправляем успешный ответ
+        res.status(200).json({ message: 'Orders processed successfully' });
+    } catch (error) {
+        console.error('Error transporting orders:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
