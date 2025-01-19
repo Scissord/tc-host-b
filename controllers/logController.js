@@ -3,7 +3,11 @@ import * as Log from '#models/log.js';
 export const getOrderLogs = async (req, res) => {
   try {
     const { order_id } = req.params;
-    const logs = await Log.getOrderLogs(order_id);
+    const logs = await Log.getWhere({ order_id });
+
+    for (const log of logs) {
+      log.created_at = new Date(log.created_at).toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' })
+    };
 
     res.status(200).send({ message: 'ok', logs });
   } catch (err) {
