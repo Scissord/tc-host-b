@@ -59,6 +59,16 @@ export async function mapOrders(orders, hide) {
             name: product ? product.name : null,
           };
         }),
+
+        created_at: order.created_at.toLocaleString() || null,
+        updated_at: order.updated_at.toLocaleString() || null,
+        delivery_at: order.delivery_at?.toLocaleString() || null,
+        logist_recall_at: order.logist_recall_at?.toLocaleString() || null,
+        approved_at: order.approved_at?.toLocaleString() || null,
+        cancelled_at: order.cancelled_at?.toLocaleString() || null,
+        shipped_at: order.shipped_at?.toLocaleString() || null,
+        buyout_at: order.buyout_at?.toLocaleString() || null,
+
         gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
         payment_method: paymentMethods.find((p) => +p.id === order.payment_method_id)?.name ?? '-',
         delivery_method: deliveryMethods.find((d) => +d.id === +order.delivery_method_id)?.name ?? '-',
@@ -98,6 +108,7 @@ export async function mapOrder(order) {
     OrderCancelReason.get(),
   ]);
 
+  order.doubles = await Order.getDoubles(order.id, order.phone);
   order.webmaster = webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-';
   order.operator = operators.find((o) => +o.id === +order.operator_id)?.name ?? '-';
   order.city = cities.find((c) => +c.id === +order.city_id) || null;
@@ -109,6 +120,16 @@ export async function mapOrder(order) {
       name: product ? product.name : null,
     };
   });
+
+  order.created_at = order.created_at.toLocaleString();
+  order.updated_at = order.updated_at.toLocaleString();
+  order.delivery_at = order.delivery_at?.toLocaleString() || null;
+  order.logist_recall_at = order.logist_recall_at?.toLocaleString() || null;
+  order.approved_at = order.approved_at?.toLocaleString() || null;
+  order.cancelled_at = order.cancelled_at?.toLocaleString() || null;
+  order.shipped_at = order.shipped_at?.toLocaleString() || null;
+  order.buyout_at = order.buyout_at?.toLocaleString() || null;
+
   order.gender = genders.find((g) => +g.id === +order.gender_id)?.name ?? '-';
   order.payment_method = paymentMethods.find((p) => +p.id === order.payment_method_id)?.name ?? '-';
   order.delivery_method = deliveryMethods.find((d) => +d.id === +order.delivery_method_id)?.name ?? '-';
