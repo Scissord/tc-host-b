@@ -57,16 +57,17 @@ export const orderCreateSignal = async (new_order) => {
 
             for (const order of orders) {
                 try {
-
-                    if ( +order.sub_status_id == 30 ) {
-                        await Order.update(+order.id, {sub_status_id: 54, status_id: 6})
-                    } else [
-                        await Order.update(+new_order.id, {sub_status_id: 54, status_id: 6})
-                    ]
-
+                    if (+order.sub_status_id === 30) {
+                        await Order.update(+order.id, { sub_status_id: 54, status_id: 6 });
+                    } else if (+order.id !== +new_order.id) {
+                        await Order.update(+order.id, { sub_status_id: 54, status_id: 6 });
+                    } else {
+                        console.error("I DNK");
+                    }
                 } catch (orderError) {
                     console.error(`Error processing order ID ${existingOrder.id}:`, orderError);
                 }
+                
             }
 
         } else {
