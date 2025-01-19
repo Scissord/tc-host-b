@@ -5,7 +5,7 @@ import checkAbility from "#middleware/checkAbility.js";
 
 const router = express.Router();
 
-router.get("", withExtraData({ ability_name: 'get_products' }, checkAbility), controller.get);
+router.get("", controller.get);
 router.post("", withExtraData({ ability_name: 'create_products' }, checkAbility), controller.create);
 router.patch("/:product_id", withExtraData({ ability_name: 'update_products' }, checkAbility), controller.update);
 router.delete("/:product_id", withExtraData({ ability_name: 'delete_products' }, checkAbility), controller.softDelete);

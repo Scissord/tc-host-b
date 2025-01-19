@@ -1,11 +1,11 @@
 import dotenv from 'dotenv';
-
+// import * as Order from '#models/status.js';
 dotenv.config();
 
 export const sendOrders = async (orders) => {
     try {
         const promises = orders.map(order =>
-            fetch(`${process.env.KETKZ_URL}?uid=${orders.client_id}`, { 
+            fetch(`${process.env.KETKZ_URL}?uid=${order.client_id}`, { 
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

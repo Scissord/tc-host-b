@@ -226,61 +226,44 @@ export const groupByProduct = (orders, items) => {
   });
 };
 
-export const groupWebmasters = (orders, webmasters) => {
-  const grouped = orders.reduce((acc, order) => {
-    const webmaster = webmasters.find((wm) => +wm.id === +order.webmaster_id);
+export const calculateStatistics = (data) => {
+  // Пробегаемся по каждому вебмастеру
+  for (const webmasterId in data) {
+    const webmasterData = data[webmasterId];
+    const totalOrders = webmasterData.statuses.reduce((sum, status) => sum + parseInt(status.count, 10), 0);
+    const approvedCount = parseInt(
+      webmasterData.statuses.find((status) => status.status_name === "Принят")?.count || 0,
+      10
+    );
 
-    if (!webmaster) return acc; // Если вебмастер не найден, пропускаем заказ
+    // Добавляем общее количество заказов
+    webmasterData.total_count = totalOrders;
 
-    if (!acc[webmaster.id]) {
-      acc[webmaster.id] = {
-        webmaster: {
-          id: webmaster.id,
-          name: webmaster.name,
-        },
-        total: 0, // Инициализация общего количества заказов
-        statuses: {
-          '0': { count: 0, percent: 0 },
-          '1': { count: 0, percent: 0 },
-          '2': { count: 0, percent: 0 },
-          '3': { count: 0, percent: 0 },
-          '4': { count: 0, percent: 0 },
-          '5': { count: 0, percent: 0 },
-          '6': { count: 0, percent: 0 },
-        },
+    // Добавляем проценты для каждого статуса
+    webmasterData.statuses = webmasterData.statuses.map((status) => {
+      const count = parseInt(status.count, 10);
+      let percent = 0;
+
+      if (status.status_name === "Принят") {
+        percent = ((count / totalOrders) * 100).toFixed(2); // Принято от общего количества
+      } else if (["Отправлен", "Выкуплено", "Возвращено"].includes(status.status_name)) {
+        percent = approvedCount > 0 ? ((count / approvedCount) * 100).toFixed(2) : 0; // Отправлено, Выкуплено, Возвращено от принятого
+      } else {
+        percent = ((count / totalOrders) * 100).toFixed(2); // Остальные статусы от общего количества
+      }
+
+      return {
+        ...status,
+        percent: parseFloat(percent) // Добавляем процент как число
       };
-    }
+    });
+  }
 
-    // Увеличиваем общее количество заказов
-    acc[webmaster.id].total += 1;
-
-    // Увеличиваем количество для данного статуса
-    if (!acc[webmaster.id].statuses[order.status_id]) {
-      acc[webmaster.id].statuses[order.status_id] = { count: 0, percent: 0 };
-    }
-
-    acc[webmaster.id].statuses[order.status_id].count += 1;
-
-    return acc;
-  }, {});
-
-  // Рассчитываем проценты
-  return Object.values(grouped).map(({ webmaster, total, statuses }) => {
-    const groupedStatuses = Object.entries(statuses).reduce((acc, [statusId, data]) => {
-      acc[statusId] = {
-        count: data.count,
-        percent: ((data.count / total) * 100).toFixed(2),
-      };
-      return acc;
-    }, {});
-
-    return {
-      label: webmaster.name,
-      total,
-      statuses: groupedStatuses,
-    };
-  });
+  return data;
 };
+
+
+
 
 export const groupOperators = (orders, operators) => {
   const grouped = orders.reduce((acc, order) => {

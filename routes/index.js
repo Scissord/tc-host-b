@@ -4,6 +4,8 @@ import express from "express";
 import authRoutes from './authRoute.js';
 import abilityRoutes from './abilityRoute.js';
 import orderRoutes from './orderRoute.js';
+import orderItemRoutes from './orderItemRoute.js';
+import logRoutes from './logRoute.js';
 import statusRoutes from './statusRoute.js';
 import subStatusRoutes from './subStatusRoute.js';
 import orderColumnRoutes from './orderColumnRoute.js';
@@ -24,7 +26,7 @@ import paymentMethodRoutes from './paymentMethodRoute.js';
 import deliveryMethodRoutes from './deliveryMethodRoute.js';
 import orderCancelReasonRoutes from './orderCancelReasonRoute.js';
 import whMessageRoutes from './whMessage.js';
-import ketRoute from './ketRoute.js'
+import ketRoutes from './ketRoute.js'
 
 const router = Router();
 
@@ -32,6 +34,8 @@ router.use('/auth', authRoutes);
 router.use('/users', verify, userRoute);
 router.use('/abilities', verify, abilityRoutes);
 router.use('/orders', orderRoutes);
+router.use('/order_item', verify, orderItemRoutes);
+router.use('/logs', verify, logRoutes);
 router.use('/statuses', verify, statusRoutes);
 router.use('/sub_statuses', verify, subStatusRoutes);
 router.use('/order_columns', verify, orderColumnRoutes);
@@ -44,14 +48,14 @@ router.use('/webmasters', verify, webmasterRoutes);
 router.use('/roles', verify, roleRoutes);
 router.use('/permissions', verify, permissionRoutes);
 router.use('/assigned_roles', verify, assignedRoleRoutes);
-router.use('/statistics', verify, statisticRoutes);
+router.use('/statistics', statisticRoutes);
 router.use('/genders', verify, genderRoutes);
 router.use('/payment_methods', verify, paymentMethodRoutes);
 router.use('/delivery_methods', verify, deliveryMethodRoutes);
 router.use('/order_cancel_reasons', verify, orderCancelReasonRoutes);
 router.use('/dialer', dialerRoutes);
 router.use('/message', whMessageRoutes);
-router.use('/ket', ketRoute);
+router.use('/ket', ketRoutes);
 router.use('/uploads', verify, express.static('uploads'));
 
 export default router;

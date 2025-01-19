@@ -23,12 +23,15 @@ const ERRORS = {
   REQUIRED_ID: 'Укажите id!',
   REQUIRED_PHONE: 'Укажите телефон!',
   REQUIRED_STATUS: 'Укажите статус!',
+  REQUIRED_IS_BLOCKED: 'Укажите состояние блокирования',
   // user
   USER_EXIST: 'Пользователь уже создан!',
   // role
   ROLE_EXIST: 'У пользователя уже есть роль!',
   // permission
   PERMISSION_EXIST: 'У пользователя уже есть этот доступ!',
+  // orders
+  ORDERS_NOT_FOUND: 'Заказы не найдены!',
 };
 
 export default ERRORS;

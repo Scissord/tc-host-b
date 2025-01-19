@@ -57,7 +57,6 @@ export async function mapOrders(orders, hide) {
           return {
             ...item,
             name: product ? product.name : null,
-            price: product ? product.price : null,
           };
         }),
         gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
@@ -108,7 +107,6 @@ export async function mapOrder(order) {
     return {
       ...item,
       name: product ? product.name : null,
-      price: product ? product.price : null,
     };
   });
   order.gender = genders.find((g) => +g.id === +order.gender_id)?.name ?? '-';

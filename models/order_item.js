@@ -12,8 +12,9 @@ export const getWhereIn = async (field, values) => {
   return await db('order_item as oi')
     .select('oi.*', 'p.name as product_name', 'p.id as product_id')
     .leftJoin('product as p', 'p.id', 'oi.product_id')
-    .leftJoin('order as o', 'o.id', 'oi.order_id') 
-    .whereIn(field, values);
+    .leftJoin('order as o', 'o.id', 'oi.order_id')
+    .whereIn(field, values)
+    .orderBy('oi.id', 'asc');
 };
 
 
@@ -26,7 +27,7 @@ export const update = async (id, data) => {
 };
 
 export const hardDelete = async (id) => {
-  return await orderItemRepository.delete(id);
+  return await orderItemRepository.hardDelete(id);
 };
 
 export const hardDeleteAll = async () => {
@@ -43,3 +44,9 @@ export const find = async (id) => {
   return await orderItemRepository.find(id);
 };
 
+export const getByOrderId = async (orderIds) => {
+  return await db('order_item')
+    .select('*')
+    .whereIn('order_id', orderIds) 
+    .orderBy('id', 'asc');
+};

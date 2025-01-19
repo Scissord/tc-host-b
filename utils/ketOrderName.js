@@ -1,23 +1,26 @@
-export function getOrderName (goodID, quantity) {
+export function getOrderName(goodID, quantity) {
+
+    console.log('')
     const goodsCodes = {
-        198508: "Prostrong",
-        196548: "Be_clean",
-        192114: "Articuline",
-        186491: "Cardio_Sei",
-        199030: "Femiston",
-        192001: "Eropower",
-        202690: "ManBalance",
-        193976: "Cardio_Sei_VARIKOZ",
-        202914: "Flex_balance",
-        204116: "Body_balance",
-        204120: "LibidoFortis",
-        204118: "AlcoBalance",
-        204117: "EroKing"
+        200500: "Prostrong",
+        200503: "Be_clean",
+        212258: "Articuline",
+        200505: "Cardio_Sei",
+        200502: "Femiston",
+        200501: "Eropower",
+        212257: "ManBalance",
+        200504: "Cardio_Sei_VARIKOZ",
+        212256: "Flex_balance",
+        212255: "Body_balance",
+        212251: "LibidoFortis",
+        212253: "AlcoBalance",
+        212254: "EroKing"
     };
 
     if (goodsCodes[goodID]) {
         const goodName = goodsCodes[goodID];
-        return `${goodName} - ${quantity}`;
+        const quantitys = quantity
+        return `${goodName} - ${quantitys}`;
     } else {
         return null;
     }

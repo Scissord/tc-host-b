@@ -11,6 +11,7 @@ import * as Gender from '#models/gender.js';
 import * as PaymentMethod from '#root/models/payment_method.js';
 import * as DeliveryMethod from '#root/models/delivery_method.js';
 import * as OrderCancelReason from '#root/models/order_cancel_reason.js';
+import * as OrderSignals from '#services/signals/orderSignals.js';
 import ERRORS from '#constants/errors.js';
 
 export const getStatusList = async (req, res) => {
@@ -179,9 +180,9 @@ export const getOrderCancelReasons = async (req, res) => {
   }
 };
 
-export const updateOrder = async (req, res) => {
+export const toggleOrder = async (req, res) => {
   try {
-    const { id } = req.query;
+    const { id, is_blocked } = req.query;
     const data = req.body;
 
     if (!id) {
@@ -190,14 +191,65 @@ export const updateOrder = async (req, res) => {
       });
     };
 
+    if (!is_blocked) {
+      return res.status(400).send({
+        message: ERRORS.REQUIRED_IS_BLOCKED
+      });
+    };
+
+    // here need to send socket to frontend
+
+    res.status(200).json();
+  } catch (err) {
+    console.log("Error in toggleOrder dialer controller", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const updateOrder = async (req, res) => {
+  try {
+    const { id } = req.query;
+    const data = req.body;
+
+    // 1. check for id
+    if (!id) {
+      return res.status(400).send({
+        message: ERRORS.REQUIRED_ID
+      });
+    };
+
+    // 2. check for data
     if (Object.keys(data).length === 0) {
       return res.status(400).send({
         message: ERRORS.REQUIRED_FIELDS
       });
     };
 
-    const order = await Order.update(id, data);
+    // 3. if 1, 4 or 12 change approved_by and cancelled_by
+    if (data?.operator_id && (+data?.sub_status_id === 1 || +data?.sub_status_id === 4)) {
+      await Order.update(id, {
+        approved_by_id: data.operator_id,
+        approved_by_entity: 'оператором',
+      });
+    };
 
+    if (data?.operator_id && +data?.sub_status_id === 12) {
+      await Order.update(id, {
+        cancelled_by_id: data.operator_id,
+        cancelled_by_entity: 'оператором',
+      });
+    };
+
+    // 4. update sub status
+    if (data?.sub_status_id) {
+      const new_sub_status = await SubStatus.find(data.sub_status_id);
+      data.status_id = new_sub_status.status_id;
+
+      await OrderSignals.statusChangeSignal(+id, +data.sub_status_id)
+    };
+
+    // 5. update order
+    const order = await Order.update(id, data);
     res.status(200).json(order);
   } catch (err) {
     console.log("Error in updateOrder dialer controller", err.message);
@@ -230,6 +282,7 @@ export const changeOrderItem = async (req, res) => {
         order_id: id,
         product_id: order_item.product_id,
         quantity: order_item.quantity,
+        price: order_item.price
       });
       items.push(item);
     };
@@ -281,6 +334,7 @@ export const getOrdersByIds = async (req, res) => {
       paymentMethods,
       deliveryMethods,
       orderCancelReasons,
+      users,
     ] = await Promise.all([
       Product.get(),
       Webmaster.get(),
@@ -291,6 +345,7 @@ export const getOrdersByIds = async (req, res) => {
       PaymentMethod.get(),
       DeliveryMethod.get(),
       OrderCancelReason.get(),
+      User.get()
     ]);
 
     const transformedStatuses = await Promise.all(orders.map(async (order) => {
@@ -306,14 +361,26 @@ export const getOrdersByIds = async (req, res) => {
           const product = products.find((p) => +p.id === +item.product_id);
           return {
             ...item,
-            name: product ? product.name : '-',
-            price: product ? product.price : '-',
+            name: product ? product.name : null,
           };
         }),
         gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
         payment_method: paymentMethods.find((p) => +p.id === order.payment_id)?.name ?? '-',
         delivery_method: deliveryMethods.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
         order_cancel_reason: orderCancelReasons.find((cr) => +cr.id === +order.cancel_reason_id)?.name ?? '-',
+        approved_by_login: (() => {
+          const operator = operators.find((o) => +o.id === +order.approved_by_id); 
+          if (!operator) return '-';
+          const user = users.find((u) => +u.id === +operator.user_id); 
+          return user?.login ?? '-'; 
+        })(),
+
+        cancelled_by_login: (() => {
+          const operator = operators.find((o) => +o.id === +order.cancelled_by_id); // Находим оператора
+          if (!operator) return '-';
+          const user = users.find((u) => +u.id === +operator.user_id); 
+          return user?.login ?? '-'; 
+        })(),
       };
     }));
 

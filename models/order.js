@@ -146,6 +146,10 @@ export const getUserOrdersPaginated = async function (
   additional10,
   created_at,
   updated_at,
+  sort_by = 'o.id',
+  order_by = 'desc',
+  start = null,
+  end = null,
 ) {
   const result = await db('order as o')
     .select('o.*')
@@ -273,8 +277,11 @@ export const getUserOrdersPaginated = async function (
       if (sub_status && !id) {
         q.where('o.sub_status_id', sub_status);
       }
+      if (start && end) {
+        q.whereBetween('o.delivery_at', [start, end]);
+      }
     })
-    .orderBy('o.id', 'desc')
+    .orderBy(sort_by ?? 'o.id', order_by ?? 'desc')
     .paginate({
       perPage: limit,
       currentPage: page,
@@ -381,6 +388,10 @@ export const getOperatorOrdersPaginated = async function (
   additional10,
   created_at,
   updated_at,
+  sort_by = 'o.id',
+  order_by = 'desc',
+  start = null,
+  end = null,
 ) {
   const result = await db('order as o')
     .select('o.*')
@@ -508,8 +519,11 @@ export const getOperatorOrdersPaginated = async function (
       if (sub_status && !id) {
         q.where('o.sub_status_id', sub_status);
       }
+      if (start && end) {
+        q.whereBetween('o.delivery_at', [start, end]);
+      }
     })
-    .orderBy('o.id', 'desc')
+    .orderBy(sort_by ?? 'o.id', order_by ?? 'desc')
     .paginate({
       perPage: limit,
       currentPage: page,
@@ -570,22 +584,73 @@ export const getOrdersStatisticForUser = async (start, end, webmaster_id = null,
 };
 
 export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) => {
-  const orders = await db('order as o')
+  const rawStatistics = await db('status as s')
     .select(
-      'o.id',
-      'o.status_id',
-      'o.created_at',
-      'o.webmaster_id'
+      's.id as status_id',
+      's.name as status_name',
+      'w.id as webmaster_id',
+      'u.name as webmaster_name',
+      db.raw('COALESCE(SUM(CASE WHEN o.id IS NOT NULL THEN 1 ELSE 0 END), 0) as count')
     )
-    .modify((q) => {
+    .leftJoin('order as o', function () {
+      this.on('o.status_id', '=', 's.id')
+        .andOnBetween('o.created_at', [start, end]);
       if (webmaster_id) {
-        q.where('o.webmaster_id', webmaster_id);
-      };
+        this.andOn('o.webmaster_id', '=', db.raw('?', [webmaster_id]));
+      }
     })
-    .andWhereBetween("o.created_at", [start, end])
-    .orderBy('o.created_at', 'desc');
+    .leftJoin('webmaster as w', 'o.webmaster_id', 'w.id')
+    .leftJoin('user as u', 'w.user_id', 'u.id')
+    .groupBy('s.id', 's.name', 'w.id', 'u.name')
+    .orderBy('w.id', 'asc')
+    .orderBy('s.id', 'asc');
 
-  return orders;
+  // Получаем список всех статусов
+  const allStatuses = await db('status').select('id as status_id', 'name as status_name');
+
+  const groupedStatistics = rawStatistics.reduce((acc, curr) => {
+    const { webmaster_id, webmaster_name, status_id, status_name, count } = curr;
+
+    if (!webmaster_id) {
+      return acc;
+    }
+
+    if (!acc[webmaster_id]) {
+      acc[webmaster_id] = {
+        webmaster_name,
+        statuses: []
+      };
+    }
+
+    acc[webmaster_id].statuses.push({
+      status_id,
+      status_name,
+      count: parseInt(count, 10)
+    });
+
+    return acc;
+  }, {});
+
+  // Добавляем статусы с count = 0, если их нет в результатах
+  for (const webmasterId in groupedStatistics) {
+    const webmasterData = groupedStatistics[webmasterId];
+    const existingStatuses = webmasterData.statuses.map((status) => status.status_id);
+
+    allStatuses.forEach((status) => {
+      if (!existingStatuses.includes(status.status_id)) {
+        webmasterData.statuses.push({
+          status_id: status.status_id,
+          status_name: status.status_name,
+          count: 0
+        });
+      }
+    });
+
+    // Сортируем статусы для консистентности
+    webmasterData.statuses.sort((a, b) => a.status_id - b.status_id);
+  }
+
+  return groupedStatistics;
 };
 
 export const getOrderStatisticForOperator = async (start, end, operator_id) => {
