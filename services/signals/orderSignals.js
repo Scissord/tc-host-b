@@ -52,7 +52,7 @@ export const orderCreateSignal = async (new_order) => {
     try {
         const orders = await Order.getWhere({ status_id: new_order.status_id, phone: new_order.phone });
 
-        if (orders && orders.length > 0) {
+        if (orders && orders.length > 0 && orders.length !== 1) {
             console.log(`Found ${orders.length} orders. Processing...`);
 
             for (const order of orders) {
