@@ -48,9 +48,36 @@ const cancelledOrder = async (order, sub_status_id) => {
     );
 };
 
-export const orderCreateSignal = async (order) => {
-    // Реализация не указана, оставлено для заполнения
+export const orderCreateSignal = async (new_order) => {
+    try {
+        const orders = await Order.getWhere({ status_id: new_order.status_id, phone: new_order.phone });
+
+        if (orders && orders.length > 0) {
+            console.log(`Found ${orders.length} orders. Processing...`);
+
+            for (const order of orders) {
+                try {
+
+                    if ( +order.sub_status_id == 30 ) {
+                        await Order.update(+order.id, {sub_status_id: 54, status_id: 6})
+                    } else [
+                        await Order.update(+new_order.id, {sub_status_id: 54, status_id: 6})
+                    ]
+
+                } catch (orderError) {
+                    console.error(`Error processing order ID ${existingOrder.id}:`, orderError);
+                }
+            }
+
+        } else {
+            console.log('No orders found.');
+        }
+    } catch (error) {
+        console.error('Error checking or processing orders:', error);
+        throw new Error('Failed to check or process orders');
+    }
 };
+
 
 export const statusChangeSignal = async (order_id, sub_status_id) => {
     switch (sub_status_id) {

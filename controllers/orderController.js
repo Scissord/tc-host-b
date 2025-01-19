@@ -411,6 +411,7 @@ export const create = async (req, res) => {
 		}
 
 		const order = await Order.create(data);
+		await OrderSignals.orderCreateSignal(order)
 		process.env.NODE_ENV === "production" && await OrderSignals.postbackKeitaroSignal(order.utm_term, order.additional1, 0)
 
 		if (Array.isArray(items) && items) {
