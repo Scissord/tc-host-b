@@ -39,7 +39,7 @@ const cancelledOrder = async (order, sub_status_id) => {
     // Обновляем order_id для каждого элемента
     const updatedOrderItems = cleanedOrderItems.map((item) => ({
         ...item,
-        order_id: new_id, // Устанавливаем новый order_id
+        order_id: new_id.id, // Устанавливаем новый order_id
     }));
 
     // Вставляем записи в таблицу order_item
