@@ -11,6 +11,7 @@ const cancelledOrder = async (order, sub_status_id) => {
     const sub_status = await SubStatus.find(sub_status_id);
 
     const orderItems = await OrderItems.getByOrderId([order.id]);
+    console.log(JSON.stringify(orderItems, null, 2));
     const cleanedOrderItems = orderItems.map(({ id, order_id, ...rest }) => rest);
 
     delete order.id;
@@ -20,6 +21,7 @@ const cancelledOrder = async (order, sub_status_id) => {
     delete order.approved_by_id;
     delete order.cancelled_by_id;
     delete order.cancelled_by_entity;
+    delete order.created_at
 
     order.additional9 = 'HOLD';
     order.status_id = sub_status.status_id;
