@@ -34,12 +34,12 @@ const cancelledOrder = async (order, sub_status_id) => {
     order.sub_status_id = sub_status_id;
 
     // Создаём новый заказ
-    const new_id = await Order.create(order);
+    const new_order = await Order.create(order);
 
     // Обновляем order_id для каждого элемента
     const updatedOrderItems = cleanedOrderItems.map((item) => ({
         ...item,
-        order_id: new_id.id, // Устанавливаем новый order_id
+        order_id: new_order.id, // Устанавливаем новый order_id
     }));
 
     // Вставляем записи в таблицу order_item
