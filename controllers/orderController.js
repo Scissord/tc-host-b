@@ -675,7 +675,7 @@ export const update = async (req, res) => {
 // };
 
 
-export const transportOrders = async (req, res) => {
+export const transportOrders = async () => {
     try {
         const orders = await Order.getWhere({ sub_status_id: 12 });
 
