@@ -7,7 +7,7 @@ export const up = function(knex) {
       .createTable('scheduled_tasks', (table) => {
         table.bigIncrements('id').primary();
         table.string('task_name').notNullable(); 
-        table.timestamp('scheduled_time').nullable; 
+        table.timestamp('scheduled_time').notNullable(); 
       });
   };
 
