@@ -5,6 +5,7 @@
 export const up = function (knex) {
     return knex.schema.alterTable('scheduled_tasks', (table) => {
         table.timestamp('scheduled_time').alter().nullable()
+        table.string('schedule_description').notNullable(); 
     });
   };
   
