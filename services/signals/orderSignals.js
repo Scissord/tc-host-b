@@ -12,7 +12,13 @@ const cancelledOrder = async (order, sub_status_id) => {
 
     const orderItems = await OrderItems.getByOrderId([order.id]);
     console.log(JSON.stringify(orderItems, null, 2));
-    const cleanedOrderItems = orderItems.map(({ id, order_id, ...rest }) => rest);
+
+    // Удаляем ненужные поля и преобразуем данные
+    const cleanedOrderItems = orderItems.map(({ id, order_id, price, ...rest }) => ({
+        ...rest,
+        price: parseFloat(price), // Преобразуем price в число
+        order_id: parseInt(order_id, 10), // Преобразуем order_id в число
+    }));
 
     delete order.id;
     delete order.webmaster_id;
@@ -21,19 +27,22 @@ const cancelledOrder = async (order, sub_status_id) => {
     delete order.approved_by_id;
     delete order.cancelled_by_id;
     delete order.cancelled_by_entity;
-    delete order.created_at
+    delete order.created_at;
 
     order.additional9 = 'HOLD';
     order.status_id = sub_status.status_id;
     order.sub_status_id = sub_status_id;
 
+    // Создаём новый заказ
     const new_id = await Order.create(order);
 
+    // Обновляем order_id для каждого элемента
     const updatedOrderItems = cleanedOrderItems.map((item) => ({
         ...item,
-        order_id: new_id,
+        order_id: new_id, // Устанавливаем новый order_id
     }));
 
+    // Вставляем записи в таблицу order_item
     await Promise.all(
         updatedOrderItems.map((item) => OrderItems.create(item))
     );
