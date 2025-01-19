@@ -1,5 +1,9 @@
 import dotenv from 'dotenv';
-// import * as Order from '#models/status.js';
+import * as Order from '#models/order.js';
+import * as OrderGood from '#models/order_item.js'
+import * as City from '#models/city.js'
+import * as KetUtils from '#utils/ketOrderName.js'
+import { getCityCode } from '#utils/cityCode.js';
 dotenv.config();
 
 export const sendOrders = async (orders) => {
@@ -36,3 +40,178 @@ export const sendOrders = async (orders) => {
         console.error("Общая ошибка при обработке заказов:", error.message);
     }
 };
+
+
+export const sendCourierOrders = async () => {
+    const tomorrow = new Date();
+	tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const formattedTomorrow = tomorrow.toISOString().split('T')[0]; 
+
+	const orders = await Order.getWhere({
+            sub_status_id: 15,
+            delivery_at: formattedTomorrow
+        });
+
+    
+    const newOrders = [];
+	const orderIds = [];
+
+	for (const order of orders) {
+		const orderItems = await OrderGood.getWhereIn('o.id', [order.id]);
+
+		if (!orderItems || orderItems.length === 0) {
+			console.log(`Заказ ${order.id} не содержит товаров.`);
+			continue;
+			}
+
+		const firstItem = orderItems[0];
+		const orderName = KetUtils.getOrderName(firstItem.product_id, firstItem.quantity);
+			
+	
+		const city = await City.find(order.city_id);
+		const cityCode = getCityCode(city.name);
+
+		const newOrder = {
+			phone: order.phone,
+			price: order.total_sum,
+			order_id: order.id,
+			name: order.fio,
+			country: 'kz',
+			addr: order.address,
+			city: city.name,
+			kz_delivery: cityCode,
+			offer: orderName,
+			secret: process.env.KETKZ_SECRET,
+			date_delivery: order.delivery_at,
+			client_id: process.env.KETKZ_UID,
+		};
+
+		newOrders.push(newOrder);
+		
+
+		orderIds.push(order.id)
+
+		};
+
+    await sendOrders(newOrders);
+
+	await Order.updateWhereIn(orderIds, {sub_status_id: 3})
+
+}
+
+
+export const sendCourierCityOrders = async () => {
+    const tomorrow = new Date();
+	tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const formattedTomorrow = tomorrow.toISOString().split('T')[0]; 
+
+	const orders = await Order.getWhere({
+            sub_status_id: 15,
+            delivery_at: formattedTomorrow
+        });
+
+    
+    const newOrders = [];
+	const orderIds = [];
+
+	for (const order of orders) {
+
+        const cityIds = [4, 5];
+
+		if (cityIds.includes(order.city_id)) {
+			console.log(`City ID ${order.city_id} is in the array.`);
+		} else {
+			continue;
+		}
+		const orderItems = await OrderGood.getWhereIn('o.id', [order.id]);
+
+		if (!orderItems || orderItems.length === 0) {
+			console.log(`Заказ ${order.id} не содержит товаров.`);
+			continue;
+			}
+
+		const firstItem = orderItems[0];
+		const orderName = KetUtils.getOrderName(firstItem.product_id, firstItem.quantity);
+			
+	
+		const city = await City.find(order.city_id);
+		const cityCode = getCityCode(city.name);
+
+		const newOrder = {
+			phone: order.phone,
+			price: order.total_sum,
+			order_id: order.id,
+			name: order.fio,
+			country: 'kz',
+			addr: order.address,
+			city: city.name,
+			kz_delivery: cityCode,
+			offer: orderName,
+			secret: process.env.KETKZ_SECRET,
+			date_delivery: order.delivery_at,
+			client_id: process.env.KETKZ_UID,
+		};
+
+		newOrders.push(newOrder);
+		
+
+		orderIds.push(order.id)
+
+		};
+
+    await sendOrders(newOrders);
+
+	await Order.updateWhereIn(orderIds, {sub_status_id: 3})
+
+}
+
+
+export const sendPostalOrders = async () => {
+	const orders = await Order.getWhere({
+            sub_status_id: 16
+        });
+
+    const newOrders = [];
+	const orderIds = [];
+
+	for (const order of orders) {
+		const orderItems = await OrderGood.getWhereIn('o.id', [order.id]);
+
+		if (!orderItems || orderItems.length === 0) {
+			console.log(`Заказ ${order.id} не содержит товаров.`);
+			continue;
+			}
+
+		const firstItem = orderItems[0];
+		const orderName = KetUtils.getOrderName(firstItem.product_id, firstItem.quantity);
+			
+		const newOrder = {
+            phone: order.phone,
+            price: order.total_sum,
+            order_id: order.id,
+            name: order.fio,
+            country: 'kz',
+            addr: order.region,
+            kz_delivery: "32",
+            offer: orderName,
+            secret: process.env.KETKZ_SECRET,
+            date_delivery: order.delivery_at,
+            client_id: process.env.KETKZ_UID,
+            deliv_desc: order.address,
+            index: order.postal_code
+        };
+
+		newOrders.push(newOrder);
+		
+
+		orderIds.push(order.id)
+
+		};
+
+    await sendOrders(newOrders);
+	await Order.updateWhereIn(orderIds, {sub_status_id: 3})
+
+}
+

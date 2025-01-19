@@ -1,5 +1,6 @@
 // import setupCluster from '#services/cluster/cluster.js';
 import { app, server } from '#services/socket/socket.js';
+import * as CronTasks from '#services/cron/cron.js'
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
@@ -52,7 +53,10 @@ app.use('/api', apiRoutes);
 server.listen(PORT, () => {
   console.log(`Server ${process.pid} started on port ${PORT} ✅✅✅`);
 });
+
+
 // }
 
+CronTasks.startCronJobs()
 
 // setupCluster(startServer);
