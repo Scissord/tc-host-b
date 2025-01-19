@@ -60,7 +60,7 @@ export async function mapOrders(orders, hide) {
           };
         }),
 
-        created_at: order.created_at.toLocaleString() || null,
+        created_at: order.created_at.toLocaleString('ru-RU', { timeZone: 'Asia/Dhaka' }) || null,
         updated_at: order.updated_at.toLocaleString() || null,
         delivery_at: order.delivery_at?.toLocaleString() || null,
         logist_recall_at: order.logist_recall_at?.toLocaleString() || null,
