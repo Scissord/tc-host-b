@@ -152,13 +152,13 @@ export const sendCourierOrder = async (req, res) => {
 
 export const transportOrders = async (req, res) => {
     try {
-        const orders = await Order.getWhere({ sub_status_id: 12 });
+        const orders = await Order.getWhere({ sub_status_id: 7 });
 
         if (!orders || orders.length === 0) {
             return res.status(404).json({ message: 'No orders found for the specified status' });
         }
 
-        const cutoffDate = new Date('2025-01-16T00:00:00Z'); // Дата отсечения
+        const cutoffDate = new Date('2025-01-15T00:00:00Z'); // Дата отсечения
 
         for (const order of orders) {
             try {
