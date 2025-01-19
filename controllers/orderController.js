@@ -10,6 +10,7 @@ import { mapOrders, mapOrder } from '#services/order/map.js';
 import hideString from '#utils/hideString.js';
 import ERRORS from '#constants/errors.js';
 import globalPrice from '#constants/price.js';
+
 // for sync
 // import axios from 'axios';
 // import * as City from '#models/city.js';
@@ -291,6 +292,8 @@ export const changeStatus = async (req, res) => {
 						cancelled_by_entity: responsible,
 					});
 				};
+
+				await OrderSignals.statusChangeSignal(+order.id, +new_sub_status_id)
 			};
 
 			await Log.create({
@@ -328,6 +331,8 @@ export const changeStatus = async (req, res) => {
 					cancelled_by_entity: responsible,
 				});
 			};
+
+			await OrderSignals.statusChangeSignal(+order.id, +new_sub_status_id)
 		};
 
 		for (const id of ids) {
@@ -465,6 +470,7 @@ export const update = async (req, res) => {
 			if (keitaroStatuses.includes(new_sub_status.status_id)) {
 				await OrderSignals.postbackKeitaroSignal(oldOrder.utm_term, oldOrder.additional1, new_sub_status.status_id)
 			};
+			await OrderSignals.statusChangeSignal(+order.id, +order.sub_status_id)
 		};
 
 		// 2. update order

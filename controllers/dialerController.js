@@ -11,6 +11,7 @@ import * as Gender from '#models/gender.js';
 import * as PaymentMethod from '#root/models/payment_method.js';
 import * as DeliveryMethod from '#root/models/delivery_method.js';
 import * as OrderCancelReason from '#root/models/order_cancel_reason.js';
+import * as OrderSignals from '#services/signals/orderSignals.js';
 import ERRORS from '#constants/errors.js';
 
 export const getStatusList = async (req, res) => {
@@ -243,11 +244,12 @@ export const updateOrder = async (req, res) => {
     if (data?.sub_status_id) {
       const new_sub_status = await SubStatus.find(data.sub_status_id);
       data.status_id = new_sub_status.status_id;
+
+      await OrderSignals.statusChangeSignal(+id, +new_sub_status)
     };
 
     // 5. update order
     const order = await Order.update(id, data);
-
     res.status(200).json(order);
   } catch (err) {
     console.log("Error in updateOrder dialer controller", err.message);
