@@ -14,7 +14,7 @@ export const up = function (knex) {
    */
   export const down = function (knex) {
     return knex.schema.alterTable('scheduled_tasks', (table) => {
-        table.timestamp('scheduled_time').notNullable(); 
+        table.timestamp('scheduled_time').alter().notNullable(); 
     });
   };
   
