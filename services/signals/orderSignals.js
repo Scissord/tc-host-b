@@ -10,7 +10,7 @@ dotenv.config();
 const cancelledOrder = async (order, sub_status_id) => {
     const sub_status = await SubStatus.find(sub_status_id);
 
-    const orderItems = await OrderItems.getWhereIn('oi.order_id', [order.id]);
+    const orderItems = await OrderItems.getByOrderId([order.id]);
     const cleanedOrderItems = orderItems.map(({ id, order_id, ...rest }) => rest);
 
     delete order.id;

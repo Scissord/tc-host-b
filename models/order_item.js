@@ -44,3 +44,9 @@ export const find = async (id) => {
   return await orderItemRepository.find(id);
 };
 
+export const getByOrderId = async (orderIds) => {
+  return await db('order_item')
+    .select('*')
+    .whereIn('order_id', orderIds) 
+    .orderBy('id', 'asc');
+};
