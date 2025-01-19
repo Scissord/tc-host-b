@@ -653,14 +653,6 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) =>
   return groupedStatistics;
 };
 
-
-
-
-
-
-
-
-
 export const getOrderStatisticForOperator = async (start, end, operator_id) => {
   const orders = await db('order as o')
     .select(

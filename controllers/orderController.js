@@ -1,3 +1,4 @@
+import requestIp from 'request-ip';
 import * as Order from '#models/order.js';
 import * as OrderSignals from '#services/signals/orderSignals.js';
 import * as OrderItem from '#models/order_item.js';
@@ -263,6 +264,7 @@ export const getOrder = async (req, res) => {
 export const changeStatus = async (req, res) => {
 	try {
 		const { ids, old_sub_status_id, new_sub_status_id } = req.body;
+		const ip = requestIp.getClientIp(req);
 
 		const responsible_id = req.operator?.id || req.user.id;
 		const responsible = req.operator?.id ? 'оператором' : 'пользователем';
@@ -297,7 +299,7 @@ export const changeStatus = async (req, res) => {
 				old_sub_status_id: old_sub_status_id,
 				new_sub_status_id: new_sub_status_id,
 				action: `Все заказы из статуса ${old_sub_status_id} перенесены в ${new_sub_status_id}, ${responsible} №${responsible_id}.`,
-				ip: req.ip,
+				ip,
 			});
 
 			return res.status(200).send({
@@ -335,7 +337,7 @@ export const changeStatus = async (req, res) => {
 				old_sub_status_id: old_sub_status_id,
 				new_sub_status_id: new_sub_status_id,
 				action: `Изменение статуса у заказа №${id}, ${responsible} №${responsible_id}.`,
-				ip: req.ip,
+				ip,
 			});
 		};
 
@@ -353,6 +355,7 @@ export const create = async (req, res) => {
 	try {
 		const data = req.body;
 		const items = req.body.items;
+		const ip = requestIp.getClientIp(req);
 
 		if (!data.phone) {
 			return res.status(400).send({
@@ -398,7 +401,9 @@ export const create = async (req, res) => {
 			} else {
 				data.total_sum = 1650;
 			};
-		};
+		} else {
+			data.total_sum = 1650;
+		}
 
 		const order = await Order.create(data);
 		process.env.NODE_ENV === "production" && await OrderSignals.postbackKeitaroSignal(order.utm_term, order.additional1, 0)
@@ -428,7 +433,7 @@ export const create = async (req, res) => {
 			action: `Заказ №${order.id} был создан.`,
 			old_metadata: { ...data, items: Array.isArray(items) ? items : [] },
 			new_metadata: { ...order },
-			ip: req.ip,
+			ip,
 		});
 
 		return res.status(200).send({ message: 'ok', order });
@@ -443,6 +448,7 @@ export const update = async (req, res) => {
 		const { order_id } = req.params;
 		const order = req.body.order;
 		const items = req.body.items;
+		const ip = requestIp.getClientIp(req);
 
 		const responsible_id = req.operator?.id || req.user.id;
 		const responsible = req.operator?.id ? 'оператором' : 'пользователем';
@@ -513,7 +519,7 @@ export const update = async (req, res) => {
 			old_metadata: { ...order, items: Array.isArray(items) ? items : [] },
 			new_metadata: { ...updatedOrder },
 			action: `Изменение заказа №${updatedOrder.id}, ${responsible} №${responsible_id}.`,
-			ip: req.ip,
+			ip,
 		});
 
 		res.status(200).send({ message: 'ok' });

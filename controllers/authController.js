@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
-import requestIp from 'request-ip';
 import * as User from "#models/user.js";
 import * as UserToken from "#models/user_token.js";
+// import * as Log from '#models/log.js';
 import { validateAuth } from "#services/auth/validate.js";
 import { getUserInfo, getUserAssignedRole, getUserAbilitiesId } from "#services/ability/user.js";
 import generateTokens from "#utils/generateTokens.js";
@@ -10,9 +10,6 @@ import ERRORS from "#constants/errors.js";
 export const signin = async (req, res) => {
   try {
     let { login, password, entity } = req.body;
-
-    const ip = requestIp.getClientIp(req);
-    console.log(ip);
 
     // 1. validation
     const result = await validateAuth(login, password, entity);
@@ -69,6 +66,11 @@ export const signin = async (req, res) => {
       sameSite: "strict", // Защита от CSRF атак
       secure: process.env.NODE_ENV === "production" // Только в производственной среде
     });
+
+    // 6. make log about ip if ip not match
+    // await Log.create({
+
+    // });
 
     res.status(200).send({ message: "ok", user, accessToken });
   } catch (err) {
