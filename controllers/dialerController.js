@@ -230,6 +230,8 @@ export const updateOrder = async (req, res) => {
       await Order.update(id, {
         approved_by_id: data.operator_id,
         approved_by_entity: 'оператором',
+        approved_at: new Date(),
+        updated_at: new Date(),
       });
     };
 
@@ -237,6 +239,8 @@ export const updateOrder = async (req, res) => {
       await Order.update(id, {
         cancelled_by_id: data.operator_id,
         cancelled_by_entity: 'оператором',
+        cancelled_at: new Date(),
+        updated_at: new Date(),
       });
     };
 
@@ -248,6 +252,8 @@ export const updateOrder = async (req, res) => {
       await OrderSignals.statusChangeSignal(+id, +data.sub_status_id)
     };
 
+    // 4.1 change updated_at
+    data.updated_at = new Date();
     // 5. update order
     const order = await Order.update(id, data);
     res.status(200).json(order);
@@ -369,17 +375,17 @@ export const getOrdersByIds = async (req, res) => {
         delivery_method: deliveryMethods.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
         order_cancel_reason: orderCancelReasons.find((cr) => +cr.id === +order.cancel_reason_id)?.name ?? '-',
         approved_by_login: (() => {
-          const operator = operators.find((o) => +o.id === +order.approved_by_id); 
+          const operator = operators.find((o) => +o.id === +order.approved_by_id);
           if (!operator) return '-';
-          const user = users.find((u) => +u.id === +operator.user_id); 
-          return user?.login ?? '-'; 
+          const user = users.find((u) => +u.id === +operator.user_id);
+          return user?.login ?? '-';
         })(),
 
         cancelled_by_login: (() => {
           const operator = operators.find((o) => +o.id === +order.cancelled_by_id); // Находим оператора
           if (!operator) return '-';
-          const user = users.find((u) => +u.id === +operator.user_id); 
-          return user?.login ?? '-'; 
+          const user = users.find((u) => +u.id === +operator.user_id);
+          return user?.login ?? '-';
         })(),
       };
     }));

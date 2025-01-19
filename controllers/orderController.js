@@ -275,7 +275,8 @@ export const changeStatus = async (req, res) => {
 			const orders = await Order.getWhere({ sub_status_id: old_sub_status_id });
 			await Order.updateWhereIn(orders.map(order => order.id), {
 				status_id: subStatus.status_id,
-				sub_status_id: new_sub_status_id
+				sub_status_id: new_sub_status_id,
+				updated_at: new Date(),
 			});
 
 			for (const order of orders) {
@@ -283,6 +284,8 @@ export const changeStatus = async (req, res) => {
 					await Order.update(order.id, {
 						approved_by_id: responsible_id,
 						approved_by_entity: responsible,
+						approved_at: new Date(),
+						updated_at: new Date(),
 					});
 				};
 
@@ -290,6 +293,8 @@ export const changeStatus = async (req, res) => {
 					await Order.update(order.id, {
 						cancelled_by_id: responsible_id,
 						cancelled_by_entity: responsible,
+						cancelled_at: new Date(),
+						updated_at: new Date(),
 					});
 				};
 
@@ -314,7 +319,8 @@ export const changeStatus = async (req, res) => {
 		const newSubStatus = await SubStatus.find(new_sub_status_id);
 		const orders = await Order.updateWhereIn(ids, {
 			status_id: newSubStatus.status_id,
-			sub_status_id: new_sub_status_id
+			sub_status_id: new_sub_status_id,
+			updated_at: new Date(),
 		});
 
 		for (const order of orders) {
@@ -322,6 +328,8 @@ export const changeStatus = async (req, res) => {
 				await Order.update(order.id, {
 					approved_by_id: responsible_id,
 					approved_by_entity: responsible,
+					approved_at: new Date(),
+					updated_at: new Date(),
 				});
 			};
 
@@ -329,6 +337,8 @@ export const changeStatus = async (req, res) => {
 				await Order.update(order.id, {
 					cancelled_by_id: responsible_id,
 					cancelled_by_entity: responsible,
+					cancelled_at: new Date(),
+					updated_at: new Date(),
 				});
 			};
 
@@ -408,7 +418,7 @@ export const create = async (req, res) => {
 			};
 		} else {
 			data.total_sum = 1650;
-		}
+		};
 
 		const order = await Order.create(data);
 		await OrderSignals.orderCreateSignal(order)
@@ -442,6 +452,9 @@ export const create = async (req, res) => {
 			ip,
 		});
 
+		order.created_at = order.created_at.toLocaleString();
+		order.updated_at = order.updated_at.toLocaleString();
+
 		return res.status(200).send({ message: 'ok', order });
 	} catch (err) {
 		console.log("Error in create order controller", err.message);
@@ -473,6 +486,9 @@ export const update = async (req, res) => {
 			};
 			await OrderSignals.statusChangeSignal(+order.id, +order.sub_status_id)
 		};
+
+		// 1.1 change updated_at
+		order.updated_at = new Date()
 
 		// 2. update order
 		const updatedOrder = await Order.update(order_id, order);
@@ -507,6 +523,8 @@ export const update = async (req, res) => {
 			await Order.update(order_id, {
 				approved_by_id: responsible_id,
 				approved_by_entity: responsible,
+				approved_at: new Date(),
+				updated_at: new Date(),
 			});
 		};
 
@@ -514,6 +532,8 @@ export const update = async (req, res) => {
 			await Order.update(order_id, {
 				cancelled_by_id: responsible_id,
 				cancelled_by_entity: responsible,
+				cancelled_at: new Date(),
+				updated_at: new Date(),
 			});
 		};
 
