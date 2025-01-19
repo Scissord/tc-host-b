@@ -1,5 +1,6 @@
 import * as ScheduledTasks from '#models/scheduled_tasks.js'
 import * as cronTasks from '#services/cron/cron.js'
+import cronTime from '#utils/cronTime.js';
 
 export const get = async (req, res) => {
 	try {
@@ -18,8 +19,8 @@ export const update = async (req, res) => {
 		const data = req.body;
 
         updated_task = await ScheduledTasks.update(id, data)
-
-        await cronTasks.updateCronTask(updated_task.task_name, updated_task.scheduled_time)
+		const time = cronTime(updated_task.scheduled_time)
+        await cronTasks.updateCronTask(updated_task.task_name, time)
 
 		res.status(200).send({ message: 'ok', updated_task });
 	} catch (err) {
