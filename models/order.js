@@ -603,19 +603,21 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
           ) AS cancelled_orders,
           SUM(
             CASE
-              WHEN o.shipped_at IS NOT NULL AND o.cancelled_at IS NULL
+              WHEN o.shipped_at IS NOT NULL 
+                AND (o.cancelled_at IS NULL OR o.shipped_at > o.cancelled_at)
+                AND o.buyout_at IS NULL
               THEN 1 ELSE 0
             END
           ) AS shipped_orders,
           SUM(
             CASE
-              WHEN o.buyout_at IS NOT NULL AND o.cancelled_at IS NULL
+              WHEN o.buyout_at IS NOT NULL
               THEN 1 ELSE 0
             END
           ) AS buyout_orders,
           AVG(
             CASE
-              WHEN o.buyout_at IS NOT NULL AND o.cancelled_at IS NULL
+              WHEN o.buyout_at IS NOT NULL
               THEN CAST(o.total_sum AS NUMERIC)
               ELSE NULL
             END
