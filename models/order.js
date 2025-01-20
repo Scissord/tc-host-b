@@ -583,74 +583,43 @@ export const getOrdersStatisticForUser = async (start, end, webmaster_id = null,
   return orders;
 };
 
-export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) => {
-  const rawStatistics = await db('status as s')
-    .select(
-      's.id as status_id',
-      's.name as status_name',
-      'w.id as webmaster_id',
-      'u.name as webmaster_name',
-      db.raw('COALESCE(SUM(CASE WHEN o.id IS NOT NULL THEN 1 ELSE 0 END), 0) as count')
-    )
-    .leftJoin('order as o', function () {
-      this.on('o.status_id', '=', 's.id')
-        .andOnBetween('o.created_at', [start, end]);
-      if (webmaster_id) {
-        this.andOn('o.webmaster_id', '=', db.raw('?', [webmaster_id]));
-      }
-    })
-    .leftJoin('webmaster as w', 'o.webmaster_id', 'w.id')
-    .leftJoin('user as u', 'w.user_id', 'u.id')
-    .groupBy('s.id', 's.name', 'w.id', 'u.name')
-    .orderBy('w.id', 'asc')
-    .orderBy('s.id', 'asc');
+export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = null) => {
+  try {
+    const query = db('order as o')
+      .select(
+        db.raw(`
+          COUNT(*) AS total_orders,
+          SUM(
+            CASE
+              WHEN o.approved_at IS NOT NULL AND (o.cancelled_at IS NULL OR o.approved_at > o.cancelled_at)
+              THEN 1 ELSE 0
+            END
+          ) AS accepted_orders,
+          SUM(
+            CASE
+              WHEN o.cancelled_at IS NOT NULL AND (o.approved_at IS NULL OR o.cancelled_at > o.approved_at)
+              THEN 1 ELSE 0
+            END
+          ) AS cancelled_orders
+        `)
+      )
+      .modify((q) => {
+        if (webmaster_id) {
+          q.where('o.webmaster_id', webmaster_id);
+        }
+      })
+      .andWhereBetween('o.created_at', [start, end]);
 
-  // Получаем список всех статусов
-  const allStatuses = await db('status').select('id as status_id', 'name as status_name');
-
-  const groupedStatistics = rawStatistics.reduce((acc, curr) => {
-    const { webmaster_id, webmaster_name, status_id, status_name, count } = curr;
-
-    if (!webmaster_id) {
-      return acc;
-    }
-
-    if (!acc[webmaster_id]) {
-      acc[webmaster_id] = {
-        webmaster_name,
-        statuses: []
-      };
-    }
-
-    acc[webmaster_id].statuses.push({
-      status_id,
-      status_name,
-      count: parseInt(count, 10)
-    });
-
-    return acc;
-  }, {});
-
-  // Добавляем статусы с count = 0, если их нет в результатах
-  for (const webmasterId in groupedStatistics) {
-    const webmasterData = groupedStatistics[webmasterId];
-    const existingStatuses = webmasterData.statuses.map((status) => status.status_id);
-
-    allStatuses.forEach((status) => {
-      if (!existingStatuses.includes(status.status_id)) {
-        webmasterData.statuses.push({
-          status_id: status.status_id,
-          status_name: status.status_name,
-          count: 0
-        });
-      }
-    });
-
-    // Сортируем статусы для консистентности
-    webmasterData.statuses.sort((a, b) => a.status_id - b.status_id);
+    const [result] = await query;
+    return {
+      totalOrders: parseInt(result.total_orders, 10),
+      acceptedOrders: parseInt(result.accepted_orders, 10),
+      cancelledOrders: parseInt(result.cancelled_orders, 10),
+    };
+  } catch (err) {
+    console.error('Ошибка при получении статистики заказов:', err.message);
+    throw new Error('Не удалось получить статистику заказов');
   }
-
-  return groupedStatistics;
 };
 
 export const getOrderStatisticForOperator = async (start, end, operator_id) => {
