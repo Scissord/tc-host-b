@@ -797,7 +797,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
       .leftJoin('user as u', 'u.id', 'op.user_id')
       .modify((q) => {
         if (operator_id) {
-          q.where('o.operator_id', webmaster_id);
+          q.where('o.operator_id', operator_id);
         }
       })
       .andWhereBetween('o.created_at', [start, end]);
