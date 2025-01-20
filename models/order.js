@@ -606,7 +606,13 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
               WHEN o.shipped_at IS NOT NULL AND o.cancelled_at IS NULL
               THEN 1 ELSE 0
             END
-          ) AS shipped_orders
+          ) AS shipped_orders,
+          SUM(
+            CASE
+              WHEN o.buyout_at IS NOT NULL AND o.cancelled_at IS NULL
+              THEN 1 ELSE 0
+            END
+          ) AS buyout_orders
         `)
       )
       .modify((q) => {
@@ -622,12 +628,14 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
       acceptedOrders: parseInt(result.accepted_orders, 10),
       cancelledOrders: parseInt(result.cancelled_orders, 10),
       shippedOrders: parseInt(result.shipped_orders, 10),
+      buyoutOrders: parseInt(result.buyout_orders, 10),
     };
   } catch (err) {
     console.error('Ошибка при получении статистики заказов:', err.message);
     throw new Error('Не удалось получить статистику заказов');
   }
 };
+
 
 
 export const getOrderStatisticForOperator = async (start, end, operator_id) => {
