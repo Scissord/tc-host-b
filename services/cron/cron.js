@@ -44,7 +44,7 @@ export const initializeCronJobs = async () => {
     try {
         const tasks = await ScheduledTasks.get();
 
-        tasks.forEach(({ task_name, scheduled_time }) => {
+        tasks.forEach(({ task_name, cron_schedule }) => {
             const predefinedTask = predefinedTasks.find((t) => t.id === task_name);
 
             if (!predefinedTask) {
@@ -57,16 +57,16 @@ export const initializeCronJobs = async () => {
             }
 
             // Проверяем формат cron-расписания
-            if (!cron.validate(scheduled_time)) {
-                console.error(`Неверный cron-формат для задачи "${task_name}": ${scheduled_time}`);
+            if (!cron.validate(cron_schedule)) {
+                console.error(`Неверный cron-формат для задачи "${task_name}": ${cron_schedule}`);
                 return;
             }
 
             // Создаём и запускаем cron-задачу
-            predefinedTask.cronTask = cron.schedule(scheduled_time, predefinedTask.handler);
+            predefinedTask.cronTask = cron.schedule(cron_schedule, predefinedTask.handler);
             activeCronTasks[task_name] = predefinedTask.cronTask;
 
-            console.log(`Задача "${task_name}" запущена с расписанием "${scheduled_time}"`);
+            console.log(`Задача "${task_name}" запущена с расписанием "${cron_schedule}"`);
         });
 
         console.log('Все задачи из базы данных инициализированы');
