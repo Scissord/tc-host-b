@@ -227,23 +227,28 @@ export const groupByProduct = (orders, items) => {
 };
 
 export const calculateStatistics = (data, by_date = false) => {
-  if (!data) {
-    return by_date ? [] : {
-      totalOrders: 0,
-      approvedPercentage: 0,
-      cancelledPercentage: 0,
-      shippedPercentage: 0,
-      buyoutPercentage: 0,
-    };
+  if (!data || Object.keys(data).length === 0) {
+    return {};
   }
 
-  if (by_date && Array.isArray(data)) {
-    return data.map((item) => calculateStatisticsForItem(item));
+  // Если данные по датам
+  if (by_date) {
+    const result = {};
+    for (const [webmasterName, items] of Object.entries(data)) {
+      result[webmasterName] = items.map((item) => calculateStatisticsForItem(item));
+    }
+    return result;
   }
 
-  return calculateStatisticsForItem(data);
+  // Если общие данные
+  const result = {};
+  for (const [webmasterName, item] of Object.entries(data)) {
+    result[webmasterName] = calculateStatisticsForItem(item);
+  }
+  return result;
 };
 
+// Вспомогательная функция для расчёта статистики
 const calculateStatisticsForItem = (data) => {
   const { totalOrders = 0, acceptedOrders = 0, cancelledOrders = 0, shippedOrders = 0, buyoutOrders = 0 } = data;
 
@@ -270,6 +275,7 @@ const calculateStatisticsForItem = (data) => {
     buyoutPercentage: parseFloat(buyoutPercentage),
   };
 };
+
 
 
 
