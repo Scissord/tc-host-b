@@ -678,16 +678,16 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
           ) AS buyout_orders,
           AVG(
             CASE
-              WHEN o.buyout_at IS NOT NULL
+              WHEN o.buyout_at IS NOT NULL AND o.total_sum ~ '^[0-9]+(\.[0-9]+)?$'
               THEN CAST(o.total_sum AS NUMERIC)
               ELSE NULL
             END
-          ) AS avg_total_sum,
+          ) AS avg_total_sum,          
           u.login AS webmaster_name
         `)
       )
-      .leftJoin('webmaster as w', 'w.id', 'o.webmaster_id') // Join таблицы webmaster
-      .leftJoin('user as u', 'u.id', 'w.user_id') // Join таблицы user
+      .leftJoin('webmaster as w', 'w.id', 'o.webmaster_id') 
+      .leftJoin('user as u', 'u.id', 'w.user_id') 
       .modify((q) => {
         if (webmaster_id) {
           q.where('o.webmaster_id', webmaster_id);
@@ -695,7 +695,6 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
       })
       .andWhereBetween('o.created_at', [start, end]);
 
-    // Группировка по дате и webmaster_id, если включён by_date
     if (by_date) {
       query.groupByRaw('DATE(o.created_at), o.webmaster_id, u.login').orderByRaw('DATE(o.created_at), o.webmaster_id');
     } else {
