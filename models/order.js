@@ -648,6 +648,7 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
       .select(
         db.raw(`
           ${by_date ? 'DATE(o.created_at) AS date,' : ''}
+          o.webmaster_id AS webmaster_id,
           COUNT(*) AS total_orders,
           SUM(
             CASE
@@ -694,11 +695,11 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
       })
       .andWhereBetween('o.created_at', [start, end]);
 
-    // Группировка по дате и имени вебмастера, если включён by_date
+    // Группировка по дате и webmaster_id, если включён by_date
     if (by_date) {
-      query.groupByRaw('DATE(o.created_at), u.login').orderByRaw('DATE(o.created_at), u.login');
+      query.groupByRaw('DATE(o.created_at), o.webmaster_id, u.login').orderByRaw('DATE(o.created_at), o.webmaster_id');
     } else {
-      query.groupByRaw('u.login').orderByRaw('u.login');
+      query.groupByRaw('o.webmaster_id, u.login').orderByRaw('o.webmaster_id');
     }
 
     const results = await query;
@@ -706,31 +707,27 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
     // Формируем вывод
     const statistics = {};
     results.forEach((result) => {
-      const webmasterName = result.webmaster_name || 'Unknown';
+      const webmasterId = result.webmaster_id || 'Unknown';
 
-      if (!statistics[webmasterName]) {
-        statistics[webmasterName] = [];
+      if (!statistics[webmasterId]) {
+        statistics[webmasterId] = [];
       }
 
+      const stats = {
+        date: by_date ? result.date : undefined,
+        totalOrders: parseInt(result.total_orders, 10),
+        acceptedOrders: parseInt(result.accepted_orders, 10),
+        cancelledOrders: parseInt(result.cancelled_orders, 10),
+        shippedOrders: parseInt(result.shipped_orders, 10),
+        buyoutOrders: parseInt(result.buyout_orders, 10),
+        avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
+        webmasterName: result.webmaster_name || 'Unknown',
+      };
+
       if (by_date) {
-        statistics[webmasterName].push({
-          date: result.date,
-          totalOrders: parseInt(result.total_orders, 10),
-          acceptedOrders: parseInt(result.accepted_orders, 10),
-          cancelledOrders: parseInt(result.cancelled_orders, 10),
-          shippedOrders: parseInt(result.shipped_orders, 10),
-          buyoutOrders: parseInt(result.buyout_orders, 10),
-          avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
-        });
+        statistics[webmasterId].push(stats);
       } else {
-        statistics[webmasterName] = {
-          totalOrders: parseInt(result.total_orders, 10),
-          acceptedOrders: parseInt(result.accepted_orders, 10),
-          cancelledOrders: parseInt(result.cancelled_orders, 10),
-          shippedOrders: parseInt(result.shipped_orders, 10),
-          buyoutOrders: parseInt(result.buyout_orders, 10),
-          avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
-        };
+        statistics[webmasterId] = stats;
       }
     });
 
@@ -740,6 +737,7 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
     throw new Error('Не удалось получить статистику заказов');
   }
 };
+
 
 
 
