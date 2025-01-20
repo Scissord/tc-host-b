@@ -50,7 +50,7 @@ export const getWebmasterStatistic = async (req, res) => {
 
     const statistic = await Order.getOrderStatisticForWebmaster(start, end, webmaster_id);
     console.log(statistic)
-    const result = calculateStatistics(statistic);
+    // const result = calculateStatistics(statistic);
 
     return res.status(200).send({ message: 'ok', statistic })
   } catch (err) {
