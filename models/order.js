@@ -583,11 +583,12 @@ export const getOrdersStatisticForUser = async (start, end, webmaster_id = null,
   return orders;
 };
 
-export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = null) => {
+export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = null, by_date = false) => {
   try {
     const query = db('order as o')
       .select(
         db.raw(`
+          ${by_date ? 'DATE(o.created_at) AS date,' : ''}
           COUNT(*) AS total_orders,
           SUM(
             CASE
@@ -631,20 +632,41 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
       })
       .andWhereBetween('o.created_at', [start, end]);
 
-    const [result] = await query;
-    return {
-      totalOrders: parseInt(result.total_orders, 10),
-      acceptedOrders: parseInt(result.accepted_orders, 10),
-      cancelledOrders: parseInt(result.cancelled_orders, 10),
-      shippedOrders: parseInt(result.shipped_orders, 10),
-      buyoutOrders: parseInt(result.buyout_orders, 10),
-      avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
-    };
+    // Группировка по дате, если включён by_date
+    if (by_date) {
+      query.groupByRaw('DATE(o.created_at)').orderByRaw('DATE(o.created_at)');
+    }
+
+    const results = await query;
+
+    // Формируем вывод: по датам или в целом
+    if (by_date) {
+      return results.map((result) => ({
+        date: result.date,
+        totalOrders: parseInt(result.total_orders, 10),
+        acceptedOrders: parseInt(result.accepted_orders, 10),
+        cancelledOrders: parseInt(result.cancelled_orders, 10),
+        shippedOrders: parseInt(result.shipped_orders, 10),
+        buyoutOrders: parseInt(result.buyout_orders, 10),
+        avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
+      }));
+    } else {
+      const [result] = results;
+      return {
+        totalOrders: parseInt(result.total_orders, 10),
+        acceptedOrders: parseInt(result.accepted_orders, 10),
+        cancelledOrders: parseInt(result.cancelled_orders, 10),
+        shippedOrders: parseInt(result.shipped_orders, 10),
+        buyoutOrders: parseInt(result.buyout_orders, 10),
+        avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
+      };
+    }
   } catch (err) {
     console.error('Ошибка при получении статистики заказов:', err.message);
     throw new Error('Не удалось получить статистику заказов');
   }
 };
+
 
 
 
