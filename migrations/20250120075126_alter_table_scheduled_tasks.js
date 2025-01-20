@@ -5,7 +5,7 @@
 export const up = async function (knex) {
     return knex.schema.alterTable('scheduled_tasks', (table) => {
         table.string('scheduled_time').alter().nullable()
-        table.time('scheduled_time_timestamp').nullable()
+        table.timestamp('scheduled_time_timestamp').nullable()
     });
 };
 
@@ -15,7 +15,6 @@ export const up = async function (knex) {
  */
 export const down = async function (knex) {
     return knex.schema.alterTable('scheduled_tasks', (table) => {
-        table.dropColumn('scheduled_time_timestamp'); // Удаляем колонку
-        table.timestamp('scheduled_time').alter(); // Возвращаем старый тип
+        table.timestamp('scheduled_time').alter(); 
     });
 };
