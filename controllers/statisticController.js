@@ -52,7 +52,7 @@ export const getWebmasterStatistic = async (req, res) => {
     console.log(statistic)
     // const result = calculateStatistics(statistic);
 
-    return res.status(200).send({ message: 'ok', result })
+    return res.status(200).send({ message: 'ok', statistic })
   } catch (err) {
     console.log("Error in getWebmasterStatistic statistic controller", err.message);
     res.status(500).send({ error: "Internal Server Error" });
