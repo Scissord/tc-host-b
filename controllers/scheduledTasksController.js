@@ -20,10 +20,10 @@ export const update = async (req, res) => {
         const { id } = req.params;
 		const data = req.body;
         updated_task = await ScheduledTasks.update(id, data)
-		const time = cronTime(updated_task.scheduled_time_timestamp)
+		const time = cronTime(updated_task.send_time)
         await cronTasks.updateCronTask(updated_task.task_name, time)
 		new_data = {
-			scheduled_time: time
+			cron_schedule: time
 		}
 		new_task = await ScheduledTasks.update(id, new_data)
 		res.status(200).send({ message: 'ok', new_task });
