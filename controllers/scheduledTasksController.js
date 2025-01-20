@@ -16,7 +16,7 @@ export const get = async (req, res) => {
 export const update = async (req, res) => {
 	try {
 		// чч:мм
-		
+	
         const { id } = req.params;
 		const data = req.body;
 		const time = cronTime(updated_task.scheduled_time)
