@@ -226,40 +226,54 @@ export const groupByProduct = (orders, items) => {
   });
 };
 
-export const calculateStatistics = (data) => {
-  // Пробегаемся по каждому вебмастеру
-  for (const webmasterId in data) {
-    const webmasterData = data[webmasterId];
-    const totalOrders = webmasterData.statuses.reduce((sum, status) => sum + parseInt(status.count, 10), 0);
-    const approvedCount = parseInt(
-      webmasterData.statuses.find((status) => status.status_name === "Принят")?.count || 0,
-      10
-    );
-
-    // Добавляем общее количество заказов
-    webmasterData.total_count = totalOrders;
-
-    // Добавляем проценты для каждого статуса
-    webmasterData.statuses = webmasterData.statuses.map((status) => {
-      const count = parseInt(status.count, 10);
-      let percent = 0;
-
-      if (status.status_name === "Принят") {
-        percent = ((count / totalOrders) * 100).toFixed(2); // Принято от общего количества
-      } else if (["Отправлен", "Выкуплено", "Возвращено"].includes(status.status_name)) {
-        percent = approvedCount > 0 ? ((count / approvedCount) * 100).toFixed(2) : 0; // Отправлено, Выкуплено, Возвращено от принятого
-      } else {
-        percent = ((count / totalOrders) * 100).toFixed(2); // Остальные статусы от общего количества
-      }
-
-      return {
-        ...status,
-        percent: parseFloat(percent) // Добавляем процент как число
-      };
-    });
+export const calculateStatistics = (data, by_date = false) => {
+  if (!data || Object.keys(data).length === 0) {
+    return {};
   }
 
-  return data;
+  // Если данные по датам
+  if (by_date) {
+    const result = {};
+    for (const [webmasterName, items] of Object.entries(data)) {
+      result[webmasterName] = items.map((item) => calculateStatisticsForItem(item));
+    }
+    return result;
+  }
+
+  // Если общие данные
+  const result = {};
+  for (const [webmasterName, item] of Object.entries(data)) {
+    result[webmasterName] = calculateStatisticsForItem(item);
+  }
+  return result;
+};
+
+// Вспомогательная функция для расчёта статистики
+const calculateStatisticsForItem = (data) => {
+  const { totalOrders = 0, acceptedOrders = 0, cancelledOrders = 0, shippedOrders = 0, buyoutOrders = 0 } = data;
+
+  if (totalOrders === 0) {
+    return {
+      ...data,
+      approvedPercentage: 0,
+      cancelledPercentage: 0,
+      shippedPercentage: 0,
+      buyoutPercentage: 0,
+    };
+  }
+
+  const approvedPercentage = ((acceptedOrders / totalOrders) * 100).toFixed(2); // % от totalOrders
+  const cancelledPercentage = ((cancelledOrders / totalOrders) * 100).toFixed(2); // % от totalOrders
+  const shippedPercentage = acceptedOrders > 0 ? ((shippedOrders / acceptedOrders) * 100).toFixed(2) : 0; // % от acceptedOrders
+  const buyoutPercentage = acceptedOrders > 0 ? ((buyoutOrders / acceptedOrders) * 100).toFixed(2) : 0; // % от acceptedOrders
+
+  return {
+    ...data,
+    approvedPercentage: parseFloat(approvedPercentage),
+    cancelledPercentage: parseFloat(cancelledPercentage),
+    shippedPercentage: parseFloat(shippedPercentage),
+    buyoutPercentage: parseFloat(buyoutPercentage),
+  };
 };
 
 export const groupOperators = (orders, operators) => {

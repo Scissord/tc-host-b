@@ -426,25 +426,25 @@ export const getOperatorOrdersPaginated = async function (
         );
       };
       if (created_at) {
-        q.where('o.created_at', '>=', created_at);
+        q.whereBetween('o.created_at', created_at);
       };
       if (updated_at) {
-        q.where('o.updated_at', '>=', updated_at);
+        q.whereBetween('o.updated_at', updated_at);
       };
       if (approved_at) {
-        q.where('o.approved_at', '>=', approved_at);
+        q.whereBetween('o.approved_at', approved_at);
       };
       if (shipped_at) {
-        q.where('o.shipped_at', '>=', shipped_at);
+        q.whereBetween('o.shipped_at', shipped_at);
       };
       if (cancelled_at) {
-        q.where('o.cancelled_at', '>=', cancelled_at);
+        q.whereBetween('o.cancelled_at', cancelled_at);
       };
       if (buyout_at) {
-        q.where('o.buyout_at', '>=', buyout_at);
+        q.whereBetween('o.buyout_at', buyout_at);
       };
       if (delivery_at) {
-        q.where('o.delivery_at', '>=', delivery_at);
+        q.whereBetween('o.delivery_at', delivery_at);
       };
       if (comment) {
         q.where('o.comment', 'ilike', `%${comment}%`)
@@ -464,7 +464,7 @@ export const getOperatorOrdersPaginated = async function (
         q.where('o.total_sum', 'ilike', `%${total_sum}%`)
       };
       if (logist_recall_at) {
-        q.where('o.logist_recall_at', '>=', logist_recall_at);
+        q.whereBetween('o.logist_recall_at', logist_recall_at);
       };
       if (quantity) {
         q.whereRaw(
@@ -567,118 +567,271 @@ export const getOperatorOrdersPaginated = async function (
   };
 };
 
-export const getOrdersStatisticForUser = async (start, end, webmaster_id = null, operator_id = null) => {
-  const orders = await db('order as o')
-    .select(
-      'o.id',
-      'o.status_id',
-      'o.created_at',
-      'o.city_id',
-      'c.name as city_name',
-      'o.region',
-    )
-    .leftJoin('city as c', 'c.id', 'o.city_id')
-    .modify((q) => {
-      if (webmaster_id) {
-        q.where('o.webmaster_id', webmaster_id);
-      };
-      if (operator_id) {
-        q.where('o.operator_id', operator_id);
-      };
-    })
-    .andWhereBetween("o.created_at", [start, end])
-    .orderBy('o.created_at', 'desc');
+export const getOrdersStatisticForUser = async (start, end, webmaster_id = null, by_date = false) => {
+  try {
+    const query = db('order as o')
+      .select(
+        db.raw(`
+          ${by_date ? 'DATE(o.created_at) AS date,' : ''}
+          COUNT(*) AS total_orders,
+          SUM(
+            CASE
+              WHEN o.approved_at IS NOT NULL AND (o.cancelled_at IS NULL OR o.approved_at > o.cancelled_at)
+              THEN 1 ELSE 0
+            END
+          ) AS accepted_orders,
+          SUM(
+            CASE
+              WHEN o.cancelled_at IS NOT NULL AND (o.approved_at IS NULL OR o.cancelled_at > o.approved_at)
+              THEN 1 ELSE 0
+            END
+          ) AS cancelled_orders,
+          SUM(
+            CASE
+              WHEN o.shipped_at IS NOT NULL 
+                AND (o.cancelled_at IS NULL OR o.shipped_at > o.cancelled_at)
+                AND o.buyout_at IS NULL
+              THEN 1 ELSE 0
+            END
+          ) AS shipped_orders,
+          SUM(
+            CASE
+              WHEN o.buyout_at IS NOT NULL
+              THEN 1 ELSE 0
+            END
+          ) AS buyout_orders,
+          AVG(
+            CASE
+              WHEN o.buyout_at IS NOT NULL
+              THEN CAST(o.total_sum AS NUMERIC)
+              ELSE NULL
+            END
+          ) AS avg_total_sum
+        `)
+      )
+      .modify((q) => {
+        if (webmaster_id) {
+          q.where('o.webmaster_id', webmaster_id);
+        }
+      })
+      .andWhereBetween('o.created_at', [start, end]);
 
-  return orders;
-};
-
-export const getOrderStatisticForWebmaster = async (start, end, webmaster_id) => {
-  const rawStatistics = await db('status as s')
-    .select(
-      's.id as status_id',
-      's.name as status_name',
-      'w.id as webmaster_id',
-      'u.name as webmaster_name',
-      db.raw('COALESCE(SUM(CASE WHEN o.id IS NOT NULL THEN 1 ELSE 0 END), 0) as count')
-    )
-    .leftJoin('order as o', function () {
-      this.on('o.status_id', '=', 's.id')
-        .andOnBetween('o.created_at', [start, end]);
-      if (webmaster_id) {
-        this.andOn('o.webmaster_id', '=', db.raw('?', [webmaster_id]));
-      }
-    })
-    .leftJoin('webmaster as w', 'o.webmaster_id', 'w.id')
-    .leftJoin('user as u', 'w.user_id', 'u.id')
-    .groupBy('s.id', 's.name', 'w.id', 'u.name')
-    .orderBy('w.id', 'asc')
-    .orderBy('s.id', 'asc');
-
-  // Получаем список всех статусов
-  const allStatuses = await db('status').select('id as status_id', 'name as status_name');
-
-  const groupedStatistics = rawStatistics.reduce((acc, curr) => {
-    const { webmaster_id, webmaster_name, status_id, status_name, count } = curr;
-
-    if (!webmaster_id) {
-      return acc;
+    // Группировка по дате, если включён by_date
+    if (by_date) {
+      query.groupByRaw('DATE(o.created_at)').orderByRaw('DATE(o.created_at)');
     }
 
-    if (!acc[webmaster_id]) {
-      acc[webmaster_id] = {
-        webmaster_name,
-        statuses: []
+    const results = await query;
+
+    // Формируем вывод: по датам или в целом
+    if (by_date) {
+      return results.map((result) => ({
+        date: result.date,
+        totalOrders: parseInt(result.total_orders, 10),
+        acceptedOrders: parseInt(result.accepted_orders, 10),
+        cancelledOrders: parseInt(result.cancelled_orders, 10),
+        shippedOrders: parseInt(result.shipped_orders, 10),
+        buyoutOrders: parseInt(result.buyout_orders, 10),
+        avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
+      }));
+    } else {
+      const [result] = results;
+      return {
+        totalOrders: parseInt(result.total_orders, 10),
+        acceptedOrders: parseInt(result.accepted_orders, 10),
+        cancelledOrders: parseInt(result.cancelled_orders, 10),
+        shippedOrders: parseInt(result.shipped_orders, 10),
+        buyoutOrders: parseInt(result.buyout_orders, 10),
+        avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
       };
     }
-
-    acc[webmaster_id].statuses.push({
-      status_id,
-      status_name,
-      count: parseInt(count, 10)
-    });
-
-    return acc;
-  }, {});
-
-  // Добавляем статусы с count = 0, если их нет в результатах
-  for (const webmasterId in groupedStatistics) {
-    const webmasterData = groupedStatistics[webmasterId];
-    const existingStatuses = webmasterData.statuses.map((status) => status.status_id);
-
-    allStatuses.forEach((status) => {
-      if (!existingStatuses.includes(status.status_id)) {
-        webmasterData.statuses.push({
-          status_id: status.status_id,
-          status_name: status.status_name,
-          count: 0
-        });
-      }
-    });
-
-    // Сортируем статусы для консистентности
-    webmasterData.statuses.sort((a, b) => a.status_id - b.status_id);
+  } catch (err) {
+    console.error('Ошибка при получении статистики заказов:', err.message);
+    throw new Error('Не удалось получить статистику заказов');
   }
-
-  return groupedStatistics;
 };
 
-export const getOrderStatisticForOperator = async (start, end, operator_id) => {
-  const orders = await db('order as o')
-    .select(
-      'o.id',
-      'o.status_id',
-      'o.created_at',
-      'o.operator_id'
-    )
-    .modify((q) => {
-      if (operator_id) {
-        q.where('o.operator_id', operator_id);
-      };
-    })
-    .andWhereBetween("o.created_at", [start, end])
-    .orderBy('o.created_at', 'desc');
+export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = null, by_date = false) => {
+  try {
+    const query = db('order as o')
+      .select(
+        db.raw(`
+          ${by_date ? 'DATE(o.created_at) AS date,' : ''}
+          o.webmaster_id AS webmaster_id,
+          COUNT(*) AS total_orders,
+          SUM(
+            CASE
+              WHEN o.approved_at IS NOT NULL AND (o.cancelled_at IS NULL OR o.approved_at > o.cancelled_at)
+              THEN 1 ELSE 0
+            END
+          ) AS accepted_orders,
+          SUM(
+            CASE
+              WHEN o.cancelled_at IS NOT NULL AND (o.approved_at IS NULL OR o.cancelled_at > o.approved_at)
+              THEN 1 ELSE 0
+            END
+          ) AS cancelled_orders,
+          SUM(
+            CASE
+              WHEN o.shipped_at IS NOT NULL 
+                AND (o.cancelled_at IS NULL OR o.shipped_at > o.cancelled_at)
+                AND o.buyout_at IS NULL
+              THEN 1 ELSE 0
+            END
+          ) AS shipped_orders,
+          SUM(
+            CASE
+              WHEN o.buyout_at IS NOT NULL
+              THEN 1 ELSE 0
+            END
+          ) AS buyout_orders,
+          AVG(
+            CASE
+              WHEN o.buyout_at IS NOT NULL
+              THEN CAST(o.total_sum AS NUMERIC)
+              ELSE NULL
+            END
+          ) AS avg_total_sum,
+          u.login AS webmaster_name
+        `)
+      )
+      .leftJoin('webmaster as w', 'w.id', 'o.webmaster_id') // Join таблицы webmaster
+      .leftJoin('user as u', 'u.id', 'w.user_id') // Join таблицы user
+      .modify((q) => {
+        if (webmaster_id) {
+          q.where('o.webmaster_id', webmaster_id);
+        }
+      })
+      .andWhereBetween('o.created_at', [start, end]);
 
-  return orders;
+    // Группировка по дате и webmaster_id, если включён by_date
+    if (by_date) {
+      query.groupByRaw('DATE(o.created_at), o.webmaster_id, u.login').orderByRaw('DATE(o.created_at), o.webmaster_id');
+    } else {
+      query.groupByRaw('o.webmaster_id, u.login').orderByRaw('o.webmaster_id');
+    }
+
+    const results = await query;
+
+    // Формируем вывод
+    const statistics = {};
+    results.forEach((result) => {
+      const webmasterId = result.webmaster_id || 'Unknown';
+
+      if (!statistics[webmasterId]) {
+        statistics[webmasterId] = [];
+      }
+
+      const stats = {
+        date: by_date ? result.date : undefined,
+        totalOrders: parseInt(result.total_orders, 10),
+        acceptedOrders: parseInt(result.accepted_orders, 10),
+        cancelledOrders: parseInt(result.cancelled_orders, 10),
+        shippedOrders: parseInt(result.shipped_orders, 10),
+        buyoutOrders: parseInt(result.buyout_orders, 10),
+        avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
+        webmasterName: result.webmaster_name || 'Unknown',
+      };
+
+      if (by_date) {
+        statistics[webmasterId].push(stats);
+      } else {
+        statistics[webmasterId] = stats;
+      }
+    });
+
+    return statistics;
+  } catch (err) {
+    console.error('Ошибка при получении статистики заказов:', err.message);
+    throw new Error('Не удалось получить статистику заказов');
+  }
+};
+
+
+
+
+export const getOrderStatisticForOperator = async (start, end, operator_id = null, by_date = false) => {
+  try {
+    const query = db('order as o')
+      .select(
+        db.raw(`
+          ${by_date ? 'DATE(o.created_at) AS date,' : ''}
+          COUNT(*) AS total_orders,
+          SUM(
+            CASE
+              WHEN o.approved_at IS NOT NULL AND (o.cancelled_at IS NULL OR o.approved_at > o.cancelled_at)
+              THEN 1 ELSE 0
+            END
+          ) AS accepted_orders,
+          SUM(
+            CASE
+              WHEN o.cancelled_at IS NOT NULL AND (o.approved_at IS NULL OR o.cancelled_at > o.approved_at)
+              THEN 1 ELSE 0
+            END
+          ) AS cancelled_orders,
+          SUM(
+            CASE
+              WHEN o.shipped_at IS NOT NULL 
+                AND (o.cancelled_at IS NULL OR o.shipped_at > o.cancelled_at)
+                AND o.buyout_at IS NULL
+              THEN 1 ELSE 0
+            END
+          ) AS shipped_orders,
+          SUM(
+            CASE
+              WHEN o.buyout_at IS NOT NULL
+              THEN 1 ELSE 0
+            END
+          ) AS buyout_orders,
+          AVG(
+            CASE
+              WHEN o.buyout_at IS NOT NULL
+              THEN CAST(o.total_sum AS NUMERIC)
+              ELSE NULL
+            END
+          ) AS avg_total_sum
+        `)
+      )
+      .modify((q) => {
+        if (operator_id) {
+          q.where('o.operator_id', operator_id);
+        }
+      })
+      .andWhereBetween('o.created_at', [start, end]);
+
+    // Группировка по дате, если включён by_date
+    if (by_date) {
+      query.groupByRaw('DATE(o.created_at)').orderByRaw('DATE(o.created_at)');
+    }
+
+    const results = await query;
+
+    // Формируем вывод: по датам или в целом
+    if (by_date) {
+      return results.map((result) => ({
+        date: result.date,
+        totalOrders: parseInt(result.total_orders, 10),
+        acceptedOrders: parseInt(result.accepted_orders, 10),
+        cancelledOrders: parseInt(result.cancelled_orders, 10),
+        shippedOrders: parseInt(result.shipped_orders, 10),
+        buyoutOrders: parseInt(result.buyout_orders, 10),
+        avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
+      }));
+    } else {
+      const [result] = results;
+      return {
+        totalOrders: parseInt(result.total_orders, 10),
+        acceptedOrders: parseInt(result.accepted_orders, 10),
+        cancelledOrders: parseInt(result.cancelled_orders, 10),
+        shippedOrders: parseInt(result.shipped_orders, 10),
+        buyoutOrders: parseInt(result.buyout_orders, 10),
+        avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
+      };
+    }
+  } catch (err) {
+    console.error('Ошибка при получении статистики заказов:', err.message);
+    throw new Error('Не удалось получить статистику заказов');
+  }
 };
 
 // for dialer
