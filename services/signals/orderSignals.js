@@ -67,7 +67,7 @@ export const orderCreateSignal = async (new_order) => {
                 } catch (orderError) {
                     console.error(`Error processing order ID ${existingOrder.id}:`, orderError);
                 }
-                
+
             }
 
         } else {
@@ -78,7 +78,6 @@ export const orderCreateSignal = async (new_order) => {
         throw new Error('Failed to check or process orders');
     }
 };
-
 
 export const statusChangeSignal = async (order_id, sub_status_id) => {
     switch (sub_status_id) {
@@ -104,8 +103,6 @@ export const statusChangeSignal = async (order_id, sub_status_id) => {
     }
 };
 
-
-
 export const postbackKeitaroSignal = async (utm_term, domain, status) => {
     const params = {
         subid: utm_term,
@@ -130,5 +127,3 @@ export const postbackKeitaroSignal = async (utm_term, domain, status) => {
         }
     }
 };
-
-
