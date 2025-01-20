@@ -226,8 +226,28 @@ export const groupByProduct = (orders, items) => {
   });
 };
 
-export const calculateStatistics = (data) => {
-  if (!data || data.totalOrders === 0) {
+export const calculateStatistics = (data, by_date = false) => {
+  if (!data) {
+    return by_date ? [] : {
+      totalOrders: 0,
+      approvedPercentage: 0,
+      cancelledPercentage: 0,
+      shippedPercentage: 0,
+      buyoutPercentage: 0,
+    };
+  }
+
+  if (by_date && Array.isArray(data)) {
+    return data.map((item) => calculateStatisticsForItem(item));
+  }
+
+  return calculateStatisticsForItem(data);
+};
+
+const calculateStatisticsForItem = (data) => {
+  const { totalOrders = 0, acceptedOrders = 0, cancelledOrders = 0, shippedOrders = 0, buyoutOrders = 0 } = data;
+
+  if (totalOrders === 0) {
     return {
       ...data,
       approvedPercentage: 0,
@@ -237,9 +257,6 @@ export const calculateStatistics = (data) => {
     };
   }
 
-  const { totalOrders, acceptedOrders, cancelledOrders, shippedOrders, buyoutOrders } = data;
-
-  // Расчёт процентов
   const approvedPercentage = ((acceptedOrders / totalOrders) * 100).toFixed(2); // % от totalOrders
   const cancelledPercentage = ((cancelledOrders / totalOrders) * 100).toFixed(2); // % от totalOrders
   const shippedPercentage = acceptedOrders > 0 ? ((shippedOrders / acceptedOrders) * 100).toFixed(2) : 0; // % от acceptedOrders
@@ -253,6 +270,7 @@ export const calculateStatistics = (data) => {
     buyoutPercentage: parseFloat(buyoutPercentage),
   };
 };
+
 
 
 
