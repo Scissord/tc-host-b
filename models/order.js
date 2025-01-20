@@ -749,7 +749,7 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
 
 
 
-export const getOperatorStatistic = async (start, end, operator_id = null, by_date = false) => {
+export const getOrderStatisticForOperator = async (start, end, operator_id = null, by_date = false) => {
   try {
     const query = db('order as o')
       .select(
