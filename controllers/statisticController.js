@@ -62,11 +62,10 @@ export const getOperatorStatistic = async (req, res) => {
   try {
     const { start, end, operator_id, by_date } = req.query;
     const orders = await Order.getOrderStatisticForOperator(start, end, operator_id, by_date);
-    const operators = await Operator.get();
+    const result = calculateStatistics(orders);
 
-    const statistics = groupOperators(orders, operators);
 
-    return res.status(200).send({ message: 'ok', statistics });
+    return res.status(200).send({ message: 'ok', result });
   } catch (err) {
     console.log("Error in getOperatorStatistic statistic controller", err.message);
     res.status(500).send({ error: "Internal Server Error" });
