@@ -123,8 +123,8 @@ export async function mapOrder(order) {
 
   order.created_at = order.created_at.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' });
   order.updated_at = order.updated_at.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' });
-  order.delivery_at = order.delivery_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
-  order.logist_recall_at = order.logist_recall_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
+  // order.delivery_at = order.delivery_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
+  // order.logist_recall_at = order.logist_recall_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
   order.approved_at = order.approved_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
   order.cancelled_at = order.cancelled_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
   order.shipped_at = order.shipped_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
