@@ -5,7 +5,7 @@
 export const up = async function (knex) {
     return knex.schema.alterTable('scheduled_tasks', (table) => {
         table.string('scheduled_time').alter().nullable()
-        table.timestamp('scheduled_time_timestamp').nullable()
+        table.time('scheduled_time_timestamp').nullable()
     });
 };
 
