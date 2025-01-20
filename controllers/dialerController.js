@@ -235,25 +235,25 @@ export const updateOrder = async (req, res) => {
       const approved_data = {
         approved_at: new Date(),
         updated_at: new Date(),
-      }
+      };
 
       if (!check_order.approved_at) {
-        approved_data.approved_by_id = data.operator_id,
-        approved_data.approved_by_entity ='оператором'
-      }
+        approved_data.approved_by_id = data.operator_id;
+        approved_data.approved_by_entity = 'оператором';
+      };
 
       await Order.update(id, approved_data);
-      };
+    };
 
     if (data?.operator_id && +data?.sub_status_id === 12) {
       const cancelled_data = {
         cancelled_at: new Date(),
         updated_at: new Date()
-      }
+      };
 
       if (!check_order.cancelled_at) {
-        cancelled_data.cancelled_by_id = data.operator_id,
-        cancelled_data.cancelled_by_entity = 'оператором'
+        cancelled_data.cancelled_by_id = data.operator_id;
+        cancelled_data.cancelled_by_entity = 'оператором';
       };
 
       await Order.update(id, cancelled_data);
@@ -264,14 +264,13 @@ export const updateOrder = async (req, res) => {
         shipped_at: new Date(),
         updated_at: new Date(),
       });
-  
     };
 
     if (+data?.sub_status_id === 5 || +data?.sub_status_id === 6 || +data?.sub_status_id === 27) {
-        await Order.update(id, {
-          buyout_at: new Date(),
-          updated_at: new Date(),
-        });
+      await Order.update(id, {
+        buyout_at: new Date(),
+        updated_at: new Date(),
+      });
     };
 
     // 4. update sub status
