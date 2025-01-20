@@ -262,9 +262,6 @@ export const calculateStatistics = (data) => {
   return data;
 };
 
-
-
-
 export const groupOperators = (orders, operators) => {
   const grouped = orders.reduce((acc, order) => {
     const operator = operators.find((op) => +op.id === +order.operator_id);

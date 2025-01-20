@@ -14,7 +14,7 @@ router.get("/user", verify, withExtraData({ ability_name: 'get_orders' }, checkA
 router.get("/webmaster", verify, withExtraData({ entity: 'webmaster' }, checkEntity), controller.getWebmasterOrders);
 
 // Получить заказы для оператора -> команда(статусы)
-router.get("/operator", verify, withExtraData({ entity: 'operator' }, checkEntity), controller.getOperatorOrders);
+router.post("/operator", verify, withExtraData({ entity: 'operator' }, checkEntity), controller.getOperatorOrders);
 
 // Зайти в заказ
 router.get("/:order_id", verify, controller.getOrder);
