@@ -46,9 +46,9 @@ export const getUserStatistic = async (req, res) => {
 
 export const getWebmasterStatistic = async (req, res) => {
   try {
-    const { start, end, webmaster_id } = req.query;
+    const { start, end, webmaster_id, by_date} = req.query;
 
-    const statistic = await Order.getOrderStatisticForWebmaster(start, end, webmaster_id);
+    const statistic = await Order.getOrderStatisticForWebmaster(start, end, webmaster_id, by_date);
     const result = calculateStatistics(statistic);
     console.log(result)
     return res.status(200).send({ message: 'ok', result })
@@ -60,8 +60,8 @@ export const getWebmasterStatistic = async (req, res) => {
 
 export const getOperatorStatistic = async (req, res) => {
   try {
-    const { start, end, operator_id } = req.query;
-    const orders = await Order.getOrderStatisticForOperator(start, end, operator_id);
+    const { start, end, operator_id, by_date } = req.query;
+    const orders = await Order.getOrderStatisticForOperator(start, end, operator_id, by_date);
     const operators = await Operator.get();
 
     const statistics = groupOperators(orders, operators);

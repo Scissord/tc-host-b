@@ -558,29 +558,88 @@ export const getOperatorOrdersPaginated = async function (
   };
 };
 
-export const getOrdersStatisticForUser = async (start, end, webmaster_id = null, operator_id = null) => {
-  const orders = await db('order as o')
-    .select(
-      'o.id',
-      'o.status_id',
-      'o.created_at',
-      'o.city_id',
-      'c.name as city_name',
-      'o.region',
-    )
-    .leftJoin('city as c', 'c.id', 'o.city_id')
-    .modify((q) => {
-      if (webmaster_id) {
-        q.where('o.webmaster_id', webmaster_id);
-      };
-      if (operator_id) {
-        q.where('o.operator_id', operator_id);
-      };
-    })
-    .andWhereBetween("o.created_at", [start, end])
-    .orderBy('o.created_at', 'desc');
+export const getOrdersStatisticForUser = async (start, end, webmaster_id = null, by_date = false) => {
+  try {
+    const query = db('order as o')
+      .select(
+        db.raw(`
+          ${by_date ? 'DATE(o.created_at) AS date,' : ''}
+          COUNT(*) AS total_orders,
+          SUM(
+            CASE
+              WHEN o.approved_at IS NOT NULL AND (o.cancelled_at IS NULL OR o.approved_at > o.cancelled_at)
+              THEN 1 ELSE 0
+            END
+          ) AS accepted_orders,
+          SUM(
+            CASE
+              WHEN o.cancelled_at IS NOT NULL AND (o.approved_at IS NULL OR o.cancelled_at > o.approved_at)
+              THEN 1 ELSE 0
+            END
+          ) AS cancelled_orders,
+          SUM(
+            CASE
+              WHEN o.shipped_at IS NOT NULL 
+                AND (o.cancelled_at IS NULL OR o.shipped_at > o.cancelled_at)
+                AND o.buyout_at IS NULL
+              THEN 1 ELSE 0
+            END
+          ) AS shipped_orders,
+          SUM(
+            CASE
+              WHEN o.buyout_at IS NOT NULL
+              THEN 1 ELSE 0
+            END
+          ) AS buyout_orders,
+          AVG(
+            CASE
+              WHEN o.buyout_at IS NOT NULL
+              THEN CAST(o.total_sum AS NUMERIC)
+              ELSE NULL
+            END
+          ) AS avg_total_sum
+        `)
+      )
+      .modify((q) => {
+        if (webmaster_id) {
+          q.where('o.webmaster_id', webmaster_id);
+        }
+      })
+      .andWhereBetween('o.created_at', [start, end]);
 
-  return orders;
+    // Группировка по дате, если включён by_date
+    if (by_date) {
+      query.groupByRaw('DATE(o.created_at)').orderByRaw('DATE(o.created_at)');
+    }
+
+    const results = await query;
+
+    // Формируем вывод: по датам или в целом
+    if (by_date) {
+      return results.map((result) => ({
+        date: result.date,
+        totalOrders: parseInt(result.total_orders, 10),
+        acceptedOrders: parseInt(result.accepted_orders, 10),
+        cancelledOrders: parseInt(result.cancelled_orders, 10),
+        shippedOrders: parseInt(result.shipped_orders, 10),
+        buyoutOrders: parseInt(result.buyout_orders, 10),
+        avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
+      }));
+    } else {
+      const [result] = results;
+      return {
+        totalOrders: parseInt(result.total_orders, 10),
+        acceptedOrders: parseInt(result.accepted_orders, 10),
+        cancelledOrders: parseInt(result.cancelled_orders, 10),
+        shippedOrders: parseInt(result.shipped_orders, 10),
+        buyoutOrders: parseInt(result.buyout_orders, 10),
+        avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
+      };
+    }
+  } catch (err) {
+    console.error('Ошибка при получении статистики заказов:', err.message);
+    throw new Error('Не удалось получить статистику заказов');
+  }
 };
 
 export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = null, by_date = false) => {
@@ -668,26 +727,88 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
 };
 
 
+export const getOrderStatisticForOperator = async (start, end, operator_id = null, by_date = false) => {
+  try {
+    const query = db('order as o')
+      .select(
+        db.raw(`
+          ${by_date ? 'DATE(o.created_at) AS date,' : ''}
+          COUNT(*) AS total_orders,
+          SUM(
+            CASE
+              WHEN o.approved_at IS NOT NULL AND (o.cancelled_at IS NULL OR o.approved_at > o.cancelled_at)
+              THEN 1 ELSE 0
+            END
+          ) AS accepted_orders,
+          SUM(
+            CASE
+              WHEN o.cancelled_at IS NOT NULL AND (o.approved_at IS NULL OR o.cancelled_at > o.approved_at)
+              THEN 1 ELSE 0
+            END
+          ) AS cancelled_orders,
+          SUM(
+            CASE
+              WHEN o.shipped_at IS NOT NULL 
+                AND (o.cancelled_at IS NULL OR o.shipped_at > o.cancelled_at)
+                AND o.buyout_at IS NULL
+              THEN 1 ELSE 0
+            END
+          ) AS shipped_orders,
+          SUM(
+            CASE
+              WHEN o.buyout_at IS NOT NULL
+              THEN 1 ELSE 0
+            END
+          ) AS buyout_orders,
+          AVG(
+            CASE
+              WHEN o.buyout_at IS NOT NULL
+              THEN CAST(o.total_sum AS NUMERIC)
+              ELSE NULL
+            END
+          ) AS avg_total_sum
+        `)
+      )
+      .modify((q) => {
+        if (operator_id) {
+          q.where('o.operator_id', operator_id);
+        }
+      })
+      .andWhereBetween('o.created_at', [start, end]);
 
+    // Группировка по дате, если включён by_date
+    if (by_date) {
+      query.groupByRaw('DATE(o.created_at)').orderByRaw('DATE(o.created_at)');
+    }
 
+    const results = await query;
 
-export const getOrderStatisticForOperator = async (start, end, operator_id) => {
-  const orders = await db('order as o')
-    .select(
-      'o.id',
-      'o.status_id',
-      'o.created_at',
-      'o.operator_id'
-    )
-    .modify((q) => {
-      if (operator_id) {
-        q.where('o.operator_id', operator_id);
+    // Формируем вывод: по датам или в целом
+    if (by_date) {
+      return results.map((result) => ({
+        date: result.date,
+        totalOrders: parseInt(result.total_orders, 10),
+        acceptedOrders: parseInt(result.accepted_orders, 10),
+        cancelledOrders: parseInt(result.cancelled_orders, 10),
+        shippedOrders: parseInt(result.shipped_orders, 10),
+        buyoutOrders: parseInt(result.buyout_orders, 10),
+        avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
+      }));
+    } else {
+      const [result] = results;
+      return {
+        totalOrders: parseInt(result.total_orders, 10),
+        acceptedOrders: parseInt(result.accepted_orders, 10),
+        cancelledOrders: parseInt(result.cancelled_orders, 10),
+        shippedOrders: parseInt(result.shipped_orders, 10),
+        buyoutOrders: parseInt(result.buyout_orders, 10),
+        avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
       };
-    })
-    .andWhereBetween("o.created_at", [start, end])
-    .orderBy('o.created_at', 'desc');
-
-  return orders;
+    }
+  } catch (err) {
+    console.error('Ошибка при получении статистики заказов:', err.message);
+    throw new Error('Не удалось получить статистику заказов');
+  }
 };
 
 // for dialer
