@@ -49,10 +49,9 @@ export const getWebmasterStatistic = async (req, res) => {
     const { start, end, webmaster_id } = req.query;
 
     const statistic = await Order.getOrderStatisticForWebmaster(start, end, webmaster_id);
-    console.log(statistic)
-    // const result = calculateStatistics(statistic);
-
-    return res.status(200).send({ message: 'ok', statistic })
+    const result = calculateStatistics(statistic);
+    console.log(result)
+    return res.status(200).send({ message: 'ok', result })
   } catch (err) {
     console.log("Error in getWebmasterStatistic statistic controller", err.message);
     res.status(500).send({ error: "Internal Server Error" });

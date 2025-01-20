@@ -227,8 +227,33 @@ export const groupByProduct = (orders, items) => {
 };
 
 export const calculateStatistics = (data) => {
-  
+  if (!data || data.totalOrders === 0) {
+    return {
+      ...data,
+      approvedPercentage: 0,
+      cancelledPercentage: 0,
+      shippedPercentage: 0,
+      buyoutPercentage: 0,
+    };
+  }
+
+  const { totalOrders, acceptedOrders, cancelledOrders, shippedOrders, buyoutOrders } = data;
+
+  // Расчёт процентов
+  const approvedPercentage = ((acceptedOrders / totalOrders) * 100).toFixed(2); // % от totalOrders
+  const cancelledPercentage = ((cancelledOrders / totalOrders) * 100).toFixed(2); // % от totalOrders
+  const shippedPercentage = acceptedOrders > 0 ? ((shippedOrders / acceptedOrders) * 100).toFixed(2) : 0; // % от acceptedOrders
+  const buyoutPercentage = acceptedOrders > 0 ? ((buyoutOrders / acceptedOrders) * 100).toFixed(2) : 0; // % от acceptedOrders
+
+  return {
+    ...data,
+    approvedPercentage: parseFloat(approvedPercentage),
+    cancelledPercentage: parseFloat(cancelledPercentage),
+    shippedPercentage: parseFloat(shippedPercentage),
+    buyoutPercentage: parseFloat(buyoutPercentage),
+  };
 };
+
 
 
 
