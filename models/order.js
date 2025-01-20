@@ -808,15 +808,15 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
       query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id');
     }
 
+    console.log(query.toString()); // Для отладки
     const results = await query;
 
-    // Формируем вывод
     const statistics = {};
     results.forEach((result) => {
-      const webmasterId = result.operator_id || 'Unknown';
+      const operatorId = result.operator_id || 'Unknown';
 
-      if (!statistics[webmasterId]) {
-        statistics[webmasterId] = [];
+      if (!statistics[operatorId]) {
+        statistics[operatorId] = [];
       }
 
       const stats = {
@@ -827,13 +827,13 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
         shippedOrders: parseInt(result.shipped_orders, 10),
         buyoutOrders: parseInt(result.buyout_orders, 10),
         avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
-        webmasterName: result.operator_name || 'Unknown',
+        operatorName: result.operator_name || 'Unknown',
       };
 
       if (by_date) {
-        statistics[webmasterId].push(stats);
+        statistics[operatorId].push(stats);
       } else {
-        statistics[webmasterId] = stats;
+        statistics[operatorId] = stats;
       }
     });
 
@@ -843,6 +843,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
     throw new Error('Не удалось получить статистику заказов');
   }
 };
+
 
 
 // for dialer
