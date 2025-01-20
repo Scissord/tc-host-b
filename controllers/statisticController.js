@@ -49,7 +49,7 @@ export const getWebmasterStatistic = async (req, res) => {
     const { start, end, webmaster_id, by_date} = req.query;
 
     const statistic = await Order.getOrderStatisticForWebmaster(start, end, webmaster_id, by_date);
-    const result = calculateStatistics(statistic);
+    const result = calculateStatistics(statistic, by_date);
     console.log(result)
     return res.status(200).send({ message: 'ok', result })
   } catch (err) {
@@ -63,7 +63,7 @@ export const getOperatorStatistic = async (req, res) => {
     const { start, end, operator_id, by_date } = req.query;
     const orders = await Order.getOrderStatisticForOperator(start, end, operator_id, by_date);
     console.log(orders)
-    const result = calculateStatistics(orders);
+    const result = calculateStatistics(orders, by_date);
     console.log(result)
     return res.status(200).send({ message: 'ok', result });
   } catch (err) {
