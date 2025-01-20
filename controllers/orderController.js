@@ -196,9 +196,6 @@ export const getOperatorOrders = async (req, res) => {
 			additional8,
 		} = req.body
 
-		console.log('getOperatorOrders', req.query);
-		console.log('getOperatorOrders', req.body);
-
 		const { orders, lastPage, pages } = await Order.getOperatorOrdersPaginated(
 			limit,
 			page,
