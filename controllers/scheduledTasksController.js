@@ -22,10 +22,10 @@ export const update = async (req, res) => {
         const updated_task = await ScheduledTasks.update(id, data)
 		const time = cronTime(updated_task.send_time)
         await cronTasks.updateCronTask(updated_task.task_name, time)
-		new_data = {
+		const new_data = {
 			cron_schedule: time
 		}
-		new_task = await ScheduledTasks.update(id, new_data)
+		const new_task = await ScheduledTasks.update(id, new_data)
 		res.status(200).send({ message: 'ok', new_task });
 	} catch (err) {
 		console.log("Error in get tasks controller", err.message);
