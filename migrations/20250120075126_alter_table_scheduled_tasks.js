@@ -15,6 +15,6 @@ export const up = async function (knex) {
  */
 export const down = async function (knex) {
     return knex.schema.alterTable('scheduled_tasks', (table) => {
-        table.timestamp('scheduled_time').alter(); 
+        table.string('scheduled_time').alter(); 
     });
 };
