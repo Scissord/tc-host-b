@@ -678,11 +678,11 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
           ) AS buyout_orders,
           AVG(
             CASE
-              WHEN o.buyout_at IS NOT NULL
+              WHEN o.buyout_at IS NOT NULL AND o.total_sum ~ '^[0-9]+(\\.[0-9]+)?$'
               THEN CAST(o.total_sum AS NUMERIC)
               ELSE NULL
             END
-          ) AS avg_total_sum,
+          ) AS avg_total_sum,          
           u.login AS webmaster_name
         `)
       )
