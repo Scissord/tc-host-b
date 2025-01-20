@@ -695,8 +695,8 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
           u.login AS webmaster_name
         `)
       )
-      .leftJoin('webmaster as w', 'w.id', 'o.webmaster_id') // Join таблицы webmaster
-      .leftJoin('user as u', 'u.id', 'w.user_id') // Join таблицы user
+      .leftJoin('webmaster as w', 'w.id', 'o.webmaster_id') 
+      .leftJoin('user as u', 'u.id', 'w.user_id') 
       .modify((q) => {
         if (webmaster_id) {
           q.where('o.webmaster_id', webmaster_id);
@@ -704,7 +704,6 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
       })
       .andWhereBetween('o.created_at', [start, end]);
 
-    // Группировка по дате и webmaster_id, если включён by_date
     if (by_date) {
       query.groupByRaw('DATE(o.created_at), o.webmaster_id, u.login').orderByRaw('DATE(o.created_at), o.webmaster_id');
     } else {
