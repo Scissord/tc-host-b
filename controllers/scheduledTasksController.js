@@ -16,17 +16,19 @@ export const get = async (req, res) => {
 export const update = async (req, res) => {
 	try {
 		// чч:мм
-		
-        const { id } = req.params;
+	
+        const { id } = req.query;
 		const data = req.body;
-		const time = cronTime(updated_task.scheduled_time)
-		data.scheduled_time = time
-        updated_task = await ScheduledTasks.update(id, data)
+        const updated_task = await ScheduledTasks.update(id, data)
+		const time = cronTime(updated_task.send_time)
         await cronTasks.updateCronTask(updated_task.task_name, time)
-
-		res.status(200).send({ message: 'ok', updated_task });
+		const new_data = {
+			cron_schedule: time
+		}
+		const new_task = await ScheduledTasks.update(id, new_data)
+		res.status(200).send({ message: 'ok', new_task });
 	} catch (err) {
-		console.log("Error in get ability controller", err.message);
+		console.log("Error in get tasks controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
 	}
 };
