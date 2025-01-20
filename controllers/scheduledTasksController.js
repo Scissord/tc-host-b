@@ -19,7 +19,7 @@ export const update = async (req, res) => {
 	
         const { id } = req.query;
 		const data = req.body;
-        updated_task = await ScheduledTasks.update(id, data)
+        const updated_task = await ScheduledTasks.update(id, data)
 		const time = cronTime(updated_task.send_time)
         await cronTasks.updateCronTask(updated_task.task_name, time)
 		new_data = {
