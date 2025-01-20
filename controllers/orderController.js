@@ -196,6 +196,9 @@ export const getOperatorOrders = async (req, res) => {
 			additional8,
 		} = req.body
 
+		console.log('getOperatorOrders', req.query);
+		console.log('getOperatorOrders', req.body);
+
 		const { orders, lastPage, pages } = await Order.getOperatorOrdersPaginated(
 			limit,
 			page,
@@ -302,8 +305,8 @@ export const changeStatus = async (req, res) => {
 						updated_at: new Date(),
 					}
 					if (!order.approved_at) {
-						approved_data.approved_by_id =  responsible_id,
-						approved_data.approved_by_entity = responsible
+						approved_data.approved_by_id = responsible_id,
+							approved_data.approved_by_entity = responsible
 					};
 
 					await Order.update(order.id, approved_data);
@@ -317,14 +320,14 @@ export const changeStatus = async (req, res) => {
 
 					if (!order.cancelled_at) {
 						cancelled_data.cancelled_by_id = responsible_id,
-						cancelled_data.cancelled_by_entity = responsible
+							cancelled_data.cancelled_by_entity = responsible
 					};
 
 					await Order.update(order.id);
 				};
 
 				if (+new_sub_status_id === 3 || +new_sub_status_id === 13) {
-	
+
 					await Order.update(id, {
 						shipped_at: new Date(),
 						updated_at: new Date(),
@@ -338,7 +341,7 @@ export const changeStatus = async (req, res) => {
 						buyout_at: new Date(),
 						updated_at: new Date(),
 					});
-				
+
 				};
 
 				await OrderSignals.statusChangeSignal(+order.id, +new_sub_status_id)
@@ -587,7 +590,7 @@ export const update = async (req, res) => {
 
 		// 4. if 1, 4 or 12 change approved_by and cancelled_by
 		if (+order.sub_status_id === 1 || +order.sub_status_id === 4) {
-			
+
 			const approve_data = {
 				approved_at: new Date(),
 				updated_at: new Date(),
@@ -595,7 +598,7 @@ export const update = async (req, res) => {
 
 			if (!oldOrder.approved_at) {
 				approve_data.approved_by_id = responsible_id,
-				approve_data.approved_by_entity = responsible
+					approve_data.approved_by_entity = responsible
 			};
 
 			await Order.update(order_id, approve_data);
@@ -609,7 +612,7 @@ export const update = async (req, res) => {
 
 			if (!oldOrder.cancelled_at) {
 				cancelled_data.cancelled_by_id = responsible_id,
-				cancelled_data.cancelled_by_entity = responsible
+					cancelled_data.cancelled_by_entity = responsible
 			};
 
 			await Order.update(order_id, cancelled_data);
