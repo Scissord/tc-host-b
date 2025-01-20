@@ -5,9 +5,9 @@
 export const up = function (knex) {
   return knex.schema.createTable('scheduled_tasks', (table) => {
     table.increments('id').primary(); 
-    table.string('task_name').notNullable(); 
-    table.string('cron_schedule').notNullable();
-    table.time('send_time').notNullable(); 
+    table.string('task_name').nullable(); 
+    table.string('cron_schedule').nullable();
+    table.time('send_time').nullable(); 
     table.timestamps(true, true); 
   });
 };
