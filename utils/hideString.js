@@ -24,11 +24,21 @@ export function hideString(string) {
 export function hidePhoneInComment(string) {
   const str = String(string);
 
-  // Убираем пробелы
+  const spaceIndexes = [];
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === ' ') {
+      spaceIndexes.push(i);
+    }
+  }
   const noSpacesStr = str.replace(/\s+/g, '');
 
-  // Заменяем последовательности из 7 и более цифр на '***'
   const hiddenPhoneStr = noSpacesStr.replace(/\d{7,}/g, '***');
 
-  return hiddenPhoneStr;
+  let result = hiddenPhoneStr.split('');
+  for (const index of spaceIndexes) {
+    result.splice(index, 0, ' ');
+  }
+
+  return result.join('');
 }
+
