@@ -257,6 +257,25 @@ export const toggleOrder = async (req, res) => {
   }
 };
 
+export const getOrderHistory = async (req, res) => {
+  try {
+    const { id } = req.query;
+
+    if (!id) {
+      return res.status(400).send({
+        message: ERRORS.REQUIRED_ID
+      });
+    };
+
+    const logs = await Log.getWhere({ order_id: id });
+
+    res.status(200).json(logs);
+  } catch (err) {
+    console.log("Error in getOrderHistory dialer controller", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 export const updateOrder = async (req, res) => {
   try {
     const { id } = req.query;
@@ -544,11 +563,9 @@ export const getOrderDoubles = async (req, res) => {
   }
 };
 
-
 export const getOperatorStatistic = async (req, res) => {
   try {
-    const { start, end, operator_id} = req.query;
-
+    const { start, end, operator_id } = req.query;
 
     const by_date = req.query.by_date === 'true';
     const orders = await Order.getOrderStatisticForOperator(start, end, operator_id, by_date);
