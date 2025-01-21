@@ -452,6 +452,8 @@ export const create = async (req, res) => {
 			});
 		};
 
+		data.total_sum = 1650;
+
 		if (Array.isArray(items)) {
 			// to send to Обработка
 			if (

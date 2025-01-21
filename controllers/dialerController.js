@@ -1,3 +1,4 @@
+import { io } from '#services/socket/socket.js';
 import requestIp from 'request-ip';
 import { parse } from 'comma-separated-tokens';
 import * as User from '#models/user.js';
@@ -14,6 +15,7 @@ import * as PaymentMethod from '#root/models/payment_method.js';
 import * as DeliveryMethod from '#root/models/delivery_method.js';
 import * as OrderCancelReason from '#root/models/order_cancel_reason.js';
 import * as OrderSignals from '#services/signals/orderSignals.js';
+import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import ERRORS from '#constants/errors.js';
 
 export const getStatusList = async (req, res) => {
@@ -184,8 +186,8 @@ export const getOrderCancelReasons = async (req, res) => {
 
 export const toggleOrder = async (req, res) => {
   try {
-    const { id, is_blocked } = req.query;
-    const data = req.body;
+    const { id, operator_id, is_blocked } = req.query;
+    const ip = requestIp.getClientIp(req);
 
     if (!id) {
       return res.status(400).send({
@@ -199,9 +201,53 @@ export const toggleOrder = async (req, res) => {
       });
     };
 
-    // here need to send socket to frontend
+    const isBlocked = is_blocked === 'true';
 
-    res.status(200).json();
+    const operator = await Operator.find(operator_id);
+    const user = await User.find(operator.user_id);
+
+    const onlineUsers = await getKeyValue('onlineUsers') || [];
+    const reservedOrders = await getKeyValue('reservedOrders') || [];
+
+    if (isBlocked) {
+      const reservedOrder = reservedOrders.find((ro) => +ro.order_id === +id);
+      if (!reservedOrder) {
+        reservedOrders.push({
+          order_id: id,
+          name: user.name,
+        });
+        await setKeyValue('reservedOrders', reservedOrders);
+      } else {
+        return res.status(200).json({ id, is_blocked });
+      }
+    } else {
+      const reservedOrder = reservedOrders.find((ro) => +ro.order_id === +id);
+      if (reservedOrder) {
+        const updatedReservedOrders = reservedOrders.filter((ro) => +ro.order_id !== +id);
+        await setKeyValue('reservedOrders', updatedReservedOrders);
+      } else {
+        return res.status(200).json({ id, is_blocked });
+      };
+    };
+
+    onlineUsers.forEach((onlineUser) => {
+      onlineUser.sockets.forEach((socketId) => {
+        io.to(socketId).emit(isBlocked ? "blockOrder" : "openOrder", {
+          message: "Order reserved.",
+          order_id: id,
+          name: user.name,
+        });
+      });
+    });
+
+    await Log.create({
+      order_id: id,
+      operator_id: operator_id,
+      action: `${user.name} ${isBlocked ? 'вошёл (-а) в заказ' : 'вышел (-а) из заказа'} №${id}`,
+      ip,
+    });
+
+    res.status(200).json({ id, is_blocked });
   } catch (err) {
     console.log("Error in toggleOrder dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
