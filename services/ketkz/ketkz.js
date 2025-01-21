@@ -266,7 +266,7 @@ export const checkSendedOrders = async () => {
   
 	  await Promise.all(promises); 
   
-	  console.log("Все запросы завершены.", results); 
+	  console.log("Все запросы завершены.", JSON.stringify(results, null, 2));
 	  return results; 
 
 	} catch (error) {
