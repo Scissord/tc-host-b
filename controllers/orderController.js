@@ -7,7 +7,7 @@ import * as Product from '#models/product.js';
 import * as Log from '#models/log.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import { mapOrders, mapOrder } from '#services/order/map.js';
-import {hideString, hidePhoneInComment } from '#utils/hideString.js';
+import { hideString, hidePhoneInComment } from '#utils/hideString.js';
 import ERRORS from '#constants/errors.js';
 import globalPrice from '#constants/price.js';
 
@@ -268,7 +268,7 @@ export const getOrder = async (req, res) => {
 		// for operators don't show phone
 		if (req.operator) {
 			transformedOrder.phone = hideString(transformedOrder.phone) ?? '-';
-			transformedOrder.phone = hidePhoneInComment(transformedOrder.comment) ?? '-';
+			transformedOrder.comment = hidePhoneInComment(transformedOrder.comment) ?? '-';
 		};
 
 		return res.status(200).send({ order: transformedOrder })
