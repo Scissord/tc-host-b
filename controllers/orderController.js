@@ -8,7 +8,6 @@ import * as Log from '#models/log.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import { mapOrders, mapOrder } from '#services/order/map.js';
 import {hideString, hidePhoneInComment } from '#utils/hideString.js';
-import hidePhoneInComment from '#utils/hideString.js'
 import ERRORS from '#constants/errors.js';
 import globalPrice from '#constants/price.js';
 
