@@ -64,7 +64,7 @@ export const getOperatorStatistic = async (req, res) => {
     console.log(start, end, operator_id, by_date)
     
     const orders = await Order.getOrderStatisticForOperator(start, end, operator_id, by_date);
-
+    console.log(orders)
     const statistics = {};
     orders.forEach((result) => {
       const operatorId = result.operator_id || 'Unknown';
@@ -92,6 +92,7 @@ export const getOperatorStatistic = async (req, res) => {
     });
 
     const result = calculateStatistics(statistics, by_date);
+    console.log(result)
     return res.status(200).send({ message: 'ok', result });
   } catch (err) {
     console.log("Error in getOperatorStatistic statistic controller", err.message);
