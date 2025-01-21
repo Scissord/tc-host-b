@@ -807,37 +807,9 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
     } else {
       query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id');
     }
-
-    console.log(query.toString()); // Для отладки
     const results = await query;
-
-    const statistics = {};
-    results.forEach((result) => {
-      const operatorId = result.operator_id || 'Unknown';
-
-      if (!statistics[operatorId]) {
-        statistics[operatorId] = [];
-      }
-
-      const stats = {
-        date: by_date ? result.date : undefined,
-        totalOrders: parseInt(result.total_orders, 10),
-        acceptedOrders: parseInt(result.accepted_orders, 10),
-        cancelledOrders: parseInt(result.cancelled_orders, 10),
-        shippedOrders: parseInt(result.shipped_orders, 10),
-        buyoutOrders: parseInt(result.buyout_orders, 10),
-        avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
-        operatorName: result.operator_name || 'Unknown',
-      };
-
-      if (by_date) {
-        statistics[operatorId].push(stats);
-      } else {
-        statistics[operatorId] = stats;
-      }
-    });
-
-    return statistics;
+    
+    return results
   } catch (err) {
     console.error('Ошибка при получении статистики заказов:', err.message);
     throw new Error('Не удалось получить статистику заказов');

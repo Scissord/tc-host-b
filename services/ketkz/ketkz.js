@@ -4,6 +4,7 @@ import * as OrderGood from '#models/order_item.js'
 import * as City from '#models/city.js'
 import * as KetUtils from '#utils/ketOrderName.js'
 import { getCityCode } from '#utils/cityCode.js';
+
 dotenv.config();
 
 export const sendOrders = async (orders) => {
@@ -215,3 +216,63 @@ export const sendPostalOrders = async () => {
 
 }
 
+export const checkSendedOrders = async () => { 
+	try {
+	  const filter_values = [3, 13, 27, 47, 48];
+	  const orders = await Order.getWhereIn("o.sub_status_id", filter_values);
+  
+	  if (!orders || orders.length === 0) {
+		console.log("Нет заказов с указанными sub_status_id");
+		return;
+	  }
+  
+	  const results = [];
+  
+	  const promises = orders.map(order =>
+		fetch(`${process.env.KETKZ_GET_URL}?uid=${process.env.KETKZ_UID}&s=${process.env.KETKZ_SECRET}`, { 
+		  method: 'POST',
+		  headers: {
+			'Content-Type': 'application/json',
+		  },
+		  body: JSON.stringify({ ext_id: order.id }),
+		}).then(async (response) => {
+		  const result = {
+			id: order.id,
+			sub_status_id: order.sub_status_id,
+		  };
+  
+		  if (response.ok) {
+			try {
+			  const data = await response.json();
+			  result.response = data; 
+			} catch (jsonError) {
+			  console.error(`Ошибка парсинга JSON для заказа ${order.id}:`, jsonError.message);
+			  result.error = `Ошибка парсинга JSON: ${jsonError.message}`;
+			}
+		  } else {
+			result.error = `Ошибка запроса: ${response.status} ${response.statusText}`;
+		  }
+  
+		  results.push(result);
+		}).catch((error) => {
+		  console.error(`Ошибка при выполнении запроса для заказа ${order.id}:`, error.message);
+		  results.push({
+			id: order.id,
+			sub_status_id: order.sub_status_id,
+			error: `Ошибка запроса: ${error.message}`,
+		  });
+		})
+	  );
+  
+	  await Promise.all(promises); 
+  
+	  console.log("Все запросы завершены.", results); 
+	  return results; 
+
+	} catch (error) {
+	  console.error("Ошибка при отправке заказов:", error.message);
+	  throw new Error("Не удалось обработать заказы");
+	}
+  };
+  
+  

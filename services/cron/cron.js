@@ -5,7 +5,6 @@ import * as ketService from '#services/ketkz/ketkz.js'
 
 dotenv.config();
 
-// Предопределённые задачи
 const task1 = {
     id: 'courier_cities',
     cronTask: null,
@@ -35,8 +34,16 @@ const task3 = {
     defaultSchedule: '* * * * *',
 };
 
+const task4 = {
+    id: 'check_sended_orders',
+    cronTask: null,
+    handler: async () => {
+       await ketService.checkSendedOrders()
+    },
+    defaultSchedule: '* * * * *',
+};
 
-const predefinedTasks = [task1, task2, task3];
+const predefinedTasks = [task1, task2, task3, task4];
 
 const activeCronTasks = {};
 
