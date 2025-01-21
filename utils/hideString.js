@@ -19,3 +19,16 @@ export default function hideString(string) {
 
   return maskedPart;
 };
+
+
+export default function hidePhoneInComment(string) {
+  const str = String(string);
+
+  // Убираем пробелы
+  const noSpacesStr = str.replace(/\s+/g, '');
+
+  // Заменяем последовательности из 7 и более цифр на '***'
+  const hiddenPhoneStr = noSpacesStr.replace(/\d{7,}/g, '***');
+
+  return hiddenPhoneStr;
+}
