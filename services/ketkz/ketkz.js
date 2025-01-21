@@ -232,9 +232,9 @@ export const checkSendedOrders = async () => {
 		fetch(`${process.env.KETKZ_GET_URL}?uid=${process.env.KETKZ_UID}&s=${process.env.KETKZ_SECRET}`, { 
 		  method: 'POST',
 		  headers: {
-			'Content-Type': 'application/json',
+			"Content-Type": "application/x-www-form-urlencoded",
 		  },
-		  body: JSON.stringify({ ext_id: order.id }),
+		  body: new URLSearchParams({ ext_id: order.id }).toString(),
 		}).then(async (response) => {
 		  const result = {
 			id: order.id,
