@@ -46,8 +46,8 @@ export const getUserStatistic = async (req, res) => {
 
 export const getWebmasterStatistic = async (req, res) => {
   try {
-    const { start, end, webmaster_id, by_date } = req.query;
-
+    const { start, end, webmaster_id } = req.query;
+    const by_date = req.query.by_date === 'true';
     const statistic = await Order.getOrderStatisticForWebmaster(start, end, webmaster_id, by_date);
     const result = calculateStatistics(statistic, by_date);
     console.log(result)
@@ -60,11 +60,11 @@ export const getWebmasterStatistic = async (req, res) => {
 
 export const getOperatorStatistic = async (req, res) => {
   try {
-    const { start, end, operator_id, by_date } = req.query;
-    console.log(start, end, operator_id, by_date)
-    
-    const orders = await Order.getOrderStatisticForOperator(start, end, operator_id, by_date);
+    const { start, end, operator_id} = req.query;
 
+
+    const by_date = req.query.by_date === 'true';
+    const orders = await Order.getOrderStatisticForOperator(start, end, operator_id, by_date);
     const statistics = {};
     orders.forEach((result) => {
       const operatorId = result.operator_id || 'Unknown';
@@ -92,6 +92,7 @@ export const getOperatorStatistic = async (req, res) => {
     });
 
     const result = calculateStatistics(statistics, by_date);
+    console.log(result)
     return res.status(200).send({ message: 'ok', result });
   } catch (err) {
     console.log("Error in getOperatorStatistic statistic controller", err.message);
