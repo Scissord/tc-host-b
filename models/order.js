@@ -749,61 +749,62 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
 export const getOrderStatisticForOperator = async (start, end, operator_id = null, by_date = false) => {
   try {
     const query = db('order as o')
-      .select(
-        db.raw(`
-          ${by_date ? 'DATE(o.created_at) AS date,' : ''}
-          o.operator_id AS operator_id,
-          COUNT(*) AS total_orders,
-          SUM(
-            CASE
-              WHEN o.approved_at IS NOT NULL AND (o.cancelled_at IS NULL OR o.approved_at > o.cancelled_at)
-              THEN 1 ELSE 0
-            END
-          ) AS accepted_orders,
-          SUM(
-            CASE
-              WHEN o.cancelled_at IS NOT NULL AND (o.approved_at IS NULL OR o.cancelled_at > o.approved_at)
-              THEN 1 ELSE 0
-            END
-          ) AS cancelled_orders,
-          SUM(
-            CASE
-              WHEN o.shipped_at IS NOT NULL 
-                AND (o.cancelled_at IS NULL OR o.shipped_at > o.cancelled_at)
-                AND o.buyout_at IS NULL
-              THEN 1 ELSE 0
-            END
-          ) AS shipped_orders,
-          SUM(
-            CASE
-              WHEN o.buyout_at IS NOT NULL
-              THEN 1 ELSE 0
-            END
-          ) AS buyout_orders,
-          AVG(
-            CASE
-              WHEN o.buyout_at IS NOT NULL
-              THEN CAST(o.total_sum AS NUMERIC)
-              ELSE NULL
-            END
-          ) AS avg_total_sum,
-          u.login AS operator_name
-        `)
-      )
-      .leftJoin('operator as op', 'op.id', 'o.operator_id')
-      .leftJoin('user as u', 'u.id', 'op.user_id')
-      .modify((q) => {
-        if (operator_id) {
-          q.where('o.operator_id', operator_id);
-        }
-      })
-      .andWhereBetween('o.created_at', [start, end]);
+    .select(
+      db.raw(`
+        ${by_date ? 'DATE(o.created_at) AS date,' : ''}
+        o.operator_id AS operator_id,
+        COUNT(*) AS total_orders,
+        SUM(
+          CASE
+            WHEN o.approved_at IS NOT NULL AND (o.cancelled_at IS NULL OR o.approved_at > o.cancelled_at)
+            THEN 1 ELSE 0
+          END
+        ) AS accepted_orders,
+        SUM(
+          CASE
+            WHEN o.cancelled_at IS NOT NULL AND (o.approved_at IS NULL OR o.cancelled_at > o.approved_at)
+            THEN 1 ELSE 0
+          END
+        ) AS cancelled_orders,
+        SUM(
+          CASE
+            WHEN o.shipped_at IS NOT NULL 
+              AND (o.cancelled_at IS NULL OR o.shipped_at > o.cancelled_at)
+              AND o.buyout_at IS NULL
+            THEN 1 ELSE 0
+          END
+        ) AS shipped_orders,
+        SUM(
+          CASE
+            WHEN o.buyout_at IS NOT NULL
+            THEN 1 ELSE 0
+          END
+        ) AS buyout_orders,
+        AVG(
+          CASE
+            WHEN o.buyout_at IS NOT NULL
+            THEN CAST(o.total_sum AS NUMERIC)
+            ELSE NULL
+          END
+        ) AS avg_total_sum,
+        u.login AS operator_name
+      `)
+    )
+    .leftJoin('operator as op', 'op.id', 'o.operator_id')
+    .leftJoin('user as u', 'u.id', 'op.user_id')
+    .modify((q) => {
+      if (operator_id) {
+        q.where('o.operator_id', operator_id);
+      }
+    })
+    .andWhereBetween('o.created_at', [start, end]);
 
-    if (by_date) {
-      query.groupByRaw('DATE(o.created_at), o.operator_id, u.login').orderByRaw('DATE(o.created_at), o.operator_id');
-    } else {
-      query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id');
-    }
+  if (by_date) {
+    query.groupByRaw('DATE(o.created_at), o.operator_id, u.login').orderByRaw('DATE(o.created_at), o.operator_id');
+  } else {
+    query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id');
+  }
+
     const results = await query;
     
     return results
