@@ -276,33 +276,22 @@ export const updateOrder = async (req, res) => {
 
     // 3. if 1, 4 or 12 change approved_by and cancelled_by
     const check_order = await Order.find(id);
-    if (data?.operator_id && (+data?.sub_status_id === 1 || +data?.sub_status_id === 4)) {
-
-      const approved_data = {
-        approved_at: new Date(),
-        updated_at: new Date(),
-      };
-
-      if (!check_order.approved_at) {
-        approved_data.approved_by_id = data.operator_id;
-        approved_data.approved_by_entity = 'оператором';
-      };
-
-      await Order.update(id, approved_data);
+    if (!check_order.operator_id && (+data?.sub_status_id === 1 || +data?.sub_status_id === 4 || +data?.sub_status_id === 12)) {
+      await Order.update(id, { operator_id: data.operator_id });
     };
 
-    if (data?.operator_id && +data?.sub_status_id === 12) {
-      const cancelled_data = {
+    if (+data?.sub_status_id === 1 || +data?.sub_status_id === 4) {
+      await Order.update(id, {
+        approved_at: new Date(),
+        updated_at: new Date(),
+      });
+    };
+
+    if (+data?.sub_status_id === 12) {
+      await Order.update(id, {
         cancelled_at: new Date(),
         updated_at: new Date()
-      };
-
-      if (!check_order.cancelled_at) {
-        cancelled_data.cancelled_by_id = data.operator_id;
-        cancelled_data.cancelled_by_entity = 'оператором';
-      };
-
-      await Order.update(id, cancelled_data);
+      });
     };
 
     if (+data?.sub_status_id === 3 || +data?.sub_status_id === 13) {
@@ -327,13 +316,16 @@ export const updateOrder = async (req, res) => {
       await OrderSignals.statusChangeSignal(+id, +data.sub_status_id)
     };
 
-    // 4.1 change updated_at
+    // 5 change updated_at
     data.updated_at = new Date();
 
-    // 5. update order
+    // 6. update order
+    if (+check_order.operator_id && data.operator_id) {
+      delete data.operator_id;
+    };
     const order = await Order.update(id, data);
 
-    // 4.2 logs
+    // 7 logs
     await Log.create({
       order_id: id,
       operator_id: data?.operator_id ? data.operator_id : check_order.operator_id,
@@ -429,7 +421,6 @@ export const getOrdersByIds = async (req, res) => {
       paymentMethods,
       deliveryMethods,
       orderCancelReasons,
-      users,
     ] = await Promise.all([
       Product.get(),
       Webmaster.get(),
@@ -440,7 +431,6 @@ export const getOrdersByIds = async (req, res) => {
       PaymentMethod.get(),
       DeliveryMethod.get(),
       OrderCancelReason.get(),
-      User.get()
     ]);
 
     const transformedStatuses = await Promise.all(orders.map(async (order) => {
@@ -463,19 +453,78 @@ export const getOrdersByIds = async (req, res) => {
         payment_method: paymentMethods.find((p) => +p.id === order.payment_id)?.name ?? '-',
         delivery_method: deliveryMethods.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
         order_cancel_reason: orderCancelReasons.find((cr) => +cr.id === +order.cancel_reason_id)?.name ?? '-',
-        approved_by_login: (() => {
-          const operator = operators.find((o) => +o.id === +order.approved_by_id);
-          if (!operator) return '-';
-          const user = users.find((u) => +u.id === +operator.user_id);
-          return user?.login ?? '-';
-        })(),
+      };
+    }));
 
-        cancelled_by_login: (() => {
-          const operator = operators.find((o) => +o.id === +order.cancelled_by_id); // Находим оператора
-          if (!operator) return '-';
-          const user = users.find((u) => +u.id === +operator.user_id);
-          return user?.login ?? '-';
-        })(),
+    // Convert the result into an object with order IDs as keys (similar to your original code)
+    const transformedStatusesObject = transformedStatuses.reduce((acc, transformedOrder) => {
+      acc[transformedOrder.id] = transformedOrder;
+      return acc;
+    }, {});
+
+    res.status(200).json(transformedStatusesObject);
+  } catch (err) {
+    console.log("Error in getOrdersByIds dialer controller", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const getOrderDoubles = async (req, res) => {
+  try {
+    const { id } = req.query;
+
+    if (!id) {
+      return res.status(400).send({
+        message: ERRORS.REQUIRED_ID,
+      });
+    };
+
+    const order = await Order.find(id);
+    const ids = await Order.getDoubles(order.id, order.phone);
+    const orders = await Order.getWhereIn('o.id', ids);
+
+    const [
+      products,
+      webmasters,
+      operators,
+      cities,
+      subStatuses,
+      genders,
+      paymentMethods,
+      deliveryMethods,
+      orderCancelReasons,
+    ] = await Promise.all([
+      Product.get(),
+      Webmaster.get(),
+      Operator.get(),
+      City.get(),
+      SubStatus.get(),
+      Gender.get(),
+      PaymentMethod.get(),
+      DeliveryMethod.get(),
+      OrderCancelReason.get(),
+    ]);
+
+    const transformedStatuses = await Promise.all(orders.map(async (order) => {
+      const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
+
+      return {
+        ...order,
+        webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-',
+        operator: operators.find((o) => +o.id === +order.operator_id)?.name ?? '-',
+        city: cities.find((c) => +c.id === +order.city_id) || null,
+        status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) || null,
+        items: items.map((item) => {
+          const product = products.find((p) => +p.id === +item.product_id);
+          return {
+            ...item,
+            name: product ? product.name : null,
+          };
+        }),
+        gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
+        payment_method: paymentMethods.find((p) => +p.id === order.payment_id)?.name ?? '-',
+        delivery_method: deliveryMethods.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
+        order_cancel_reason: orderCancelReasons.find((cr) => +cr.id === +order.cancel_reason_id)?.name ?? '-',
       };
     }));
 
