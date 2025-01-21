@@ -10,7 +10,7 @@ import * as PaymentMethod from '#root/models/payment_method.js';
 import * as DeliveryMethod from '#root/models/delivery_method.js';
 import * as OrderCancelReason from '#root/models/order_cancel_reason.js';
 import { getKeyValue } from '#services/redis/redis.js';
-import { hideString } from '#utils/hideString.js';
+import { hideString, hidePhoneInComment} from '#utils/hideString.js';
 
 export async function mapOrders(orders, hide) {
   const reservedOrders = await getKeyValue('reservedOrders') || [];
@@ -47,6 +47,7 @@ export async function mapOrders(orders, hide) {
 
       return {
         ...order,
+        comment: hide ? hidePhoneInComment(order.comment) : order.comment,
         phone: hide ? hideString(order.phone) : order.phone,
         webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-',
         operator: operators.find((o) => +o.id === +order.operator_id)?.name ?? '-',
