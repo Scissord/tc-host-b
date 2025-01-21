@@ -46,8 +46,8 @@ export const getUserStatistic = async (req, res) => {
 
 export const getWebmasterStatistic = async (req, res) => {
   try {
-    const { start, end, webmaster_id, by_date } = req.query;
-
+    const { start, end, webmaster_id } = req.query;
+    const by_date = req.query.by_date === 'true';
     const statistic = await Order.getOrderStatisticForWebmaster(start, end, webmaster_id, by_date);
     const result = calculateStatistics(statistic, by_date);
     console.log(result)

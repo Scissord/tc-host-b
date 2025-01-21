@@ -74,4 +74,5 @@ router.get("/get_order_ids_in_sub_status", checkDialer, controller.getOrderIdsIn
 https://api.talkcall-crm.com/api/dialer/get_orders_by_ids?token=""&ids=""
 router.get("/get_orders_by_ids", checkDialer, controller.getOrdersByIds);
 
+router.get("/operator_statistic", checkDialer, controller.getOperatorStatistic);
 export default router;

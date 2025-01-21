@@ -16,6 +16,9 @@ import * as DeliveryMethod from '#root/models/delivery_method.js';
 import * as OrderCancelReason from '#root/models/order_cancel_reason.js';
 import * as OrderSignals from '#services/signals/orderSignals.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
+import {
+  calculateStatistics
+} from '#services/order/group.js';
 import ERRORS from '#constants/errors.js';
 
 export const getStatusList = async (req, res) => {
@@ -490,4 +493,47 @@ export const getOrdersByIds = async (req, res) => {
     console.log("Error in getOrdersByIds dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
+};
+
+
+export const getOperatorStatistic = async (req, res) => {
+  try {
+    const { start, end, operator_id} = req.query;
+
+
+    const by_date = req.query.by_date === 'true';
+    const orders = await Order.getOrderStatisticForOperator(start, end, operator_id, by_date);
+    const statistics = {};
+    orders.forEach((result) => {
+      const operatorId = result.operator_id || 'Unknown';
+
+      if (!statistics[operatorId]) {
+        statistics[operatorId] = [];
+      }
+
+      const stats = {
+        date: by_date ? result.date : undefined,
+        totalOrders: parseInt(result.total_orders, 10),
+        acceptedOrders: parseInt(result.accepted_orders, 10),
+        cancelledOrders: parseInt(result.cancelled_orders, 10),
+        shippedOrders: parseInt(result.shipped_orders, 10),
+        buyoutOrders: parseInt(result.buyout_orders, 10),
+        avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
+        operatorName: result.operator_name || 'Unknown',
+      };
+
+      if (by_date) {
+        statistics[operatorId].push(stats);
+      } else {
+        statistics[operatorId] = stats;
+      }
+    });
+
+    const result = calculateStatistics(statistics, by_date);
+    console.log(result)
+    return res.status(200).send({ message: 'ok', result });
+  } catch (err) {
+    console.log("Error in getOperatorStatistic statistic controller", err.message);
+    res.status(500).send({ error: "Internal Server Error" });
+  };
 };
