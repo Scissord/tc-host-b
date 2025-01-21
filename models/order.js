@@ -746,9 +746,6 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
   }
 };
 
-
-
-
 export const getOrderStatisticForOperator = async (start, end, operator_id = null, by_date = false) => {
   try {
     const query = db('order as o')
@@ -843,8 +840,6 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
     throw new Error('Не удалось получить статистику заказов');
   }
 };
-
-
 
 // for dialer
 export const getOrderIdsInSubStatus = async (sub_status_id) => {
