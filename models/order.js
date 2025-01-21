@@ -426,25 +426,25 @@ export const getOperatorOrdersPaginated = async function (
         );
       };
       if (created_at) {
-        q.where('o.created_at', '>=', created_at);
+        q.whereBetween('o.created_at', created_at);
       };
       if (updated_at) {
-        q.where('o.updated_at', '>=', updated_at);
+        q.whereBetween('o.updated_at', updated_at);
       };
       if (approved_at) {
-        q.where('o.approved_at', '>=', approved_at);
+        q.whereBetween('o.approved_at', approved_at);
       };
       if (shipped_at) {
-        q.where('o.shipped_at', '>=', shipped_at);
+        q.whereBetween('o.shipped_at', shipped_at);
       };
       if (cancelled_at) {
-        q.where('o.cancelled_at', '>=', cancelled_at);
+        q.whereBetween('o.cancelled_at', cancelled_at);
       };
       if (buyout_at) {
-        q.where('o.buyout_at', '>=', buyout_at);
+        q.whereBetween('o.buyout_at', buyout_at);
       };
       if (delivery_at) {
-        q.where('o.delivery_at', '>=', delivery_at);
+        q.whereBetween('o.delivery_at', delivery_at);
       };
       if (comment) {
         q.where('o.comment', 'ilike', `%${comment}%`)
