@@ -216,63 +216,62 @@ export const sendPostalOrders = async () => {
 
 }
 
-export const checkSendedOrders = async () => { 
+export const checkSendedOrders = async () => {
 	try {
 	  const filter_values = [3, 13, 27, 47, 48];
 	  const orders = await Order.getWhereIn("o.sub_status_id", filter_values);
   
 	  if (!orders || orders.length === 0) {
 		console.log("Нет заказов с указанными sub_status_id");
-		return;
+		return [];
 	  }
   
-	  const results = [];
-  
-	  const promises = orders.map(order =>
-		fetch(`${process.env.KETKZ_GET_URL}?uid=${process.env.KETKZ_UID}&s=${process.env.KETKZ_SECRET}`, { 
-		  method: 'POST',
-		  headers: {
-			'Content-Type': 'application/json',
-		  },
-		  body: JSON.stringify({ ext_id: order.id }),
-		}).then(async (response) => {
+	  const results = await Promise.all(
+		orders.map(async (order) => {
 		  const result = {
 			id: order.id,
 			sub_status_id: order.sub_status_id,
 		  };
   
-		  if (response.ok) {
-			try {
-			  const data = await response.json();
-			  result.response = data; 
-			} catch (jsonError) {
-			  console.error(`Ошибка парсинга JSON для заказа ${order.id}:`, jsonError.message);
-			  result.error = `Ошибка парсинга JSON: ${jsonError.message}`;
+		  try {
+			const response = await fetch(
+			  `${process.env.KETKZ_GET_URL}?uid=${process.env.KETKZ_UID}&s=${process.env.KETKZ_SECRET}`,
+			  {
+				method: 'POST',
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ data: [{ ext_id: order.id }] }), 
+			  }
+			);
+  
+			if (response.ok) {
+			  try {
+				const data = await response.json();
+				result.response = data;
+			  } catch (jsonError) {
+				console.error(`Ошибка парсинга JSON для заказа ${order.id}:`, jsonError.message);
+				result.error = `Ошибка парсинга JSON: ${jsonError.message}`;
+			  }
+			} else {
+			  result.error = `Ошибка запроса: ${response.status} ${response.statusText}`;
 			}
-		  } else {
-			result.error = `Ошибка запроса: ${response.status} ${response.statusText}`;
+		  } catch (fetchError) {
+			console.error(`Ошибка при выполнении запроса для заказа ${order.id}:`, fetchError.message);
+			result.error = `Ошибка запроса: ${fetchError.message}`;
 		  }
   
-		  results.push(result);
-		}).catch((error) => {
-		  console.error(`Ошибка при выполнении запроса для заказа ${order.id}:`, error.message);
-		  results.push({
-			id: order.id,
-			sub_status_id: order.sub_status_id,
-			error: `Ошибка запроса: ${error.message}`,
-		  });
+		  return result;
 		})
 	  );
   
-	  await Promise.all(promises); 
-  
-	  console.log("Все запросы завершены.", results); 
-	  return results; 
-
+	  console.log("Все запросы завершены.", JSON.stringify(results, null, 2));
+	  return results;
 	} catch (error) {
-	  console.error("Ошибка при отправке заказов:", error.message);
+	  console.error("Ошибка при обработке заказов:", error.message);
 	  throw new Error("Не удалось обработать заказы");
 	}
   };
+  
   
   
