@@ -10,7 +10,7 @@ import * as PaymentMethod from '#root/models/payment_method.js';
 import * as DeliveryMethod from '#root/models/delivery_method.js';
 import * as OrderCancelReason from '#root/models/order_cancel_reason.js';
 import { getKeyValue } from '#services/redis/redis.js';
-import hideString from '#utils/hideString.js';
+import { hideString } from '#utils/hideString.js';
 
 export async function mapOrders(orders, hide) {
   const reservedOrders = await getKeyValue('reservedOrders') || [];
