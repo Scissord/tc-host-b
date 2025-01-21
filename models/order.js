@@ -799,10 +799,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
         }
       })
       .andWhereBetween('o.created_at', [start, end]);
-
-    console.log(query)
     if (by_date !== false) {
-      console.log('dsds')
       query.groupByRaw('DATE(o.created_at), o.operator_id, u.login').orderByRaw('DATE(o.created_at), o.operator_id');
     } else {
       query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id'); // Без даты
