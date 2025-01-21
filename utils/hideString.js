@@ -10,7 +10,7 @@
 //   return visiblePart + maskedPart;
 // };
 
-export default function hideString(string) {
+export function hideString(string) {
   const str = String(string);
 
   const maskLength = str.length;
@@ -21,7 +21,7 @@ export default function hideString(string) {
 };
 
 
-export default function hidePhoneInComment(string) {
+export function hidePhoneInComment(string) {
   const str = String(string);
 
   // Убираем пробелы
