@@ -60,9 +60,9 @@ export const getWebmasterStatistic = async (req, res) => {
 
 export const getOperatorStatistic = async (req, res) => {
   try {
-    const { start, end, operator_id, by_date } = req.query;
-    console.log(start, end, operator_id, by_date)
-    
+    const { start, end, operator_id} = req.query;
+    console.log(start, end, operator_id)
+    const by_date = false
     const orders = await Order.getOrderStatisticForOperator(start, end, operator_id, by_date);
     console.log(orders)
     const statistics = {};
