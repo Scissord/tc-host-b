@@ -1,5 +1,5 @@
 // import setupCluster from '#services/cluster/cluster.js';
-// import fileUpload from 'express-fileupload';
+import fileUpload from 'express-fileupload';
 
 import { app, server } from '#services/socket/socket.js';
 import * as CronTasks from '#services/cron/cron.js'
@@ -36,7 +36,7 @@ const PORT = process.env.PORT || 8080;
 // function startServer() {
 app.use(express.json());
 app.use(cookieParser());
-// app.use(fileUpload());
+app.use(fileUpload());
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
