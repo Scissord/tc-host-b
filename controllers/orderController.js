@@ -40,20 +40,44 @@ export const getUserOrders = async (req, res) => {
 			limit,
 			page,
 			sub_status,
+			sort_by,
+			order_by,
+			start,
+			end,
+			is_filtered,
+		} = req.query;
+
+		const {
 			id,
+			operator: operators,
+			products,
+			webmaster: webmasters,
+			additional1,
+			created_at,
+			updated_at,
+			approved_at,
+			shipped_at,
+			cancelled_at,
+			buyout_at,
+			delivery_at,
+			comment,
+			price,
+			total_sum,
+			logist_recall_at,
+			quantity,
 			fio,
-			products: items,
 			phone,
 			region,
-			city,
+			city: cities,
 			address,
-			postal_code,
-			comment,
-			utm_term,
-			webmaster,
-			operator,
-			order_sub_status,
-			additional1,
+			postal_code: postal_index,
+			age,
+			urm_term,
+			status: statuses,
+			gender,
+			payment_method: payment_methods,
+			delivery_method: delivery_methods,
+			order_cancel_reason: order_cancel_reasons,
 			additional2,
 			additional3,
 			additional4,
@@ -63,13 +87,8 @@ export const getUserOrders = async (req, res) => {
 			additional8,
 			additional9,
 			additional10,
-			created_at,
-			updated_at,
-			sort_by,
-			order_by,
-			start,
-			end,
-		} = req.query;
+		} = req.body;
+
 		let hide = false;
 		if (req.operator) {
 			hide = true;
@@ -77,24 +96,44 @@ export const getUserOrders = async (req, res) => {
 
 		// validate here on fields
 
-		const { orders, lastPage, pages } = await Order.getUserOrdersPaginated(
+		const { orders, lastPage, pages, total } = await Order.getUserOrdersPaginated(
 			limit,
 			page,
 			sub_status,
+			sort_by,
+			order_by,
+			start,
+			end,
 			id,
+			operators,
+			products,
+			webmasters,
+			additional1,
+			created_at,
+			updated_at,
+			approved_at,
+			shipped_at,
+			cancelled_at,
+			buyout_at,
+			delivery_at,
+			comment,
+			price,
+			total_sum,
+			logist_recall_at,
+			quantity,
 			fio,
-			items,
 			phone,
 			region,
-			city,
+			cities,
 			address,
-			postal_code,
-			comment,
-			utm_term,
-			webmaster,
-			operator,
-			order_sub_status,
-			additional1,
+			postal_index,
+			age,
+			urm_term,
+			statuses,
+			gender,
+			payment_methods,
+			delivery_methods,
+			order_cancel_reasons,
 			additional2,
 			additional3,
 			additional4,
@@ -104,12 +143,7 @@ export const getUserOrders = async (req, res) => {
 			additional8,
 			additional9,
 			additional10,
-			created_at,
-			updated_at,
-			sort_by,
-			order_by,
-			start,
-			end,
+			is_filtered
 		);
 
 		const mappedOrders = await mapOrders(orders, hide);
@@ -117,7 +151,7 @@ export const getUserOrders = async (req, res) => {
 		res.status(200).send({
 			message: 'ok',
 			orders: mappedOrders,
-			lastPage, pages
+			lastPage, pages, total
 		});
 	} catch (err) {
 		console.log("Error in get getUserOrders controller", err.message);
@@ -160,6 +194,7 @@ export const getOperatorOrders = async (req, res) => {
 			order_by,
 			start,
 			end,
+			is_filtered,
 		} = req.query;
 
 		const {
@@ -183,7 +218,7 @@ export const getOperatorOrders = async (req, res) => {
 			region,
 			city: cities,
 			address,
-			postal_index,
+			postal_code: postal_index,
 			age,
 			status: statuses,
 			gender,
@@ -194,9 +229,9 @@ export const getOperatorOrders = async (req, res) => {
 			additional5,
 			additional7,
 			additional8,
-		} = req.body
+		} = req.body;
 
-		const { orders, lastPage, pages } = await Order.getOperatorOrdersPaginated(
+		const { orders, lastPage, pages, total } = await Order.getOperatorOrdersPaginated(
 			limit,
 			page,
 			sub_status,
@@ -235,6 +270,7 @@ export const getOperatorOrders = async (req, res) => {
 			additional5,
 			additional7,
 			additional8,
+			is_filtered
 		);
 
 		const mappedOrders = await mapOrders(orders, true);
@@ -242,7 +278,7 @@ export const getOperatorOrders = async (req, res) => {
 		res.status(200).send({
 			message: 'ok',
 			orders: mappedOrders,
-			lastPage, pages
+			lastPage, pages, total
 		});
 	} catch (err) {
 		console.log("Error in get getOperatorOrders controller", err.message);

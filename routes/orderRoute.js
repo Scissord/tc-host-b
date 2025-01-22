@@ -8,7 +8,7 @@ import checkEntity from "#middleware/checkEntity.js";
 const router = express.Router();
 
 // Получить все заказы для пользователя
-router.get("/user", verify, withExtraData({ ability_name: 'get_orders' }, checkAbility), controller.getUserOrders);
+router.post("/user", verify, withExtraData({ ability_name: 'get_orders' }, checkAbility), controller.getUserOrders);
 
 // Получить заказы вебмастера
 router.get("/webmaster", verify, withExtraData({ entity: 'webmaster' }, checkEntity), controller.getWebmasterOrders);
