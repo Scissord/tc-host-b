@@ -864,11 +864,11 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           .orWhereBetween('o.buyout_at', [startDate, endDate]);
       });
 
-    if (by_date) {
-      query.groupByRaw('DATE(o.created_at), o.operator_id, u.login').orderByRaw('DATE(o.created_at), o.operator_id');
-    } else {
-      query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id');
-    }
+      if (by_date) {
+        query.groupByRaw('DATE(o.approved_at), o.operator_id, u.login').orderByRaw('DATE(o.approved_at), o.operator_id');
+      } else {
+        query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id');
+      }
 
     console.log('Generated Query:', query.toString());
 
