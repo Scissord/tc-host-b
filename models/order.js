@@ -795,6 +795,10 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
 
 export const getOrderStatisticForOperator = async (start, end, operator_id = null, by_date = false) => {
   try {
+    console.log('Start:', start);
+    console.log('End:', end);
+    console.log('Operator ID:', operator_id);
+    console.log('by_date:', by_date);
     const query = db('order as o')
       .select(
         db.raw(`
