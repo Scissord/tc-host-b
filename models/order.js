@@ -748,7 +748,6 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
 
 export const getOrderStatisticForOperator = async (start, end, operator_id = null, by_date = false) => {
   try {
-    // Формирование запроса
     const query = db('order as o')
       .select(
         db.raw(`
@@ -799,6 +798,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
         }
       })
       .andWhereBetween('o.created_at', [start, end]);
+    
     if (by_date !== false) {
       query.groupByRaw('DATE(o.created_at), o.operator_id, u.login').orderByRaw('DATE(o.created_at), o.operator_id');
     } else {
@@ -807,12 +807,38 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
 
     const results = await query;
 
+    if (results.length === 0) {
+      return by_date
+        ? [{
+            date: null,
+            operator_id: operator_id || 'Unknown',
+            total_orders: 0,
+            accepted_orders: 0,
+            cancelled_orders: 0,
+            shipped_orders: 0,
+            buyout_orders: 0,
+            avg_total_sum: 0,
+            operator_name: 'Unknown',
+          }]
+        : {
+            operator_id: operator_id || 'Unknown',
+            total_orders: 0,
+            accepted_orders: 0,
+            cancelled_orders: 0,
+            shipped_orders: 0,
+            buyout_orders: 0,
+            avg_total_sum: 0,
+            operator_name: 'Unknown',
+          };
+    }
+
     return results;
   } catch (err) {
     console.error('Ошибка при получении статистики заказов:', err.message);
     throw new Error('Не удалось получить статистику заказов');
   }
 };
+
 
 
 // for dialer

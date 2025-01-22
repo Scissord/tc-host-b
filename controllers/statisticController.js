@@ -48,8 +48,8 @@ export const getWebmasterStatistic = async (req, res) => {
   try {
     const { start, end, webmaster_id } = req.query;
     const by_date = req.query.by_date === 'true';
-    const statistic = await Order.getOrderStatisticForWebmaster(start, end, webmaster_id, by_date);
 
+    const statistic = await Order.getOrderStatisticForWebmaster(start, end, webmaster_id, by_date);
     const result = calculateStatistics(statistic, by_date);
     return res.status(200).send({ message: 'ok', result })
   } catch (err) {
