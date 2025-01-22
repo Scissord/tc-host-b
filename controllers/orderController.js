@@ -71,7 +71,7 @@ export const getUserOrders = async (req, res) => {
 			region,
 			city: cities,
 			address,
-			postal_code: postal_index,
+			postal_code,
 			age,
 			urm_term,
 			status: statuses,
@@ -127,7 +127,7 @@ export const getUserOrders = async (req, res) => {
 			region,
 			cities,
 			address,
-			postal_index,
+			postal_code,
 			age,
 			urm_term,
 			statuses,
@@ -219,7 +219,7 @@ export const getOperatorOrders = async (req, res) => {
 			region,
 			city: cities,
 			address,
-			postal_code: postal_index,
+			postal_code,
 			age,
 			status: statuses,
 			gender,
@@ -260,7 +260,7 @@ export const getOperatorOrders = async (req, res) => {
 			region,
 			cities,
 			address,
-			postal_index,
+			postal_code,
 			age,
 			statuses,
 			gender,
@@ -652,7 +652,7 @@ export const update = async (req, res) => {
 
 		res.status(200).send({ message: 'ok' });
 	} catch (err) {
-		console.log("Error in update user controller", err.message);
+		console.log("Error in update order controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
 	}
 };

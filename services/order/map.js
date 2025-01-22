@@ -1,5 +1,6 @@
 import * as Order from '#models/order.js';
 import * as OrderItem from '#models/order_item.js';
+import * as Status from '#models/status.js';
 import * as SubStatus from '#models/sub_status.js';
 import * as Product from '#models/product.js';
 import * as Webmaster from '#models/webmaster.js';
@@ -92,6 +93,7 @@ export async function mapOrder(order) {
     webmasters,
     operators,
     cities,
+    statuses,
     subStatuses,
     genders,
     paymentMethods,
@@ -102,6 +104,7 @@ export async function mapOrder(order) {
     Webmaster.get(),
     Operator.get(),
     City.get(),
+    Status.get(),
     SubStatus.get(),
     Gender.get(),
     PaymentMethod.get(),
@@ -110,10 +113,11 @@ export async function mapOrder(order) {
   ]);
 
   order.doubles = await Order.getDoubles(order.id, order.phone);
-  order.webmaster = webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-';
-  order.operator = operators.find((o) => +o.id === +order.operator_id)?.name ?? '-';
+  order.webmaster = webmasters.find((w) => +w.id === +order.webmaster_id) ?? '-';
+  order.operator = operators.find((o) => +o.id === +order.operator_id) ?? '-';
   order.city = cities.find((c) => +c.id === +order.city_id) || null;
-  order.status = subStatuses.find((ss) => +ss.id === +order.sub_status_id) ?? null;
+  order.status = statuses.find((ss) => +ss.id === +order.status_id) ?? null;
+  order.sub_status = subStatuses.find((ss) => +ss.id === +order.sub_status_id) ?? null;
   order.items = order.items.map((item) => {
     const product = products.find((p) => +p.id === +item.product_id);
     return {
@@ -124,17 +128,15 @@ export async function mapOrder(order) {
 
   order.created_at = order.created_at.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' });
   order.updated_at = order.updated_at.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' });
-  // order.delivery_at = order.delivery_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
-  // order.logist_recall_at = order.logist_recall_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
   order.approved_at = order.approved_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
   order.cancelled_at = order.cancelled_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
   order.shipped_at = order.shipped_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
   order.buyout_at = order.buyout_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
 
-  order.gender = genders.find((g) => +g.id === +order.gender_id)?.name ?? '-';
-  order.payment_method = paymentMethods.find((p) => +p.id === order.payment_method_id)?.name ?? '-';
-  order.delivery_method = deliveryMethods.find((d) => +d.id === +order.delivery_method_id)?.name ?? '-';
-  order.order_cancel_reason = orderCancelReasons.find((cr) => +cr.id === +order.order_cancel_reason_id)?.name ?? '-';
+  order.gender = genders.find((g) => +g.id === +order.gender_id) ?? '-';
+  order.payment_method = paymentMethods.find((p) => +p.id === order.payment_method_id) ?? '-';
+  order.delivery_method = deliveryMethods.find((d) => +d.id === +order.delivery_method_id) ?? '-';
+  order.order_cancel_reason = orderCancelReasons.find((cr) => +cr.id === +order.order_cancel_reason_id) ?? '-';
 
   return order;
 };

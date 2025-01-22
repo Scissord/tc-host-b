@@ -254,7 +254,7 @@ export const makeBodyRow = async (sheet, order, row) => {
   bodyCell.font = body;
 
   bodyCell = sheet.getCell(`W${row}`);
-  bodyCell.value = order.postal_index;
+  bodyCell.value = order.postal_code;
   bodyCell.font = body;
 
   bodyCell = sheet.getCell(`X${row}`);

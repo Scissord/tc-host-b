@@ -147,7 +147,7 @@ export const getUserOrdersPaginated = async function (
   region,
   cities,
   address,
-  postal_index,
+  postal_code,
   age,
   urm_term,
   statuses,
@@ -265,8 +265,8 @@ export const getUserOrdersPaginated = async function (
       if (address) {
         q.where('o.address', 'ilike', `%${address}%`)
       };
-      if (postal_index) {
-        q.where('o.postal_index', 'ilike', `%${postal_index}%`)
+      if (postal_code) {
+        q.where('o.postal_code', 'ilike', `%${postal_code}%`)
       };
       if (age) {
         q.where('o.age', 'ilike', `%${age}%`)
@@ -430,7 +430,7 @@ export const getOperatorOrdersPaginated = async function (
   region,
   cities,
   address,
-  postal_index,
+  postal_code,
   age,
   statuses,
   gender,
@@ -537,8 +537,8 @@ export const getOperatorOrdersPaginated = async function (
       if (address) {
         q.where('o.address', 'ilike', `%${address}%`)
       };
-      if (postal_index) {
-        q.where('o.postal_index', 'ilike', `%${postal_index}%`)
+      if (postal_code) {
+        q.where('o.postal_code', 'ilike', `%${postal_code}%`)
       };
       if (age) {
         q.where('o.age', 'ilike', `%${age}%`)
@@ -920,7 +920,7 @@ export const getUnloadingOrders = async function (
   region,
   cities,
   address,
-  postal_index,
+  postal_code,
   age,
   urm_term,
   statuses,
@@ -1037,8 +1037,8 @@ export const getUnloadingOrders = async function (
       if (address) {
         q.where('o.address', 'ilike', `%${address}%`)
       };
-      if (postal_index) {
-        q.where('o.postal_index', 'ilike', `%${postal_index}%`)
+      if (postal_code) {
+        q.where('o.postal_code', 'ilike', `%${postal_code}%`)
       };
       if (age) {
         q.where('o.age', 'ilike', `%${age}%`)
