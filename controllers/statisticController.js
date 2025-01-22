@@ -102,6 +102,17 @@ export const getOperatorStatistic = async (req, res) => {
 };
 
 export const uploadFileForStatistic = async (req, res) => {
+  console.log('Содержимое req:');
+  console.log(req); // Вывод всего объекта (может быть очень большим)
+
+  // Или для более структурированного вывода:
+  console.log('Заголовки:', req.headers); // Вывод заголовков
+  console.log('Метод запроса:', req.method); // HTTP метод
+  console.log('URL:', req.url); // URL запроса
+  console.log('Параметры:', req.params); // Параметры маршрута
+  console.log('Тело запроса:', req.body); // Тело запроса
+  console.log('Файлы:', req.files); // Загрузенные файлы, если они есть
+
   if (!req.files || !req.files.file) {
     return res.status(400).send('Файл не загружен.');
 }
