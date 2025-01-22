@@ -8,6 +8,7 @@ import * as Log from '#models/log.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import { mapOrders, mapOrder } from '#services/order/map.js';
 import { hideString, hidePhoneInComment } from '#utils/hideString.js';
+import { unloadingFilteredOrders, unloadingSubStatusOrders } from '#services/xlsx/unloadingOrders.js';
 import ERRORS from '#constants/errors.js';
 import globalPrice from '#constants/price.js';
 
@@ -365,7 +366,8 @@ export const changeStatus = async (req, res) => {
 					});
 				};
 
-				await OrderSignals.statusChangeSignal(+order.id, +new_sub_status_id)
+				await OrderSignals.statusChangeSignal(+order.id, +new_sub_status_id);
+
 				await Log.create({
 					order_id: order.id,
 					operator_id: responsible_id,
@@ -424,6 +426,7 @@ export const changeStatus = async (req, res) => {
 			};
 
 			await OrderSignals.statusChangeSignal(+order.id, +new_sub_status_id)
+
 			await Log.create({
 				order_id: order.id,
 				operator_id: responsible_id,
@@ -434,7 +437,7 @@ export const changeStatus = async (req, res) => {
 			});
 		};
 
-		
+
 		res.status(200).send({
 			message: 'ok',
 			orders
@@ -652,6 +655,32 @@ export const update = async (req, res) => {
 		console.log("Error in update user controller", err.message);
 		res.status(500).send({ error: "Internal Server Error" });
 	}
+};
+
+export const unloading = async (req, res) => {
+	try {
+		const { is_filtered, sub_status } = req.query;
+		const data = req.body;
+
+		const from = './templates/clear.xlsx';
+		const to = `./uploads/order-${new Date().toISOString().replace(/[-:.TZ]/g, '')}.xlsx`;
+
+		let file = null;
+		if (is_filtered === 'false') {
+			file = await unloadingSubStatusOrders(from, to, sub_status);
+		} else {
+			file = await unloadingFilteredOrders(from, to, data);
+		};
+
+		return res.download(to, (err) => {
+			if (err) {
+				throw new Error("Ошибка при скачивании файла")
+			}
+		});
+	} catch (err) {
+		console.log("Error in unloading order controller", err.message);
+		res.status(500).send({ error: "Internal Server Error" });
+	};
 };
 
 // export const sync = async (req, res) => {
