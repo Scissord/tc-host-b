@@ -159,13 +159,24 @@ export const uploadFileForStatistic = async (req, res) => {
             operator_id: userId
           }
 
-          // if (subStatusName == 'Отменен') {
-          //   dataToUpdate.cancelled_at = 
-          // }
-          // Order.update(+crmOrderId, {
-          //   operator_id: userId,
-  
-          // })
+          if (subStatusName == 'Отменен') {
+            dataToUpdate.cancelled_at = formattedDate
+            const order = Order.update(+crmOrderId, dataToUpdate)
+            console.log(order)
+          }
+
+          if (subStatusName == 'Подтвержден ПД') {
+            dataToUpdate.approved_at = formattedDate
+            const order = Order.update(+crmOrderId, dataToUpdate)
+            console.log(order)
+            
+          }
+
+          if (subStatusName == 'Подтвержден КД') {
+            dataToUpdate.approved_at = formattedDate
+            const order = Order.update(+crmOrderId, dataToUpdate)
+            console.log(order)
+          }
       });
   });
 
