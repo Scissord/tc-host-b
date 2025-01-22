@@ -218,7 +218,9 @@ export const sendPostalOrders = async () => {
 
 export const checkSendedOrders = async () => {
 	try {
+
 	  const filter_values = [3, 13, 27, 47, 48];
+	  console.log(filter_values)
 	  const orders = await Order.getWhereIn("o.sub_status_id", filter_values);
   
 	  if (!orders || orders.length === 0) {
