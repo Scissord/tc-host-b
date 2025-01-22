@@ -233,20 +233,17 @@ export const checkSendedOrders = async () => {
 			id: order.id,
 			sub_status_id: order.sub_status_id,
 		  };
-  
+		  const data_row = JSON.stringify({data: [{ ext_id: order.id }]})
 		  try {
-			const data = {
-				data: JSON.stringify([{ ext_id: order.id }])
-			};
-			
 			const response = await fetch(
 			  `${process.env.KETKZ_GET_URL}?uid=${process.env.KETKZ_UID}&s=${process.env.KETKZ_SECRET}`,
 			  {
 				method: 'POST',
-				headers: { "Content-Type": "application/x-www-form-urlencoded" },
-				body: new URLSearchParams(data).toString()
+				headers: {"Content-Type": "application/x-www-form-urlencoded"},
+				body: {data : data_row}, 
 			  }
 			);
+			
 			if (response.ok) {
 			  try {
 				const data = await response.json();
@@ -262,6 +259,7 @@ export const checkSendedOrders = async () => {
 			console.error(`Ошибка при выполнении запроса для заказа ${order.id}:`, fetchError.message);
 			result.error = `Ошибка запроса: ${fetchError.message}`;
 		  }
+		  console.log(result)
 		  return result;
 		})
 	  );
