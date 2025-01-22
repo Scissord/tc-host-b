@@ -239,10 +239,8 @@ export const checkSendedOrders = async () => {
 			  `${process.env.KETKZ_GET_URL}?uid=${process.env.KETKZ_UID}&s=${process.env.KETKZ_SECRET}`,
 			  {
 				method: 'POST',
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({data: [{ ext_id: order.id }]}), 
+				headers: { "Content-Type": "application/x-www-form-urlencoded" },
+				body: new URLSearchParams({ data: JSON.stringify([{ ext_id: order.id }]) }).toString(),
 			  }
 			);
 			const body = JSON.stringify({ data: [{ ext_id: order.id }] });
