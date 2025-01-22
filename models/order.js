@@ -865,7 +865,8 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
       });
 
       if (by_date) {
-        query.groupByRaw('DATE(o.approved_at), o.operator_id, u.login').orderByRaw('DATE(o.approved_at), o.operator_id');
+        query.groupByRaw('DATE(COALESCE(o.approved_at, o.cancelled_at, o.shipped_at, o.buyout_at)), o.operator_id, u.login')
+             .orderByRaw('DATE(COALESCE(o.approved_at, o.cancelled_at, o.shipped_at, o.buyout_at)), o.operator_id');
       } else {
         query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id');
       }
