@@ -245,7 +245,9 @@ export const checkSendedOrders = async () => {
 				body: JSON.stringify({data: [{ ext_id: order.id }]}), 
 			  }
 			);
-			console.log("URL:", `${process.env.KETKZ_GET_URL}?uid=${process.env.KETKZ_UID}&s=${process.env.KETKZ_SECRET}`);
+			const body = JSON.stringify({ data: [{ ext_id: order.id }] });
+			console.log("Отправляемое тело запроса:", body);
+
 			if (response.ok) {
 			  try {
 				const data = await response.json();
