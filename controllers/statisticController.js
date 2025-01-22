@@ -1,7 +1,9 @@
+import XLSX from 'xlsx';
 import * as Order from '#models/order.js';
 import * as OrderItem from '#models/order_item.js';
 import * as Webmaster from '#models/webmaster.js';
 import * as Operator from '#models/operator.js';
+
 import {
   groupByDate,
   groupByRegion,
@@ -98,3 +100,29 @@ export const getOperatorStatistic = async (req, res) => {
     res.status(500).send({ error: "Internal Server Error" });
   };
 };
+
+export const uploadFileForStatistic = async (req, res) => {
+  if (!req.files || !req.files.file) {
+    return res.status(400).send('Файл не загружен.');
+}
+
+  const uploadedFile = req.files.file;
+  const workbook = XLSX.read(uploadedFile.data, { type: 'buffer' });
+
+  // Обходим все листы
+  workbook.SheetNames.forEach(sheetName => {
+      console.log(`Обработка листа: ${sheetName}`);
+      const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+      // Обрабатываем каждую строку на текущем листе
+      sheet.forEach((row, index) => {
+          console.log(`Лист: ${sheetName}, Строка ${index + 1}:`);
+          Object.keys(row).forEach(columnName => {
+              console.log(`${columnName}: ${row[columnName]}`);
+          });
+          console.log('--------------------------');
+      });
+  });
+
+  res.send('Файл обработан. Данные выведены в консоль.');
+}
