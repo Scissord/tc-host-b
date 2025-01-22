@@ -244,7 +244,7 @@ export const checkSendedOrders = async () => {
 			  {
 				method: 'POST',
 				headers: { "Content-Type": "application/x-www-form-urlencoded" },
-				body: data
+				body: new URLSearchParams(data).toString()
 			  }
 			);
 			if (response.ok) {
