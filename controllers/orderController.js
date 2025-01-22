@@ -330,16 +330,15 @@ export const changeStatus = async (req, res) => {
 				};
 
 				await OrderSignals.statusChangeSignal(+order.id, +new_sub_status_id)
+				await Log.create({
+					order_id: order.id,
+					operator_id: responsible_id,
+					old_sub_status_id: old_sub_status_id,
+					new_sub_status_id: new_sub_status_id,
+					action: `Все заказы из статуса ${old_sub_status_id} перенесены в ${new_sub_status_id}, ${responsible} №${responsible_id}.`,
+					ip,
+				});
 			};
-
-			await Log.create({
-				order_id: ids,
-				operator_id: responsible_id,
-				old_sub_status_id: old_sub_status_id,
-				new_sub_status_id: new_sub_status_id,
-				action: `Все заказы из статуса ${old_sub_status_id} перенесены в ${new_sub_status_id}, ${responsible} №${responsible_id}.`,
-				ip,
-			});
 
 			return res.status(200).send({
 				message: 'ok',
@@ -389,11 +388,8 @@ export const changeStatus = async (req, res) => {
 			};
 
 			await OrderSignals.statusChangeSignal(+order.id, +new_sub_status_id)
-		};
-
-		for (const id of ids) {
 			await Log.create({
-				order_id: id,
+				order_id: order.id,
 				operator_id: responsible_id,
 				old_sub_status_id: old_sub_status_id,
 				new_sub_status_id: new_sub_status_id,
@@ -402,6 +398,7 @@ export const changeStatus = async (req, res) => {
 			});
 		};
 
+		
 		res.status(200).send({
 			message: 'ok',
 			orders
