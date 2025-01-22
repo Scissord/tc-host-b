@@ -700,6 +700,17 @@ export const getOrdersStatisticForUser = async (start, end, webmaster_id = null,
 
 export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = null, by_date = false) => {
   try {
+
+    const startDate = new Date(start);
+    startDate.setHours(0, 0, 0, 0); // Устанавливаем начало дня
+
+    const endDate = new Date(end);
+    endDate.setHours(23, 59, 59, 999); // Устанавливаем конец дня
+
+    // Преобразуем даты в строковый формат ISO с учетом времени
+    const formattedStartDate = startDate.toISOString();
+    const formattedEndDate = endDate.toISOString();
+
     const query = db('order as o')
       .select(
         db.raw(`
@@ -749,7 +760,7 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
           q.where('o.webmaster_id', webmaster_id);
         }
       })
-      .andWhereBetween('o.created_at', [start, end]);
+      .andWhereBetween('o.created_at', [formattedStartDate, formattedEndDate]);
 
     if (by_date) {
       query.groupByRaw('DATE(o.created_at), o.webmaster_id, u.login').orderByRaw('DATE(o.created_at), o.webmaster_id');
