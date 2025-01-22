@@ -228,22 +228,22 @@ export const groupByProduct = (orders, items) => {
 
 export const calculateStatistics = (data, by_date = false) => {
   if (!data || Object.keys(data).length === 0) {
-    return [];
+    return {};
   }
 
   // Если данные по датам
   if (by_date) {
-    const result = [];
-    for (const [_, items] of Object.entries(data)) {
-      result.push(...items.map((item) => calculateStatisticsForItem(item)));
+    const result = {};
+    for (const [webmasterName, items] of Object.entries(data)) {
+      result[webmasterName] = items.map((item) => calculateStatisticsForItem(item));
     }
     return result;
   }
 
   // Если общие данные
-  const result = [];
-  for (const [_, item] of Object.entries(data)) {
-    result.push(calculateStatisticsForItem(item));
+  const result = {};
+  for (const [webmasterName, item] of Object.entries(data)) {
+    result[webmasterName] = calculateStatisticsForItem(item);
   }
   return result;
 };
@@ -275,7 +275,6 @@ const calculateStatisticsForItem = (data) => {
     buyoutPercentage: parseFloat(buyoutPercentage),
   };
 };
-
 
 export const groupOperators = (orders, operators) => {
   const grouped = orders.reduce((acc, order) => {
