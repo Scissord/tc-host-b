@@ -734,7 +734,7 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
           ) AS buyout_orders,
           AVG(
             CASE
-              WHEN o.buyout_at IS NOT NULL
+              WHEN o.buyout_at IS NOT NULL AND o.total_sum IS NOT NULL AND o.total_sum != ''
               THEN CAST(o.total_sum AS NUMERIC)
               ELSE NULL
             END
@@ -842,7 +842,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           ) AS buyout_orders,
           AVG(
             CASE
-              WHEN o.buyout_at IS NOT NULL
+              WHEN o.buyout_at IS NOT NULL AND o.total_sum IS NOT NULL AND o.total_sum != ''
               THEN CAST(o.total_sum AS NUMERIC)
               ELSE NULL
             END
