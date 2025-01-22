@@ -266,10 +266,12 @@ export const checkSendedOrders = async () => {
 
 						if (ss_id) {
 							console.log(`Обновление KD заказа ID: ${id}, новый статус: ${ss_id}`);
-							Order.update(id, {
-								sub_status_id: ss_id,
-								total_sum: apiResponse.total_price
-							});
+							if (ss_id !== +orderStatuses[id]) {
+								Order.update(id, {
+									sub_status_id: ss_id,
+									total_sum: apiResponse.total_price
+								});
+							}
 						} else {
 							console.log(`Статус ${apiResponse.status_cur} не найден для KD заказа ID: ${id}`);
 						}
