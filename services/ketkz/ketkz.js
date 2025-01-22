@@ -219,7 +219,7 @@ export const sendPostalOrders = async () => {
 export const checkSendedOrders = async () => {
 	try {
 
-	  const filter_values = [3, 13, 27, 47, 48];
+	  const filter_values = [27];
 	  console.log(filter_values)
 	  const orders = await Order.getWhereIn("o.sub_status_id", filter_values);
 	  if (!orders || orders.length === 0) {
@@ -233,7 +233,7 @@ export const checkSendedOrders = async () => {
 			id: order.id,
 			sub_status_id: order.sub_status_id,
 		  };
-		  const data_row = JSON.stringify({data: [{ ext_id: order.id }]})
+		  const data_row = JSON.stringify([{ ext_id: order.id }])
 		  try {
 			const response = await fetch(
 			  `${process.env.KETKZ_GET_URL}?uid=${process.env.KETKZ_UID}&s=${process.env.KETKZ_SECRET}`,
