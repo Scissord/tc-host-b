@@ -393,7 +393,7 @@ export const changeStatus = async (req, res) => {
 				operator_id: responsible_id,
 				old_sub_status_id: old_sub_status_id,
 				new_sub_status_id: new_sub_status_id,
-				action: `Изменение статуса у заказа №${id}, ${responsible} №${responsible_id}.`,
+				action: `Изменение статуса у заказа №${order.id}, ${responsible} №${responsible_id}.`,
 				ip,
 			});
 		};
