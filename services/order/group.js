@@ -228,24 +228,54 @@ export const groupByProduct = (orders, items) => {
 
 export const calculateStatistics = (data, by_date = false) => {
   if (!data || Object.keys(data).length === 0) {
-    return [];
+    return { overall: {} };
   }
+
+  let overall = {
+    totalOrders: 0,
+    acceptedOrders: 0,
+    cancelledOrders: 0,
+    shippedOrders: 0,
+    buyoutOrders: 0,
+    avgTotalSum: 0,
+  };
+  let totalSumCount = 0;
 
   // Если данные по датам
   if (by_date) {
-    const result = [];
-    for (const [_, items] of Object.entries(data)) {
-      result.push(...items.map((item) => calculateStatisticsForItem(item)));
+    const result = {};
+    for (const [webmasterName, items] of Object.entries(data)) {
+      result[webmasterName] = items.map((item) => {
+        const calculatedItem = calculateStatisticsForItem(item);
+        // Агрегируем общую статистику
+        overall = aggregateOverall(overall, calculatedItem);
+        if (calculatedItem.buyoutOrders > 0) {
+          totalSumCount += calculatedItem.buyoutOrders;
+        }
+        return calculatedItem;
+      });
     }
-    return result;
+
+    overall.avgTotalSum = totalSumCount > 0 ? (overall.avgTotalSum / totalSumCount).toFixed(2) : 0;
+    return { ...result, overall };
   }
 
   // Если общие данные
-  const result = [];
-  for (const [_, item] of Object.entries(data)) {
-    result.push(calculateStatisticsForItem(item));
+  const result = {};
+  for (const [webmasterName, item] of Object.entries(data)) {
+    const calculatedItem = calculateStatisticsForItem(item);
+    result[webmasterName] = calculatedItem;
+
+    // Агрегируем общую статистику
+    overall = aggregateOverall(overall, calculatedItem);
+    if (calculatedItem.buyoutOrders > 0) {
+      totalSumCount += calculatedItem.buyoutOrders;
+    }
   }
-  return result;
+
+  overall.avgTotalSum = totalSumCount > 0 ? (overall.avgTotalSum / totalSumCount).toFixed(2) : 0;
+
+  return { ...result, overall };
 };
 
 // Вспомогательная функция для расчёта статистики
@@ -274,6 +304,17 @@ const calculateStatisticsForItem = (data) => {
     shippedPercentage: parseFloat(shippedPercentage),
     buyoutPercentage: parseFloat(buyoutPercentage),
   };
+};
+
+// Вспомогательная функция для агрегации общей статистики
+const aggregateOverall = (overall, item) => {
+  overall.totalOrders += item.totalOrders || 0;
+  overall.acceptedOrders += item.acceptedOrders || 0;
+  overall.cancelledOrders += item.cancelledOrders || 0;
+  overall.shippedOrders += item.shippedOrders || 0;
+  overall.buyoutOrders += item.buyoutOrders || 0;
+  overall.avgTotalSum += (item.avgTotalSum || 0) * (item.buyoutOrders || 0);
+  return overall;
 };
 
 

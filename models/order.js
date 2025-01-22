@@ -700,6 +700,17 @@ export const getOrdersStatisticForUser = async (start, end, webmaster_id = null,
 
 export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = null, by_date = false) => {
   try {
+
+    const startDate = new Date(start);
+    startDate.setHours(0, 0, 0, 0); // Устанавливаем начало дня
+
+    const endDate = new Date(end);
+    endDate.setHours(23, 59, 59, 999); // Устанавливаем конец дня
+
+    // Преобразуем даты в строковый формат ISO с учетом времени
+    const formattedStartDate = startDate.toISOString();
+    const formattedEndDate = endDate.toISOString();
+
     const query = db('order as o')
       .select(
         db.raw(`
@@ -734,7 +745,7 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
           ) AS buyout_orders,
           AVG(
             CASE
-              WHEN o.buyout_at IS NOT NULL AND total_sum ~ '^\d+(\.\d+)?$'
+              WHEN o.buyout_at IS NOT NULL AND o.total_sum IS NOT NULL AND o.total_sum != ''
               THEN CAST(o.total_sum AS NUMERIC)
               ELSE NULL
             END
@@ -749,7 +760,7 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
           q.where('o.webmaster_id', webmaster_id);
         }
       })
-      .andWhereBetween('o.created_at', [start, end]);
+      .andWhereBetween('o.created_at', [formattedStartDate, formattedEndDate]);
 
     if (by_date) {
       query.groupByRaw('DATE(o.created_at), o.webmaster_id, u.login').orderByRaw('DATE(o.created_at), o.webmaster_id');
@@ -795,6 +806,19 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
 
 export const getOrderStatisticForOperator = async (start, end, operator_id = null, by_date = false) => {
   try {
+    // Проверяем параметры
+    if (!start || !end) {
+      throw new Error('Параметры "start" и "end" обязательны.');
+    }
+
+    const startDate = new Date(start).toISOString().split('T')[0];
+    const endDate = new Date(end).toISOString().split('T')[0];
+
+    console.log('Start:', startDate);
+    console.log('End:', endDate);
+    console.log('Operator ID:', operator_id);
+    console.log('by_date:', by_date);
+
     const query = db('order as o')
       .select(
         db.raw(`
@@ -829,7 +853,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           ) AS buyout_orders,
           AVG(
             CASE
-              WHEN o.buyout_at IS NOT NULL AND total_sum ~ '^\d+(\.\d+)?$'
+              WHEN o.buyout_at IS NOT NULL AND o.total_sum IS NOT NULL AND o.total_sum != ''
               THEN CAST(o.total_sum AS NUMERIC)
               ELSE NULL
             END
@@ -844,13 +868,15 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           q.where('o.operator_id', operator_id);
         }
       })
-      .andWhereBetween('o.created_at', [start, end]);
+      .andWhereBetween('o.created_at', [startDate, endDate]);
 
-    if (by_date !== false) {
+    if (by_date) {
       query.groupByRaw('DATE(o.created_at), o.operator_id, u.login').orderByRaw('DATE(o.created_at), o.operator_id');
     } else {
-      query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id'); // Без даты
+      query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id');
     }
+
+    console.log('Generated Query:', query.toString());
 
     const results = await query;
 
@@ -885,6 +911,9 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
     throw new Error('Не удалось получить статистику заказов');
   }
 };
+
+
+
 
 // for dialer
 export const getOrderIdsInSubStatus = async (sub_status_id) => {
