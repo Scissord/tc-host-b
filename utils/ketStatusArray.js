@@ -98,6 +98,6 @@ export function getKetStatus(cur_status) {
         "Опл люцем пэй дальний располов": 5
     };    
 
-    return statusesDict[cur_status] ?? "Статус не найден";
+    return statusesDict[cur_status] ?? null;
   };
   
