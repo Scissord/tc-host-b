@@ -37,6 +37,14 @@ export const getWhereIn = async (field, values) => {
     .orderBy('o.id', 'desc');
 };
 
+export const getFullDoubles = async (id, phone) => {
+  return await db('order as o')
+    .select('o.*', 'ss.name as status_name')
+    .leftJoin('sub_status as ss', 'ss.id', 'o.sub_status_id')
+    .where('o.phone', 'ILIKE', `%${phone}%`)
+    .whereNot('o.id', id)
+};
+
 export const getDoubles = async (id, phone) => {
   return await db('order as o')
     .where('o.phone', 'ILIKE', `%${phone}%`)

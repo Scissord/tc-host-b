@@ -112,7 +112,7 @@ export async function mapOrder(order) {
     OrderCancelReason.get(),
   ]);
 
-  order.doubles = await Order.getDoubles(order.id, order.phone);
+  order.doubles = await Order.getFullDoubles(order.id, order.phone);
   order.webmaster = webmasters.find((w) => +w.id === +order.webmaster_id) ?? '-';
   order.operator = operators.find((o) => +o.id === +order.operator_id) ?? '-';
   order.city = cities.find((c) => +c.id === +order.city_id) || null;
