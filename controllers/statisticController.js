@@ -49,8 +49,8 @@ export const getWebmasterStatistic = async (req, res) => {
     const { start, end, webmaster_id } = req.query;
     const by_date = req.query.by_date === 'true';
     const statistic = await Order.getOrderStatisticForWebmaster(start, end, webmaster_id, by_date);
+
     const result = calculateStatistics(statistic, by_date);
-    console.log(result)
     return res.status(200).send({ message: 'ok', result })
   } catch (err) {
     console.log("Error in getWebmasterStatistic statistic controller", err.message);
@@ -60,8 +60,7 @@ export const getWebmasterStatistic = async (req, res) => {
 
 export const getOperatorStatistic = async (req, res) => {
   try {
-    const { start, end, operator_id} = req.query;
-
+    const { start, end, operator_id } = req.query;
 
     const by_date = req.query.by_date === 'true';
     const orders = await Order.getOrderStatisticForOperator(start, end, operator_id, by_date);
