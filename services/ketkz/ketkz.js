@@ -4,6 +4,7 @@ import * as OrderGood from '#models/order_item.js'
 import * as City from '#models/city.js'
 import * as KetUtils from '#utils/ketOrderName.js'
 import { getCityCode } from '#utils/cityCode.js';
+import { getKetStatus } from '#utils/ketStatusArray.js'
 
 dotenv.config();
 
@@ -218,61 +219,102 @@ export const sendPostalOrders = async () => {
 
 export const checkSendedOrders = async () => {
 	try {
+		const filter_values = [27];
+		console.log("Filter values:", filter_values);
 
-	  const filter_values = [3, 13, 27, 47, 48];
-	  console.log(filter_values)
-	  const orders = await Order.getWhereIn("o.sub_status_id", filter_values);
-	  if (!orders || orders.length === 0) {
-		console.log("Нет заказов с указанными sub_status_id");
-		return [];
-	  }
-  
-	  const results = await Promise.all(
-		orders.map(async (order) => {
-		  const result = {
-			id: order.id,
-			sub_status_id: order.sub_status_id,
-		  };
-  
-		  try {
-			const data = {
-				data: JSON.stringify([{ ext_id: order.id }])
-			};
-			
+		const orders = await Order.getWhereIn("o.sub_status_id", filter_values);
+		if (!orders || orders.length === 0) {
+			console.log("Нет заказов с указанными sub_status_id");
+			return [];
+		}
+
+		const orderStatuses = {};
+		orders.forEach(order => {
+			orderStatuses[order.id] = +order.sub_status_id;
+		});
+
+		console.log("Статусы заказов:", JSON.stringify(orderStatuses, null, 2));
+
+		const ext_ids = orders.map(order => order.id);
+		console.log("Отправляемые ext_id:", ext_ids);
+
+		try {
+			const bodyData = new URLSearchParams({
+				data: JSON.stringify(ext_ids.map(id => ({ ext_id: id })))
+			}).toString();
+
 			const response = await fetch(
-			  `${process.env.KETKZ_GET_URL}?uid=${process.env.KETKZ_UID}&s=${process.env.KETKZ_SECRET}`,
-			  {
-				method: 'POST',
-				headers: { "Content-Type": "application/x-www-form-urlencoded" },
-				body: new URLSearchParams(data).toString()
-			  }
+				`${process.env.KETKZ_GET_URL}?uid=${process.env.KETKZ_UID}&s=${process.env.KETKZ_SECRET}`,
+				{
+					method: 'POST',
+					headers: { "Content-Type": "application/x-www-form-urlencoded" },
+					body: bodyData
+				}
 			);
+
 			if (response.ok) {
-			  try {
 				const data = await response.json();
-				result.response = data;
-			  } catch (jsonError) {
-				console.error(`Ошибка парсинга JSON для заказа ${order.id}:`, jsonError.message);
-				result.error = `Ошибка парсинга JSON: ${jsonError.message}`;
-			  }
+				console.log("Ответ API:", JSON.stringify(data, null, 2));
+
+				Object.values(data).forEach(apiResponse => {
+					const id = apiResponse.ext_id;
+					console.log(`Обработка заказа ID: ${id}`);
+
+					if ([3, 47, 27].includes(orderStatuses[id])) { // kd
+						console.log(`Обработка KD заказа ID: ${id}`);
+						const ss_id = getKetStatus(apiResponse.status_cur);
+
+						if (ss_id) {
+							console.log(`Обновление KD заказа ID: ${id}, новый статус: ${ss_id}`);
+							if (ss_id !== +orderStatuses[id]) {
+								Order.update(id, {
+									sub_status_id: ss_id,
+									total_sum: apiResponse.total_price
+								});
+							}
+						} else {
+							console.log(`Статус ${apiResponse.status_cur} не найден для KD заказа ID: ${id}`);
+						}
+
+					} else if ([13, 48, 26].includes(orderStatuses[id])) { // pd
+						console.log(`Обработка PD заказа ID: ${id}`);
+						if (apiResponse.send_status === 5) {
+							console.log(`Обновление PD заказа ID: ${id}, новый статус: 6`);
+							Order.update(id, {
+								sub_status_id: 6,
+								total_sum: apiResponse.total_price
+							});
+						} else if (apiResponse.send_status === 4) {
+							console.log(`Обновление PD заказа ID: ${id}, новый статус: 46`);
+							Order.update(id, {
+								sub_status_id: 46,
+								total_sum: apiResponse.total_price
+							});
+						} else {
+							console.log(`Неизвестный статус отправки ${apiResponse.send_status} для PD заказа ID: ${id}, сумма: ${apiResponse.total_price}`);
+						}
+
+					} else {
+						console.log(`ID заказа: ${id}, Статус ${orderStatuses[id]} не найден`);
+					}
+				});
+
 			} else {
-			  result.error = `Ошибка запроса: ${response.status} ${response.statusText}`;
+				console.error(`Ошибка запроса: ${response.status} ${response.statusText}`);
 			}
-		  } catch (fetchError) {
-			console.error(`Ошибка при выполнении запроса для заказа ${order.id}:`, fetchError.message);
-			result.error = `Ошибка запроса: ${fetchError.message}`;
-		  }
-		  return result;
-		})
-	  );
-  
-	  console.log("Все запросы завершены.", JSON.stringify(results, null, 2));
-	  return results;
+		} catch (fetchError) {
+			console.error("Ошибка при выполнении запроса:", fetchError.message);
+			throw fetchError;
+		}
 	} catch (error) {
-	  console.error("Ошибка при обработке заказов:", error.message);
-	  throw new Error("Не удалось обработать заказы");
+		console.error("Ошибка при обработке заказов:", error.message);
+		throw new Error("Не удалось обработать заказы");
 	}
-  };
+};
+
+
+
+
   
   
   
