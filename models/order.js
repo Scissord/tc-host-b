@@ -800,8 +800,8 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
       throw new Error('Параметры "start" и "end" обязательны.');
     }
 
-    const startDate = new Date(start).toISOString().split('T')[0];
-    const endDate = new Date(end).toISOString().split('T')[0];
+    const startDate = new Date(start).toISOString().split('T')[0] + 'T00:00:00';
+    const endDate = new Date(end).toISOString().split('T')[0] + 'T23:59:59';
 
     console.log('Start:', startDate);
     console.log('End:', endDate);
