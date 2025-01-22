@@ -222,7 +222,7 @@ export const checkSendedOrders = async () => {
 	  const filter_values = [3, 13, 27, 47, 48];
 	  console.log(filter_values)
 	  const orders = await Order.getWhereIn("o.sub_status_id", filter_values);
-  
+	  console.log(orders)
 	  if (!orders || orders.length === 0) {
 		console.log("Нет заказов с указанными sub_status_id");
 		return [];
@@ -262,7 +262,7 @@ export const checkSendedOrders = async () => {
 			console.error(`Ошибка при выполнении запроса для заказа ${order.id}:`, fetchError.message);
 			result.error = `Ошибка запроса: ${fetchError.message}`;
 		  }
-  
+		  console.log(result)
 		  return result;
 		})
 	  );
