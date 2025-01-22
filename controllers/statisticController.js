@@ -69,6 +69,7 @@ export const getOperatorStatistic = async (req, res) => {
     const orders = await Order.getOrderStatisticForOperator(start, end, operator_id, by_date);
 
     const statistics = {};
+
     orders.forEach((result) => {
       const operatorId = result.operator_id || 'Unknown';
 
