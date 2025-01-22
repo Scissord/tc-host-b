@@ -811,7 +811,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
     const query = db('order as o')
       .select(
         db.raw(`
-          ${by_date ? 'DATE(COALESCE(o.approved_at, o.cancelled_at, o.shipped_at, o.buyout_at)) AS date,' : ''} 
+          ${by_date ? 'DATE(COALESCE(o.approved_at, o.cancelled_at, o.buyout_at)) AS date,' : ''} 
           o.operator_id AS operator_id,
           COUNT(*) AS total_orders,
           SUM(
