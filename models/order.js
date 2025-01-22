@@ -800,8 +800,8 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
       throw new Error('Параметры "start" и "end" обязательны.');
     }
 
-    const startDate = new Date(start).toISOString().split('T')[0] + 'T00:00:00';
-    const endDate = new Date(end).toISOString().split('T')[0] + 'T23:59:59';
+    const startDate = new Date(start).toISOString().split('T')[0];
+    const endDate = new Date(end).toISOString().split('T')[0];
 
     console.log('Start:', startDate);
     console.log('End:', endDate);
@@ -811,7 +811,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
     const query = db('order as o')
       .select(
         db.raw(`
-          ${by_date ? 'DATE(COALESCE(o.approved_at, o.cancelled_at, o.buyout_at)) AS date,' : ''} 
+          ${by_date ? 'DATE(o.created_at) AS date,' : ''} 
           o.operator_id AS operator_id,
           COUNT(*) AS total_orders,
           SUM(
@@ -857,16 +857,10 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           q.where('o.operator_id', operator_id);
         }
       })
-      .andWhere((q) => {
-        q.whereBetween('o.approved_at', [startDate, endDate])
-          .orWhereBetween('o.cancelled_at', [startDate, endDate])
-          .orWhereBetween('o.shipped_at', [startDate, endDate])
-          .orWhereBetween('o.buyout_at', [startDate, endDate]);
-      });
+      .andWhereBetween('o.created_at', [startDate, endDate]);
 
     if (by_date) {
-      query.groupByRaw('DATE(COALESCE(o.approved_at, o.cancelled_at, o.buyout_at)), o.operator_id, u.login')
-           .orderByRaw('DATE(COALESCE(o.approved_at, o.cancelled_at, o.buyout_at)), o.operator_id');
+      query.groupByRaw('DATE(o.created_at), o.operator_id, u.login').orderByRaw('DATE(o.created_at), o.operator_id');
     } else {
       query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id');
     }
@@ -906,7 +900,6 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
     throw new Error('Не удалось получить статистику заказов');
   }
 };
-
 
 
 
