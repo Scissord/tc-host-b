@@ -235,17 +235,18 @@ export const checkSendedOrders = async () => {
 		  };
   
 		  try {
+			const data = {
+				data: JSON.stringify([{ ext_id: order.id }])
+			};
+			
 			const response = await fetch(
 			  `${process.env.KETKZ_GET_URL}?uid=${process.env.KETKZ_UID}&s=${process.env.KETKZ_SECRET}`,
 			  {
 				method: 'POST',
 				headers: { "Content-Type": "application/x-www-form-urlencoded" },
-				body: new URLSearchParams({ data: JSON.stringify([{ ext_id: order.id }]) }).toString(),
+				body: data
 			  }
 			);
-			const body = JSON.stringify({ data: [{ ext_id: order.id }] });
-			console.log("Отправляемое тело запроса:", body);
-
 			if (response.ok) {
 			  try {
 				const data = await response.json();
