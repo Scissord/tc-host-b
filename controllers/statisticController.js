@@ -102,20 +102,9 @@ export const getOperatorStatistic = async (req, res) => {
 };
 
 export const uploadFileForStatistic = async (req, res) => {
-  console.log('Содержимое req:');
-  console.log(req); // Вывод всего объекта (может быть очень большим)
-
-  // Или для более структурированного вывода:
-  console.log('Заголовки:', req.headers); // Вывод заголовков
-  console.log('Метод запроса:', req.method); // HTTP метод
-  console.log('URL:', req.url); // URL запроса
-  console.log('Параметры:', req.params); // Параметры маршрута
-  console.log('Тело запроса:', req.body); // Тело запроса
-  console.log('Файлы:', req.files); // Загрузенные файлы, если они есть
-
   if (!req.files || !req.files.file) {
     return res.status(400).send('Файл не загружен.');
-}
+  }
 
   const uploadedFile = req.files.file;
   const workbook = XLSX.read(uploadedFile.data, { type: 'buffer' });
@@ -125,15 +114,31 @@ export const uploadFileForStatistic = async (req, res) => {
       console.log(`Обработка листа: ${sheetName}`);
       const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
-      // Обрабатываем каждую строку на текущем листе
       sheet.forEach((row, index) => {
+          const recordNumber = row["#"];
+          const campaign = row["campaign"];
+          const crmOrderId = row["crm_order_id"];
+          const userId = row["user_id"];
+          const username = row["username"];
+          const subStatusName = row["sub_status_name"];
+          const subStatusId = row["sub_status_id"];
+          const processedDate = row["processed_date"];
+          const processedStatus = row["processed_status"];
+
+          // Вывод значений
           console.log(`Лист: ${sheetName}, Строка ${index + 1}:`);
-          Object.keys(row).forEach(columnName => {
-              console.log(`${columnName}: ${row[columnName]}`);
-          });
+          console.log(`#: ${recordNumber}`);
+          console.log(`campaign: ${campaign}`);
+          console.log(`crm_order_id: ${crmOrderId}`);
+          console.log(`user_id: ${userId}`);
+          console.log(`username: ${username}`);
+          console.log(`sub_status_name: ${subStatusName}`);
+          console.log(`sub_status_id: ${subStatusId}`);
+          console.log(`processed_date: ${processedDate}`);
+          console.log(`processed_status: ${processedStatus}`);
           console.log('--------------------------');
       });
   });
 
   res.send('Файл обработан. Данные выведены в консоль.');
-}
+};
