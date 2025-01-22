@@ -795,12 +795,11 @@ export const getOrderStatisticForWebmaster = async (start, end, webmaster_id = n
 
 export const getOrderStatisticForOperator = async (start, end, operator_id = null, by_date = false) => {
   try {
-    // Проверяем входные параметры
+    // Проверяем параметры
     if (!start || !end) {
       throw new Error('Параметры "start" и "end" обязательны.');
     }
 
-    // Преобразуем даты в корректный формат
     const startDate = new Date(start).toISOString().split('T')[0];
     const endDate = new Date(end).toISOString().split('T')[0];
 
@@ -809,7 +808,6 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
     console.log('Operator ID:', operator_id);
     console.log('by_date:', by_date);
 
-    // Формируем запрос
     const query = db('order as o')
       .select(
         db.raw(`
@@ -864,7 +862,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
     if (by_date) {
       query.groupByRaw('DATE(o.created_at), o.operator_id, u.login').orderByRaw('DATE(o.created_at), o.operator_id');
     } else {
-      query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id'); // Без даты
+      query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id');
     }
 
     console.log('Generated Query:', query.toString());
@@ -902,6 +900,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
     throw new Error('Не удалось получить статистику заказов');
   }
 };
+
 
 
 
