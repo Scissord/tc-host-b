@@ -64,6 +64,16 @@ router.patch("/change_order_item", checkDialer, controller.changeOrderItem);
 // https://api.talkcall-crm.com/api/dialer/toggle_order?token=""&id=""
 router.post("/toggle_order", checkDialer, controller.toggleOrder);
 
+// Получение дублей заказа
+// http://localhost:8080/api/dialer/get_order_doubles?token=90f42555-0c00-4c54-b70e-2da4385683a4&id=10001
+https://api.talkcall-crm.com/api/dialer/get_order_doubles?token=""&id=""
+router.get("/get_order_doubles", checkDialer, controller.getOrderDoubles);
+
+// Получение истории заказа
+// http://localhost:8080/api/dialer/get_order_history?token=90f42555-0c00-4c54-b70e-2da4385683a4&id=10001
+https://api.talkcall-crm.com/api/dialer/get_order_history?token=""&id=""
+router.get("/get_order_history", checkDialer, controller.getOrderHistory);
+
 // Получение ID всех заказов в подстатусе
 // http://localhost:8080/api/dialer/get_order_ids_in_sub_status?token=90f42555-0c00-4c54-b70e-2da4385683a4&status=2
 // https://api.talkcall-crm.com/api/dialer/get_order_ids_in_sub_status?token=""&status=""

@@ -283,8 +283,8 @@ export const changeStatus = async (req, res) => {
 		const { ids, old_sub_status_id, new_sub_status_id } = req.body;
 		const ip = requestIp.getClientIp(req);
 
-		const responsible_id = req.operator?.id || req.user.id;
-		const responsible = req.operator?.id ? 'оператором' : 'пользователем';
+		const responsible_id = req.operator?.id || null;
+		const responsible = responsible_id ? 'оператором' : 'администратором';
 
 		if (ids.length === 0) {
 			const subStatus = await SubStatus.find(old_sub_status_id);
@@ -296,44 +296,34 @@ export const changeStatus = async (req, res) => {
 			});
 
 			for (const order of orders) {
-				if (+new_sub_status_id === 1 || +new_sub_status_id === 4) {
+				// 4. if 1, 4 or 12 change approved_by and cancelled_by
+				if (!order.operator_id && (+new_sub_status_id === 1 || +new_sub_status_id === 4 || +new_sub_status_id === 12)) {
+					await Order.update(order.id, { operator_id: responsible_id });
+				};
 
-					const approved_data = {
+				if (+new_sub_status_id === 1 || +new_sub_status_id === 4) {
+					await Order.update(order.id, {
 						approved_at: new Date(),
 						updated_at: new Date(),
-					};
-
-					if (!order.approved_at) {
-						approved_data.approved_by_id = responsible_id;
-						approved_data.approved_by_entity = responsible;
-					};
-
-					await Order.update(order.id, approved_data);
+					});
 				};
 
 				if (+new_sub_status_id === 12) {
-					const cancelled_data = {
+					await Order.update(order.id, {
 						cancelled_at: new Date(),
-						updated_at: new Date(),
-					};
-
-					if (!order.cancelled_at) {
-						cancelled_data.cancelled_by_id = responsible_id;
-						cancelled_data.cancelled_by_entity = responsible;
-					};
-
-					await Order.update(order.id, cancelled_data);
+						updated_at: new Date()
+					});
 				};
 
 				if (+new_sub_status_id === 3 || +new_sub_status_id === 13) {
-					await Order.update(id, {
+					await Order.update(order.id, {
 						shipped_at: new Date(),
 						updated_at: new Date(),
 					});
 				};
 
 				if (+new_sub_status_id === 5 || +new_sub_status_id === 6 || +new_sub_status_id === 27) {
-					await Order.update(id, {
+					await Order.update(order.id, {
 						buyout_at: new Date(),
 						updated_at: new Date(),
 					});
@@ -365,43 +355,34 @@ export const changeStatus = async (req, res) => {
 		});
 
 		for (const order of orders) {
+			// 4. if 1, 4 or 12 change approved_by and cancelled_by
+			if (!order.operator_id && (+new_sub_status_id === 1 || +new_sub_status_id === 4 || +new_sub_status_id === 12)) {
+				await Order.update(order.id, { operator_id: responsible_id });
+			};
+
 			if (+new_sub_status_id === 1 || +new_sub_status_id === 4) {
-				const approved_data = {
+				await Order.update(order.id, {
 					approved_at: new Date(),
 					updated_at: new Date(),
-				};
-
-				if (!order.approved_at) {
-					approved_data.approved_by_id = responsible_id;
-					approved_data.approved_by_entity = responsible;
-				};
-
-				await Order.update(order.id, approved_data);
+				});
 			};
 
 			if (+new_sub_status_id === 12) {
-				const cancelled_data = {
+				await Order.update(order.id, {
 					cancelled_at: new Date(),
-					updated_at: new Date(),
-				};
-
-				if (!order.cancelled_at) {
-					cancelled_data.cancelled_by_id = responsible_id;
-					cancelled_data.cancelled_by_entity = responsible;
-				};
-
-				await Order.update(order.id, cancelled_data);
+					updated_at: new Date()
+				});
 			};
 
 			if (+new_sub_status_id === 3 || +new_sub_status_id === 13) {
-				await Order.update(id, {
+				await Order.update(order.id, {
 					shipped_at: new Date(),
 					updated_at: new Date(),
 				});
 			};
 
 			if (+new_sub_status_id === 5 || +new_sub_status_id === 6 || +new_sub_status_id === 27) {
-				await Order.update(id, {
+				await Order.update(order.id, {
 					buyout_at: new Date(),
 					updated_at: new Date(),
 				});
@@ -537,8 +518,8 @@ export const update = async (req, res) => {
 		const items = req.body.items;
 		const ip = requestIp.getClientIp(req);
 
-		const responsible_id = req.operator?.id || req.user.id;
-		const responsible = req.operator?.id ? 'оператором' : 'пользователем';
+		const responsible_id = req.operator?.id || null;
+		const responsible = responsible_id ? req.operator?.id : req.user?.id
 
 		const keitaroStatuses = [1, 4];
 
@@ -589,44 +570,33 @@ export const update = async (req, res) => {
 		};
 
 		// 4. if 1, 4 or 12 change approved_by and cancelled_by
-		if (+order.sub_status_id === 1 || +order.sub_status_id === 4) {
-
-			const approve_data = {
-				approved_at: new Date(),
-				updated_at: new Date(),
-			}
-
-			if (!oldOrder.approved_at) {
-				approve_data.approved_by_id = responsible_id;
-				approve_data.approved_by_entity = responsible;
-			};
-
-			await Order.update(order_id, approve_data);
+		if (!oldOrder.operator_id && (+order?.sub_status_id === 1 || +order?.sub_status_id === 4 || +order?.sub_status_id === 12)) {
+			await Order.update(order_id, { operator_id: responsible_id });
 		};
 
-		if (+order.sub_status_id === 12) {
-			const cancelled_data = {
-				cancelled_at: new Date(),
+		if (+order?.sub_status_id === 1 || +order?.sub_status_id === 4) {
+			await Order.update(order_id, {
+				approved_at: new Date(),
 				updated_at: new Date(),
-			}
+			});
+		};
 
-			if (!oldOrder.cancelled_at) {
-				cancelled_data.cancelled_by_id = responsible_id;
-				cancelled_data.cancelled_by_entity = responsible;
-			};
-
-			await Order.update(order_id, cancelled_data);
+		if (+order?.sub_status_id === 12) {
+			await Order.update(order_id, {
+				cancelled_at: new Date(),
+				updated_at: new Date()
+			});
 		};
 
 		if (+order.sub_status_id === 3 || +order.sub_status_id === 13) {
-			await Order.update(id, {
+			await Order.update(order_id, {
 				shipped_at: new Date(),
 				updated_at: new Date(),
 			});
 		};
 
 		if (+order.sub_status_id === 5 || +order.sub_status_id === 6 || +order.sub_status_id === 27) {
-			await Order.update(id, {
+			await Order.update(order_id, {
 				buyout_at: new Date(),
 				updated_at: new Date(),
 			});
