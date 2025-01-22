@@ -811,7 +811,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
     const query = db('order as o')
       .select(
         db.raw(`
-          ${by_date ? 'DATE(o.created_at) AS date,' : ''} 
+          ${by_date ? 'DATE(COALESCE(o.approved_at, o.cancelled_at, o.shipped_at, o.buyout_at)) AS date,' : ''} 
           o.operator_id AS operator_id,
           COUNT(*) AS total_orders,
           SUM(
@@ -864,12 +864,12 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           .orWhereBetween('o.buyout_at', [startDate, endDate]);
       });
 
-      if (by_date) {
-        query.groupByRaw('DATE(COALESCE(o.approved_at, o.cancelled_at, o.shipped_at, o.buyout_at)), o.operator_id, u.login')
-             .orderByRaw('DATE(COALESCE(o.approved_at, o.cancelled_at, o.shipped_at, o.buyout_at)), o.operator_id');
-      } else {
-        query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id');
-      }
+    if (by_date) {
+      query.groupByRaw('DATE(COALESCE(o.approved_at, o.cancelled_at, o.shipped_at, o.buyout_at)), o.operator_id, u.login')
+           .orderByRaw('DATE(COALESCE(o.approved_at, o.cancelled_at, o.shipped_at, o.buyout_at)), o.operator_id');
+    } else {
+      query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id');
+    }
 
     console.log('Generated Query:', query.toString());
 
@@ -906,6 +906,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
     throw new Error('Не удалось получить статистику заказов');
   }
 };
+
 
 
 
