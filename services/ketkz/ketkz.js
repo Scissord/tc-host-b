@@ -243,7 +243,7 @@ export const checkSendedOrders = async () => {
 				body: data_row, 
 			  }
 			);
-			
+			console.log(data_row)
 			if (response.ok) {
 			  try {
 				const data = await response.json();
