@@ -101,6 +101,23 @@ export const getOperatorStatistic = async (req, res) => {
   };
 };
 
+
+function excelDateToFormattedDate(serialDate) {
+  const excelEpoch = new Date(Date.UTC(1899, 11, 30)); // Excel epoch starts on 30 Dec 1899
+  const jsDate = new Date(excelEpoch.getTime() + serialDate * 24 * 60 * 60 * 1000); // Add days in milliseconds
+
+  // Форматирование даты
+  const year = jsDate.getUTCFullYear();
+  const month = String(jsDate.getUTCMonth() + 1).padStart(2, '0'); // Месяцы от 0 до 11
+  const day = String(jsDate.getUTCDate()).padStart(2, '0');
+  const hours = String(jsDate.getUTCHours()).padStart(2, '0');
+  const minutes = String(jsDate.getUTCMinutes()).padStart(2, '0');
+  const seconds = String(jsDate.getUTCSeconds()).padStart(2, '0');
+  const milliseconds = String(jsDate.getUTCMilliseconds()).padStart(3, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}+00`;
+}
+
 export const uploadFileForStatistic = async (req, res) => {
   if (!req.files || !req.files.file) {
     return res.status(400).send('Файл не загружен.');
@@ -125,7 +142,7 @@ export const uploadFileForStatistic = async (req, res) => {
           const processedDate = row["processed_date"];
           const processedStatus = row["processed_status"];
 
-          // Вывод значений
+          const formattedDate = excelDateToFormattedDate(processedDate)
           console.log(`Лист: ${sheetName}, Строка ${index + 1}:`);
           console.log(`#: ${recordNumber}`);
           console.log(`campaign: ${campaign}`);
@@ -134,9 +151,21 @@ export const uploadFileForStatistic = async (req, res) => {
           console.log(`username: ${username}`);
           console.log(`sub_status_name: ${subStatusName}`);
           console.log(`sub_status_id: ${subStatusId}`);
-          console.log(`processed_date: ${processedDate}`);
+          console.log(`processed_date: ${formattedDate}`);
           console.log(`processed_status: ${processedStatus}`);
           console.log('--------------------------');
+
+          const dataToUpdate = {
+            operator_id: userId
+          }
+
+          // if (subStatusName == 'Отменен') {
+          //   dataToUpdate.cancelled_at = 
+          // }
+          // Order.update(+crmOrderId, {
+          //   operator_id: userId,
+  
+          // })
       });
   });
 
