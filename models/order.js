@@ -857,7 +857,12 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           q.where('o.operator_id', operator_id);
         }
       })
-      .andWhereBetween('o.created_at', [startDate, endDate]);
+      .andWhere((q) => {
+        q.whereBetween('o.approved_at', [startDate, endDate])
+          .orWhereBetween('o.cancelled_at', [startDate, endDate])
+          .orWhereBetween('o.shipped_at', [startDate, endDate])
+          .orWhereBetween('o.buyout_at', [startDate, endDate]);
+      });
 
     if (by_date) {
       query.groupByRaw('DATE(o.created_at), o.operator_id, u.login').orderByRaw('DATE(o.created_at), o.operator_id');
