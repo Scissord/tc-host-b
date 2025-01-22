@@ -241,7 +241,7 @@ export const checkSendedOrders = async () => {
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ data: [{ ext_id: order.id }] }), 
+				body: JSON.stringify({ data: { ext_id: order.id }}), 
 			  }
 			);
   
