@@ -842,7 +842,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           ) AS buyout_orders,
           AVG(
             CASE
-              WHEN o.buyout_at IS NOT NULL AND total_sum ~ '^[0-9]+(\\.[0-9]+)?$'
+              WHEN o.buyout_at IS NOT NULL'
               THEN CAST(o.total_sum AS NUMERIC)
               ELSE NULL
             END
