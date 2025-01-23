@@ -331,14 +331,14 @@ export const getOrderInfoFromKet = async (ext_id) => {
 		
 		const data = await response.json();
 		if (data?.data) {
-            Object.keys(data.data).forEach((key) => {
-                if (data.data[key]?.phone) {
-                    delete data.data[key].phone;
-                }
-            });
-        }
-		
-		return data;
+			const orderKey = Object.keys(data.data)[0]; 
+
+			const returnData = data.data[orderKey]; 
+			delete returnData.phone
+			
+			return returnData
+		}
+
 	} catch(err) {
 		console.error("Ошибка при выполнении запроса:", err.message);
 		throw fetchError;
