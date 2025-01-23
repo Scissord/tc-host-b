@@ -330,19 +330,21 @@ export const getOrderInfoFromKet = async (ext_id) => {
 		);
 		
 		const data = await response.json();
+	
 		if (data?.data) {
 			const orderKey = Object.keys(data.data)[0]; 
-
-			const returnData = data.data[orderKey]; 
-			delete returnData.phone
-			
-			return returnData
+			const returnData = { ...data.data[orderKey] }; 
+			delete returnData.phone; 
+	
+			return returnData; 
+		} else {
+			throw new Error("Данные отсутствуют в ответе.");
 		}
-
-	} catch(err) {
+	} catch (err) {
 		console.error("Ошибка при выполнении запроса:", err.message);
-		throw fetchError;
+		throw err;
 	}
+	
 
 }
 
