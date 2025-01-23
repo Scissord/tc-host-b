@@ -316,7 +316,7 @@ export const checkSendedOrders = async () => {
 export const getOrderInfoFromKet = async (ext_id) => { 
 
 	const bodyData = new URLSearchParams({
-		data: JSON.stringify({ ext_id: ext_id })
+		data: JSON.stringify([{ ext_id }])
 	}).toString();
 
 	try {
