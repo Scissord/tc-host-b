@@ -326,7 +326,6 @@ export const changeStatus = async (req, res) => {
 		if (ids.length === 0) {
 			const subStatus = await SubStatus.find(old_sub_status_id);
 
-			// here logic if filters, than take order with filters, not with sub_status
 			let orders = [];
 			if (is_filtered) {
 				console.log(filters);
@@ -371,6 +370,13 @@ export const changeStatus = async (req, res) => {
 				if (+new_sub_status_id === 5 || +new_sub_status_id === 6 || +new_sub_status_id === 27) {
 					await Order.update(order.id, {
 						buyout_at: new Date(),
+						updated_at: new Date(),
+					});
+				};
+
+				if (+new_sub_status_id === 7 || +new_sub_status_id === 47 || +new_sub_status_id === 48) {
+					await Order.update(order.id, {
+						returned_at: new Date(),
 						updated_at: new Date(),
 					});
 				};
@@ -430,6 +436,13 @@ export const changeStatus = async (req, res) => {
 			if (+new_sub_status_id === 5 || +new_sub_status_id === 6 || +new_sub_status_id === 27) {
 				await Order.update(order.id, {
 					buyout_at: new Date(),
+					updated_at: new Date(),
+				});
+			};
+
+			if (+new_sub_status_id === 7 || +new_sub_status_id === 47 || +new_sub_status_id === 48) {
+				await Order.update(order.id, {
+					returned_at: new Date(),
 					updated_at: new Date(),
 				});
 			};
@@ -625,6 +638,13 @@ export const update = async (req, res) => {
 			});
 		};
 
+		if (+order.sub_status_id === 7 || +order.sub_status_id === 47 || +order.sub_status_id === 48) {
+			await Order.update(order_id, {
+				returned_at: new Date(),
+				updated_at: new Date(),
+			});
+		};
+
 		// 5. create log
 		await Log.create({
 			order_id,
@@ -814,7 +834,3 @@ export const unloading = async (req, res) => {
 // 		res.status(500).send({ error: "Internal Server Error" });
 // 	}
 // };
-
-
-
-
