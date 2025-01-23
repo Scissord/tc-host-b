@@ -843,7 +843,8 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           SUM(
             CASE
               WHEN 
-              (o.status_id IN (1,2,3,5,0))
+              (o.approved_at IS NOT NULL)
+              AND (o.status_id IN (1,2,3,5,0))
               THEN 1 ELSE 0
             END
           ) AS accepted_orders,
