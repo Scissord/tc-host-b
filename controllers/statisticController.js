@@ -146,7 +146,11 @@ export const uploadFileForStatistic = async (req, res) => {
         console.log(`ID заказа: ${orderId}`);
 
         const { operatorID } = orderDetails;
-        const updated_order = await Order.update(+orderId,{operator_id: +operatorID})
+        try {
+          const updated_order = await Order.update(+orderId,{operator_id: +operatorID})
+        } catch (error){ 
+          console.log(error)
+        }
       }
     } else {
       console.error("Ошибка API:", response.statusText);
