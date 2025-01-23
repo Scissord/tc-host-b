@@ -330,6 +330,13 @@ export const updateOrder = async (req, res) => {
       });
     };
 
+    if (+data?.sub_status_id === 7 || +data?.sub_status_id === 47 || +data?.sub_status_id === 48) {
+      await Order.update(id, {
+        returned_at: new Date(),
+        updated_at: new Date(),
+      });
+    };
+
     // 4. update sub status
     if (data?.sub_status_id) {
       const new_sub_status = await SubStatus.find(data.sub_status_id);
