@@ -843,7 +843,8 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           SUM(
             CASE
               WHEN 
-              (o.approved_at IS NOT NULL)
+              (o.approved_at IS NOT NULL 
+                  AND (o.cancelled_at IS NULL OR o.approved_at > o.cancelled_at))
               OR (o.returned_at IS NOT NULL)
               OR (o.shipped_at IS NOT NULL)
               OR (o.buyout_at IS NOT NULL)
