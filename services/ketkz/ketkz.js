@@ -333,7 +333,10 @@ export const getOrderInfoFromKet = async (ext_id) => {
 	
 		if (data?.data) {
 			const orderKey = Object.keys(data.data)[0]; 
+			console.log(orderKey)
 			const returnData = { ...data.data[orderKey] }; 
+			console.log(returnData
+				)
 			delete returnData.phone; 
 	
 			return returnData; 
