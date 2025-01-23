@@ -11,6 +11,7 @@ const server = http.createServer(app);
 
 const allowedOrigins = [
   'https://vita-balance.kz/',
+  'https://5.35.91.77',
   'http://localhost:5173',
   'https://talkcall-crm.com',
   "https://www.talkcall-crm.com",
