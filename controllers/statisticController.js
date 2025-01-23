@@ -144,7 +144,6 @@ export const uploadFileForStatistic = async (req, res) => {
       const data = await response.json();
       console.log("Ответ API:", JSON.stringify(data, null, 2));
     }
-    break
 }
 return res.status(200).send({ message: 'ok'});
   // if (!req.files || !req.files.file) {
