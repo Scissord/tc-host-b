@@ -125,27 +125,40 @@ function excelDateToFormattedDate(serialDate) {
 }
 
 export const uploadFileForStatistic = async (req, res) => {
-  // https://api.talkcall-crm.com/api/statistics/file
+  const orders = await Order.getAllIds();
 
-  const orders = await Order.getAllIds()
-  console.log(orders.length)
-  // for (let i = 0; i < orders.length; i++) {
-  //   const order = orders[i];
-  //   console.log(order)
-  //   const response = await fetch(
-  //     `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersByIds.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&ids=${order}`,
-  //     {
-  //       method: 'GET',
-  //       headers: { "Content-Type": "application/x-www-form-urlencoded" }
-  //     }
-  //   );
+  for (let i = 0; i < orders.length; i++) {
+    const order = orders[i];
+    console.log("Обрабатываем заказ:", order);
 
-  //   if (response.ok) {
-  //     const data = await response.json();
-  //     console.log("Ответ API:", JSON.stringify(data, null, 2));
-  //   }
-  return res.status(200).send({ message: 'ok'});
-}
+    const response = await fetch(
+      `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersByIds.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&ids=${order}`,
+      {
+        method: 'GET',
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+
+      for (const [orderId, orderDetails] of Object.entries(data)) {
+        console.log(`ID заказа: ${orderId}`);
+
+        const { operatorID } = orderDetails;
+        try {
+          const updated_order = await Order.update(+orderId,{operator_id: +operatorID})
+        } catch (error){ 
+          console.log(error)
+        }
+      }
+    } else {
+      console.error("Ошибка API:", response.statusText);
+    }
+  }
+
+  return res.status(200).send({ message: 'ok' });
+};
 
   // if (!req.files || !req.files.file) {
   //   return res.status(400).send('Файл не загружен.');
