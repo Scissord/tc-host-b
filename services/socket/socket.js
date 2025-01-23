@@ -102,24 +102,27 @@ io.on("connection", async (socket) => {
 
     // to redis
     const reservedOrders = await getKeyValue('reservedOrders') || [];
-    reservedOrders.push({
-      order_id: data.order_id,
-      name: data.name,
-    });
-    await setKeyValue('reservedOrders', reservedOrders);
+    const reservedOrder = reservedOrders.find((ro) => +ro.order_id === +data.order_id);
+    if (!reservedOrder) {
+      reservedOrders.push({
+        order_id: data.order_id,
+        name: data.name,
+      });
+      await setKeyValue('reservedOrders', reservedOrders);
 
-    const onlineUsers = await getKeyValue('onlineUsers') || [];
-    onlineUsers.forEach((user) => {
-      if (+user.user_id === +user_id) return;
+      const onlineUsers = await getKeyValue('onlineUsers') || [];
+      onlineUsers.forEach((user) => {
+        if (+user.user_id === +user_id) return;
 
-      user.sockets.forEach((socketId) => {
-        io.to(socketId).emit("blockOrder", {
-          message: "Order reserved.",
-          order_id: data.order_id,
-          name: data.name,
+        user.sockets.forEach((socketId) => {
+          io.to(socketId).emit("blockOrder", {
+            message: "Order reserved.",
+            order_id: data.order_id,
+            name: data.name,
+          });
         });
       });
-    });
+    };
 
     // create log
     await Log.create({

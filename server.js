@@ -1,5 +1,8 @@
 // import setupCluster from '#services/cluster/cluster.js';
+import fileUpload from 'express-fileupload';
+
 import { app, server } from '#services/socket/socket.js';
+import * as CronTasks from '#services/cron/cron.js'
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
@@ -33,6 +36,7 @@ const PORT = process.env.PORT || 8080;
 // function startServer() {
 app.use(express.json());
 app.use(cookieParser());
+app.use(fileUpload());
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -52,7 +56,10 @@ app.use('/api', apiRoutes);
 server.listen(PORT, () => {
   console.log(`Server ${process.pid} started on port ${PORT} ✅✅✅`);
 });
+
+
 // }
 
+CronTasks.startCronJobs()
 
 // setupCluster(startServer);

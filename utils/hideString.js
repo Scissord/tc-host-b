@@ -10,7 +10,7 @@
 //   return visiblePart + maskedPart;
 // };
 
-export default function hideString(string) {
+export function hideString(string) {
   const str = String(string);
 
   const maskLength = str.length;
@@ -19,3 +19,26 @@ export default function hideString(string) {
 
   return maskedPart;
 };
+
+
+export function hidePhoneInComment(string) {
+  const str = String(string);
+
+  const spaceIndexes = [];
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === ' ') {
+      spaceIndexes.push(i);
+    }
+  }
+  const noSpacesStr = str.replace(/\s+/g, '');
+
+  const hiddenPhoneStr = noSpacesStr.replace(/\d{7,}/g, '***');
+
+  let result = hiddenPhoneStr.split('');
+  for (const index of spaceIndexes) {
+    result.splice(index, 0, ' ');
+  }
+
+  return result.join('');
+}
+

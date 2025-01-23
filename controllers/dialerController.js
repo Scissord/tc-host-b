@@ -1,3 +1,5 @@
+import { io } from '#services/socket/socket.js';
+import requestIp from 'request-ip';
 import { parse } from 'comma-separated-tokens';
 import * as User from '#models/user.js';
 import * as Order from '#models/order.js';
@@ -8,10 +10,15 @@ import * as Operator from '#models/operator.js';
 import * as SubStatus from '#models/sub_status.js';
 import * as City from '#models/city.js';
 import * as Gender from '#models/gender.js';
+import * as Log from '#models/log.js';
 import * as PaymentMethod from '#root/models/payment_method.js';
 import * as DeliveryMethod from '#root/models/delivery_method.js';
 import * as OrderCancelReason from '#root/models/order_cancel_reason.js';
 import * as OrderSignals from '#services/signals/orderSignals.js';
+import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
+import {
+  calculateStatistics
+} from '#services/order/group.js';
 import ERRORS from '#constants/errors.js';
 
 export const getStatusList = async (req, res) => {
@@ -182,8 +189,8 @@ export const getOrderCancelReasons = async (req, res) => {
 
 export const toggleOrder = async (req, res) => {
   try {
-    const { id, is_blocked } = req.query;
-    const data = req.body;
+    const { id, operator_id, is_blocked } = req.query;
+    const ip = requestIp.getClientIp(req);
 
     if (!id) {
       return res.status(400).send({
@@ -197,11 +204,74 @@ export const toggleOrder = async (req, res) => {
       });
     };
 
-    // here need to send socket to frontend
+    const isBlocked = is_blocked === 'true';
 
-    res.status(200).json();
+    const operator = await Operator.find(operator_id);
+    const user = await User.find(operator.user_id);
+
+    const onlineUsers = await getKeyValue('onlineUsers') || [];
+    const reservedOrders = await getKeyValue('reservedOrders') || [];
+
+    if (isBlocked) {
+      const reservedOrder = reservedOrders.find((ro) => +ro.order_id === +id);
+      if (!reservedOrder) {
+        reservedOrders.push({
+          order_id: id,
+          name: user.name,
+        });
+        await setKeyValue('reservedOrders', reservedOrders);
+      } else {
+        return res.status(200).json({ id, is_blocked });
+      }
+    } else {
+      const reservedOrder = reservedOrders.find((ro) => +ro.order_id === +id);
+      if (reservedOrder) {
+        const updatedReservedOrders = reservedOrders.filter((ro) => +ro.order_id !== +id);
+        await setKeyValue('reservedOrders', updatedReservedOrders);
+      } else {
+        return res.status(200).json({ id, is_blocked });
+      };
+    };
+
+    onlineUsers.forEach((onlineUser) => {
+      onlineUser.sockets.forEach((socketId) => {
+        io.to(socketId).emit(isBlocked ? "blockOrder" : "openOrder", {
+          message: "Order reserved.",
+          order_id: id,
+          name: user.name,
+        });
+      });
+    });
+
+    await Log.create({
+      order_id: id,
+      operator_id: operator_id,
+      action: `${user.name} ${isBlocked ? 'вошёл (-а) в заказ' : 'вышел (-а) из заказа'} №${id}`,
+      ip,
+    });
+
+    res.status(200).json({ id, is_blocked });
   } catch (err) {
     console.log("Error in toggleOrder dialer controller", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const getOrderHistory = async (req, res) => {
+  try {
+    const { id } = req.query;
+
+    if (!id) {
+      return res.status(400).send({
+        message: ERRORS.REQUIRED_ID
+      });
+    };
+
+    const logs = await Log.getWhere({ order_id: id });
+
+    res.status(200).json(logs);
+  } catch (err) {
+    console.log("Error in getOrderHistory dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -210,6 +280,7 @@ export const updateOrder = async (req, res) => {
   try {
     const { id } = req.query;
     const data = req.body;
+    const ip = requestIp.getClientIp(req);
 
     // 1. check for id
     if (!id) {
@@ -226,17 +297,36 @@ export const updateOrder = async (req, res) => {
     };
 
     // 3. if 1, 4 or 12 change approved_by and cancelled_by
-    if (data?.operator_id && (+data?.sub_status_id === 1 || +data?.sub_status_id === 4)) {
+    const check_order = await Order.find(id);
+    if (!check_order.operator_id && (+data?.sub_status_id === 1 || +data?.sub_status_id === 4 || +data?.sub_status_id === 12)) {
+      await Order.update(id, { operator_id: data.operator_id });
+    };
+
+    if (+data?.sub_status_id === 1 || +data?.sub_status_id === 4) {
       await Order.update(id, {
-        approved_by_id: data.operator_id,
-        approved_by_entity: 'оператором',
+        approved_at: new Date(),
+        updated_at: new Date(),
       });
     };
 
-    if (data?.operator_id && +data?.sub_status_id === 12) {
+    if (+data?.sub_status_id === 12) {
       await Order.update(id, {
-        cancelled_by_id: data.operator_id,
-        cancelled_by_entity: 'оператором',
+        cancelled_at: new Date(),
+        updated_at: new Date()
+      });
+    };
+
+    if (+data?.sub_status_id === 3 || +data?.sub_status_id === 13) {
+      await Order.update(id, {
+        shipped_at: new Date(),
+        updated_at: new Date(),
+      });
+    };
+
+    if (+data?.sub_status_id === 5 || +data?.sub_status_id === 6 || +data?.sub_status_id === 27) {
+      await Order.update(id, {
+        buyout_at: new Date(),
+        updated_at: new Date(),
       });
     };
 
@@ -248,8 +338,27 @@ export const updateOrder = async (req, res) => {
       await OrderSignals.statusChangeSignal(+id, +data.sub_status_id)
     };
 
-    // 5. update order
+    // 5 change updated_at
+    data.updated_at = new Date();
+
+    // 6. update order
+    if (+check_order.operator_id && data.operator_id) {
+      delete data.operator_id;
+    };
     const order = await Order.update(id, data);
+
+    // 7 logs
+    await Log.create({
+      order_id: id,
+      operator_id: data?.operator_id ? data.operator_id : check_order.operator_id,
+      old_sub_status_id: check_order?.sub_status_id,
+      new_sub_status_id: data?.sub_status_id ? data?.sub_status_id : check_order?.sub_status_id,
+      action: `Изменение заказа оператором ${data?.operator_id ? data.operator_id : check_order.operator_id} через дайлер`,
+      old_metadata: data,
+      new_metadata: order,
+      ip,
+    });
+
     res.status(200).json(order);
   } catch (err) {
     console.log("Error in updateOrder dialer controller", err.message);
@@ -334,7 +443,6 @@ export const getOrdersByIds = async (req, res) => {
       paymentMethods,
       deliveryMethods,
       orderCancelReasons,
-      users,
     ] = await Promise.all([
       Product.get(),
       Webmaster.get(),
@@ -345,7 +453,6 @@ export const getOrdersByIds = async (req, res) => {
       PaymentMethod.get(),
       DeliveryMethod.get(),
       OrderCancelReason.get(),
-      User.get()
     ]);
 
     const transformedStatuses = await Promise.all(orders.map(async (order) => {
@@ -368,19 +475,6 @@ export const getOrdersByIds = async (req, res) => {
         payment_method: paymentMethods.find((p) => +p.id === order.payment_id)?.name ?? '-',
         delivery_method: deliveryMethods.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
         order_cancel_reason: orderCancelReasons.find((cr) => +cr.id === +order.cancel_reason_id)?.name ?? '-',
-        approved_by_login: (() => {
-          const operator = operators.find((o) => +o.id === +order.approved_by_id); 
-          if (!operator) return '-';
-          const user = users.find((u) => +u.id === +operator.user_id); 
-          return user?.login ?? '-'; 
-        })(),
-
-        cancelled_by_login: (() => {
-          const operator = operators.find((o) => +o.id === +order.cancelled_by_id); // Находим оператора
-          if (!operator) return '-';
-          const user = users.find((u) => +u.id === +operator.user_id); 
-          return user?.login ?? '-'; 
-        })(),
       };
     }));
 
@@ -395,4 +489,117 @@ export const getOrdersByIds = async (req, res) => {
     console.log("Error in getOrdersByIds dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
+};
+
+export const getOrderDoubles = async (req, res) => {
+  try {
+    const { id } = req.query;
+
+    if (!id) {
+      return res.status(400).send({
+        message: ERRORS.REQUIRED_ID,
+      });
+    };
+
+    const order = await Order.find(id);
+    const ids = await Order.getDoubles(order.id, order.phone);
+    const orders = await Order.getWhereIn('o.id', ids);
+
+    const [
+      products,
+      webmasters,
+      operators,
+      cities,
+      subStatuses,
+      genders,
+      paymentMethods,
+      deliveryMethods,
+      orderCancelReasons,
+    ] = await Promise.all([
+      Product.get(),
+      Webmaster.get(),
+      Operator.get(),
+      City.get(),
+      SubStatus.get(),
+      Gender.get(),
+      PaymentMethod.get(),
+      DeliveryMethod.get(),
+      OrderCancelReason.get(),
+    ]);
+
+    const transformedStatuses = await Promise.all(orders.map(async (order) => {
+      const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
+
+      return {
+        ...order,
+        webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-',
+        operator: operators.find((o) => +o.id === +order.operator_id)?.name ?? '-',
+        city: cities.find((c) => +c.id === +order.city_id) || null,
+        status: subStatuses.find((ss) => +ss.id === +order.sub_status_id) || null,
+        items: items.map((item) => {
+          const product = products.find((p) => +p.id === +item.product_id);
+          return {
+            ...item,
+            name: product ? product.name : null,
+          };
+        }),
+        gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
+        payment_method: paymentMethods.find((p) => +p.id === order.payment_id)?.name ?? '-',
+        delivery_method: deliveryMethods.find((d) => +d.id === +order.delivery_id)?.name ?? '-',
+        order_cancel_reason: orderCancelReasons.find((cr) => +cr.id === +order.cancel_reason_id)?.name ?? '-',
+      };
+    }));
+
+    // Convert the result into an object with order IDs as keys (similar to your original code)
+    const transformedStatusesObject = transformedStatuses.reduce((acc, transformedOrder) => {
+      acc[transformedOrder.id] = transformedOrder;
+      return acc;
+    }, {});
+
+    res.status(200).json(transformedStatusesObject);
+  } catch (err) {
+    console.log("Error in getOrdersByIds dialer controller", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const getOperatorStatistic = async (req, res) => {
+  try {
+    const { start, end, operator_id } = req.query;
+
+    const by_date = req.query.by_date === 'true';
+    const orders = await Order.getOrderStatisticForOperator(start, end, operator_id, by_date);
+    const statistics = {};
+    orders.forEach((result) => {
+      const operatorId = result.operator_id || 'Unknown';
+
+      if (!statistics[operatorId]) {
+        statistics[operatorId] = [];
+      }
+
+      const stats = {
+        date: by_date ? result.date : undefined,
+        totalOrders: parseInt(result.total_orders, 10),
+        acceptedOrders: parseInt(result.accepted_orders, 10),
+        cancelledOrders: parseInt(result.cancelled_orders, 10),
+        shippedOrders: parseInt(result.shipped_orders, 10),
+        buyoutOrders: parseInt(result.buyout_orders, 10),
+        avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
+        operatorName: result.operator_name || 'Unknown',
+      };
+
+      if (by_date) {
+        statistics[operatorId].push(stats);
+      } else {
+        statistics[operatorId] = stats;
+      }
+    });
+
+    const result = calculateStatistics(statistics, by_date);
+    console.log(result)
+    return res.status(200).send({ message: 'ok', result });
+  } catch (err) {
+    console.log("Error in getOperatorStatistic statistic controller", err.message);
+    res.status(500).send({ error: "Internal Server Error" });
+  };
 };

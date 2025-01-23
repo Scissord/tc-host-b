@@ -1,9 +1,15 @@
+import knex from './knex.js';
 import repository from './repository.js';
 
+const db = knex();
 const logRepository = repository('log');
 
 export const get = async () => {
   return await logRepository.getActive();
+};
+
+export const getWhere = async (query) => {
+  return await logRepository.getWhere(query);
 };
 
 export const create = async (data) => {
