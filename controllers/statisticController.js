@@ -128,7 +128,8 @@ export const uploadFileForStatistic = async (req, res) => {
   // https://api.talkcall-crm.com/api/statistics/file
 
   const orders = await Order.getWhereIn('o.operator_id', [92000,102609, 102612, 102692, 102704, 103416, 103417, 103418, 103419,103421,102610,102614,102615,103033,103420,103440,102613])
-  for (let i = 0; i < orders; i++) {
+  console.log(orders)
+  for (let i = 0; i < orders.length; i++) {
     const order = orders[i];
     console.log(order.id)
     const response = await fetch(
