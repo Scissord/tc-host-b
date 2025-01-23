@@ -863,6 +863,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
                 AND (o.cancelled_at IS NULL OR o.shipped_at > o.cancelled_at)
                 AND (o.returned_at IS NULL OR o.shipped_at > o.returned_at)
                 AND o.buyout_at IS NULL
+                AND (o.status_id IN (2))
               THEN 1 ELSE 0
             END
           ) AS shipped_orders,
@@ -871,15 +872,29 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
               WHEN o.returned_at IS NOT NULL 
                 AND (o.cancelled_at IS NULL OR o.returned_at > o.cancelled_at)
                 AND o.buyout_at IS NULL
+                AND (o.status_id IN (5))
               THEN 1 ELSE 0
             END
           ) AS refunded_orders,
           SUM(
             CASE
               WHEN o.buyout_at IS NOT NULL
+              AND (o.status_id IN (3))
               THEN 1 ELSE 0
             END
           ) AS buyout_orders,
+          SUM(
+            CASE
+              WHEN o.status_id IN (6)
+              THEN 1 ELSE 0
+            END
+          ) AS spam_orders,
+          SUM(
+            CASE
+              WHEN o.status_id IN (0)
+              THEN 1 ELSE 0
+            END
+          ) AS hold_orders,
           AVG(
             CASE
               WHEN o.buyout_at IS NOT NULL AND o.total_sum IS NOT NULL AND o.total_sum != ''
@@ -921,6 +936,8 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           shipped_orders: 0,
           buyout_orders: 0,
           refunded_orders: 0,
+          hold_orders: 0,
+          spam_orders: 0,
           avg_total_sum: 0,
           operator_name: 'Unknown',
         }]
@@ -930,6 +947,8 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           accepted_orders: 0,
           cancelled_orders: 0,
           shipped_orders: 0,
+          hold_orders: 0,
+          spam_orders: 0,
           buyout_orders: 0,
           refunded_orders: 0,
           avg_total_sum: 0,

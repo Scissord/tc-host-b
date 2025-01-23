@@ -237,6 +237,8 @@ export const calculateStatistics = (data, by_date = false) => {
     cancelledOrders: 0,
     shippedOrders: 0,
     refundedOrders: 0,
+    holdOrders: 0,
+    spamOrders: 0,
     buyoutOrders: 0,
     avgTotalSum: 0,
   };
@@ -291,6 +293,8 @@ const calculateStatisticsForItem = (data) => {
       shippedPercentage: 0,
       buyoutPercentage: 0,
       refundedOrders: 0,
+      holdOrders: 0,
+      spamOrders: 0,
     };
   }
 
