@@ -897,7 +897,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
         }
       })
       .andWhereBetween('o.approved_at', [formattedStartDate, formattedEndDate])
-      .orWhereBetween('o.cancelled_at', [formattedStartDate, formattedEndDate])
+      // .orWhereBetween('o.cancelled_at', [formattedStartDate, formattedEndDate])
 
     if (by_date) {
       query.groupByRaw('DATE(COALESCE(o.approved_at, o.cancelled_at)), o.operator_id, u.login').orderByRaw('DATE(COALESCE(o.approved_at, o.cancelled_at)), o.operator_id');
