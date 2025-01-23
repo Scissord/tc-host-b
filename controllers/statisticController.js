@@ -145,7 +145,7 @@ export const uploadFileForStatistic = async (req, res) => {
     }
     break
 }
-
+return res.status(200).send({ message: 'ok'});
   // if (!req.files || !req.files.file) {
   //   return res.status(400).send('Файл не загружен.');
   // }
