@@ -848,7 +848,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
             THEN 1 
             ELSE 0
             END
-        ) AS cancelled_orders
+        ) AS cancelled_orders,
           SUM(
             CASE
               WHEN o.shipped_at IS NOT NULL 
