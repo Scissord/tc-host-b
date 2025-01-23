@@ -330,7 +330,7 @@ export const getOrderInfoFromKet = async (ext_id) => {
 		);
 		
 		const data = await response.json();
-	
+	    console.log(data)
 		if (data?.data) {
 			const orderKey = Object.keys(data.data)[0]; 
 			console.log(orderKey)
