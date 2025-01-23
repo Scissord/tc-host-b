@@ -920,8 +920,203 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
   }
 };
 
+export const getByFilters = async function (filters) {
+  const {
+    id,
+    operators,
+    products,
+    webmasters,
+    additional1,
+    created_at,
+    updated_at,
+    approved_at,
+    shipped_at,
+    cancelled_at,
+    buyout_at,
+    delivery_at,
+    comment,
+    price,
+    total_sum,
+    logist_recall_at,
+    quantity,
+    fio,
+    phone,
+    region,
+    cities,
+    address,
+    postal_code,
+    age,
+    urm_term,
+    statuses,
+    gender,
+    payment_methods,
+    delivery_methods,
+    order_cancel_reasons,
+    additional2,
+    additional3,
+    additional4,
+    additional5,
+    additional6,
+    additional7,
+    additional8,
+    additional9,
+    additional10,
+  } = filters;
 
+  const orders = await db('order as o')
+    .select('o.*')
+    .modify((q) => {
+      if (id) {
+        const ids = id.replace(/,/g, ' ').split(' ').map(item => item.trim()).filter(item => item);
+        if (ids.length > 1) {
+          q.whereIn('o.id', ids);
+        } else {
+          q.where('o.id', id);
+        }
+      };
+      if (Array.isArray(operators) && operators.length > 0) {
+        q.whereIn('o.operator_id', operators.map((o) => o.id));
+      };
+      if (Array.isArray(webmasters) && webmasters.length > 0) {
+        q.whereIn('o.webmaster_id', webmasters.map((o) => o.id));
+      };
+      if (additional1) {
+        q.where('o.additional1', 'ilike', `%${additional1}%`)
+      };
+      if (Array.isArray(products) && products.length > 0) {
+        const ids = products.map(p => +p.id);
+        q.whereRaw(
+          `EXISTS (
+            SELECT 1 
+            FROM order_item oi
+            WHERE oi.order_id = o.id
+            AND oi.product_id = ANY (?)
+          )`,
+          [ids]
+        );
+      };
+      if (created_at) {
+        q.whereBetween('o.created_at', created_at);
+      };
+      if (updated_at) {
+        q.whereBetween('o.updated_at', updated_at);
+      };
+      if (approved_at) {
+        q.whereBetween('o.approved_at', approved_at);
+      };
+      if (shipped_at) {
+        q.whereBetween('o.shipped_at', shipped_at);
+      };
+      if (cancelled_at) {
+        q.whereBetween('o.cancelled_at', cancelled_at);
+      };
+      if (buyout_at) {
+        q.whereBetween('o.buyout_at', buyout_at);
+      };
+      if (delivery_at) {
+        q.whereBetween('o.delivery_at', delivery_at);
+      };
+      if (comment) {
+        q.where('o.comment', 'ilike', `%${comment}%`)
+      };
+      if (price) {
+        q.whereRaw(
+          `EXISTS (
+            SELECT 1 
+            FROM order_item oi
+            WHERE oi.order_id = o.id
+            AND oi.price = ?
+          )`,
+          [price]
+        );
+      };
+      if (total_sum) {
+        q.where('o.total_sum', 'ilike', `%${total_sum}%`)
+      };
+      if (logist_recall_at) {
+        q.where('o.logist_recall_at', '>=', logist_recall_at);
+      };
+      if (quantity) {
+        q.whereRaw(
+          `EXISTS (
+            SELECT 1 
+            FROM order_item oi
+            WHERE oi.order_id = o.id
+            AND oi.quantity = ?
+          )`,
+          [quantity]
+        );
+      };
+      if (fio) {
+        q.where('o.fio', 'ilike', `%${fio}%`)
+      };
+      if (phone) {
+        q.where('o.phone', 'ilike', `%${phone}%`)
+      };
+      if (region) {
+        q.where('o.region', 'ilike', `%${region}%`)
+      };
+      if (Array.isArray(cities) && cities.length > 0) {
+        q.whereIn('o.city_id', cities.map((c) => c.id));
+      };
+      if (address) {
+        q.where('o.address', 'ilike', `%${address}%`)
+      };
+      if (postal_code) {
+        q.where('o.postal_code', 'ilike', `%${postal_code}%`)
+      };
+      if (age) {
+        q.where('o.age', 'ilike', `%${age}%`)
+      };
+      if (age) {
+        q.where('o.urm_term', 'ilike', `%${urm_term}%`)
+      };
+      if (Array.isArray(statuses) && statuses.length > 0) {
+        q.whereIn('o.sub_status_id', statuses.map((s) => s.id));
+      };
+      if (gender) {
+        q.where('o.gender', 'ilike', `%${gender}%`)
+      };
+      if (Array.isArray(payment_methods) && payment_methods.length > 0) {
+        q.whereIn('o.payment_method_id', payment_methods.map((pm) => pm.id));
+      };
+      if (Array.isArray(delivery_methods) && delivery_methods.length > 0) {
+        q.whereIn('o.delivery_method_id', delivery_methods.map((dm) => dm.id));
+      };
+      if (Array.isArray(order_cancel_reasons) && order_cancel_reasons.length > 0) {
+        q.whereIn('o.order_cancel_reason_id', order_cancel_reasons.map((ocr) => ocr.id));
+      };
+      if (additional2) {
+        q.where('o.additional2', 'ilike', `%${additional2}%`)
+      };
+      if (additional3) {
+        q.where('o.additional3', 'ilike', `%${additional3}%`)
+      };
+      if (additional4) {
+        q.where('o.additional4', 'ilike', `%${additional4}%`)
+      };
+      if (additional5) {
+        q.where('o.additional5', 'ilike', `%${additional5}%`)
+      };
+      if (additional6) {
+        q.where('o.additional6', 'ilike', `%${additional6}%`)
+      };
+      if (additional7) {
+        q.where('o.additional7', 'ilike', `%${additional7}%`)
+      };
+      if (additional8) {
+        q.where('o.additional8', 'ilike', `%${additional8}%`)
+      };
+      if (additional9) {
+        q.where('o.additional9', 'ilike', `%${additional9}%`)
+      };
+      if (additional10) {
+        q.where('o.additional10', 'ilike', `%${additional10}%`)
+      };
+    });
 
+  return orders;
+};
 
 // for dialer
 export const getOrderIdsInSubStatus = async (sub_status_id) => {

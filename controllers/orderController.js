@@ -317,7 +317,7 @@ export const getOrder = async (req, res) => {
 
 export const changeStatus = async (req, res) => {
 	try {
-		const { ids, old_sub_status_id, new_sub_status_id } = req.body;
+		const { ids, old_sub_status_id, new_sub_status_id, is_filtered, filters } = req.body;
 		const ip = requestIp.getClientIp(req);
 
 		const responsible_id = req.operator?.id || null;
@@ -325,7 +325,16 @@ export const changeStatus = async (req, res) => {
 
 		if (ids.length === 0) {
 			const subStatus = await SubStatus.find(old_sub_status_id);
-			const orders = await Order.getWhere({ sub_status_id: old_sub_status_id });
+
+			// here logic if filters, than take order with filters, not with sub_status
+			let orders = [];
+			if (is_filtered) {
+				console.log(filters);
+				orders = await Order.getByFilters(filters);
+			} else {
+				orders = await Order.getWhere({ sub_status_id: old_sub_status_id });
+			};
+
 			await Order.updateWhereIn(orders.map(order => order.id), {
 				status_id: subStatus.status_id,
 				sub_status_id: new_sub_status_id,
