@@ -819,11 +819,18 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
       throw new Error('Параметры "start" и "end" обязательны.');
     }
 
-    const startDate = new Date(start).toISOString().split('T')[0];
-    const endDate = new Date(end).toISOString().split('T')[0];
+    const startDate = new Date(start);
+    startDate.setHours(0, 0, 0, 0); 
 
-    console.log('Start:', startDate);
-    console.log('End:', endDate);
+    const endDate = new Date(end);
+    endDate.setHours(23, 59, 59, 999);
+
+    const formattedStartDate = startDate.toISOString();
+    const formattedEndDate = endDate.toISOString();
+
+
+    console.log('Start:', formattedStartDate);
+    console.log('End:', formattedEndDate);
     console.log('Operator ID:', operator_id);
     console.log('by_date:', by_date);
 
@@ -889,7 +896,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           q.where('o.operator_id', operator_id);
         }
       })
-      .andWhereBetween('o.approved_at', [startDate, endDate]);
+      .andWhereBetween('o.approved_at', [formattedStartDate, formattedEndDate]);
 
     if (by_date) {
       query.groupByRaw('DATE(COALESCE(o.approved_at, o.cancelled_at)), o.operator_id, u.login').orderByRaw('DATE(COALESCE(o.approved_at, o.cancelled_at)), o.operator_id');
