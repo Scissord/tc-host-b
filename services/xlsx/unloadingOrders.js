@@ -11,8 +11,27 @@ import * as Order from '#models/order.js';
 import { mapOrders } from '#services/order/map.js';
 import { makeHeaders, makeBodyRow } from './helpers.js';
 
+export async function unloadingIdsOrders(from, to, ids) {
+  const ordersFromDb = await Order.getWhereIn('o.id', ids);
+  const orders = await mapOrders(ordersFromDb, false);
+
+  const workbook = new ExcelJS.Workbook()
+  await workbook.xlsx.readFile(from);
+
+  const sheet = workbook.getWorksheet(1)
+
+  await makeHeaders(sheet);
+
+  let row = 2;
+  for (const order of orders) {
+    await makeBodyRow(sheet, order, row);
+    row++;
+  };
+
+  await workbook.xlsx.writeFile(to);
+};
+
 export async function unloadingFilteredOrders(from, to, data) {
-  console.log('here');
   const {
     id,
     operator: operators,

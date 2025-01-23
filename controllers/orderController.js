@@ -8,7 +8,7 @@ import * as Log from '#models/log.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import { mapOrders, mapOrder } from '#services/order/map.js';
 import { hideString, hidePhoneInComment } from '#utils/hideString.js';
-import { unloadingFilteredOrders, unloadingSubStatusOrders } from '#services/xlsx/unloadingOrders.js';
+import { unloadingIdsOrders, unloadingFilteredOrders, unloadingSubStatusOrders } from '#services/xlsx/unloadingOrders.js';
 import ERRORS from '#constants/errors.js';
 import globalPrice from '#constants/price.js';
 
@@ -638,16 +638,22 @@ export const update = async (req, res) => {
 export const unloading = async (req, res) => {
 	try {
 		const { is_filtered, sub_status } = req.query;
-		const data = req.body;
+		const filters = req.body.filters;
+		const ids = req.body.ids;
 
 		const from = './templates/clear.xlsx';
 		const to = `./uploads/order-${new Date().toISOString().replace(/[-:.TZ]/g, '')}.xlsx`;
 
-		let file = null;
-		if (is_filtered === 'false') {
-			file = await unloadingSubStatusOrders(from, to, sub_status);
-		} else {
-			file = await unloadingFilteredOrders(from, to, data);
+		if (ids) {
+			await unloadingIdsOrders(from, to, ids);
+		};
+
+		if (is_filtered === 'false' && ids.length === 0) {
+			await unloadingSubStatusOrders(from, to, sub_status);
+		};
+
+		if (is_filtered === 'true' && ids.length === 0) {
+			await unloadingFilteredOrders(from, to, filters);
 		};
 
 		return res.download(to, (err) => {
