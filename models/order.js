@@ -852,6 +852,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
             WHEN o.cancelled_at IS NOT NULL 
                  AND (o.approved_at IS NULL OR o.cancelled_at > o.approved_at)
                  AND (o.returned_at IS NULL OR o.cancelled_at > o.returned_at)
+                 AND (o.status_id IN (4))
             THEN 1 
             ELSE 0
             END
