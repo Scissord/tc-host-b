@@ -844,7 +844,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
             CASE
             WHEN o.cancelled_at IS NOT NULL 
                  AND (o.approved_at IS NULL OR o.cancelled_at > o.approved_at)
-                 AND (o.additional5 IS NULL OR o.cancelled_at > o.additional5)
+                 AND (o.returned_at IS NULL OR o.cancelled_at > o.returned_at)
             THEN 1 
             ELSE 0
             END
@@ -853,15 +853,15 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
             CASE
               WHEN o.shipped_at IS NOT NULL 
                 AND (o.cancelled_at IS NULL OR o.shipped_at > o.cancelled_at)
-                AND (o.additional5 IS NULL OR o.shipped_at > o.additional5)
+                AND (o.returned_at IS NULL OR o.shipped_at > o.returned_at)
                 AND o.buyout_at IS NULL
               THEN 1 ELSE 0
             END
           ) AS shipped_orders,
           SUM(
             CASE
-              WHEN o.additional5 IS NOT NULL 
-                AND (o.cancelled_at IS NULL OR o.additional5 > o.cancelled_at)
+              WHEN o.returned_at IS NOT NULL 
+                AND (o.cancelled_at IS NULL OR o.returned_at > o.cancelled_at)
                 AND o.buyout_at IS NULL
               THEN 1 ELSE 0
             END
