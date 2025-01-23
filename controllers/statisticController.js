@@ -125,66 +125,87 @@ function excelDateToFormattedDate(serialDate) {
 }
 
 export const uploadFileForStatistic = async (req, res) => {
-  if (!req.files || !req.files.file) {
-    return res.status(400).send('Файл не загружен.');
-  }
 
-  const uploadedFile = req.files.file;
-  const workbook = XLSX.read(uploadedFile.data, { type: 'buffer' });
 
-  // Обходим все листы
-  workbook.SheetNames.forEach(sheetName => {
-      console.log(`Обработка листа: ${sheetName}`);
-      const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+  const orders = Order.getWhereIn('o.operator_id', [92000,102609, 102612, 102692, 102704, 103416, 103417, 103418, 103419,103421,102610,102614,102615,103033,103420,103440,102613])
+  for (let i = 0; i < orders; i++) {
+    const order = orders[i];
+    console.log(order.id)
+    const response = await fetch(
+      `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersByIds.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&ids=${order.id}`,
+      {
+        method: 'GET',
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      }
+    );
 
-      sheet.forEach((row, index) => {
-          const recordNumber = row["#"];
-          const campaign = row["campaign"];
-          const crmOrderId = row["crm_order_id"];
-          const userId = row["user_id"];
-          const username = row["username"];
-          const subStatusName = row["sub_status_name"];
-          const subStatusId = row["sub_status_id"];
-          const processedDate = row["processed_date"];
-          const processedStatus = row["processed_status"];
+    if (response.ok) {
+      const data = await response.json();
+      console.log("Ответ API:", JSON.stringify(data, null, 2));
+    }
+    break
+}
 
-          const formattedDate = excelDateToFormattedDate(processedDate)
-          console.log(`Лист: ${sheetName}, Строка ${index + 1}:`);
-          console.log(`#: ${recordNumber}`);
-          console.log(`campaign: ${campaign}`);
-          console.log(`crm_order_id: ${crmOrderId}`);
-          console.log(`user_id: ${userId}`);
-          console.log(`username: ${username}`);
-          console.log(`sub_status_name: ${subStatusName}`);
-          console.log(`sub_status_id: ${subStatusId}`);
-          console.log(`processed_date: ${formattedDate}`);
-          console.log(`processed_status: ${processedStatus}`);
-          console.log('--------------------------');
+  // if (!req.files || !req.files.file) {
+  //   return res.status(400).send('Файл не загружен.');
+  // }
 
-          const dataToUpdate = {
-            operator_id: userId
-          }
+  // const uploadedFile = req.files.file;
+  // const workbook = XLSX.read(uploadedFile.data, { type: 'buffer' });
 
-          if (subStatusName == 'Отменен') {
-            dataToUpdate.cancelled_at = formattedDate
-            const order = Order.update(+crmOrderId, dataToUpdate)
-            console.log(order)
-          }
+  // // Обходим все листы
+  // workbook.SheetNames.forEach(sheetName => {
+  //     console.log(`Обработка листа: ${sheetName}`);
+  //     const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
-          if (subStatusName == 'Подтвержден ПД') {
-            dataToUpdate.approved_at = formattedDate
-            const order = Order.update(+crmOrderId, dataToUpdate)
-            console.log(order)
+  //     sheet.forEach((row, index) => {
+  //         const recordNumber = row["#"];
+  //         const campaign = row["campaign"];
+  //         const crmOrderId = row["crm_order_id"];
+  //         const userId = row["user_id"];
+  //         const username = row["username"];
+  //         const subStatusName = row["sub_status_name"];
+  //         const subStatusId = row["sub_status_id"];
+  //         const processedDate = row["processed_date"];
+  //         const processedStatus = row["processed_status"];
+
+  //         const formattedDate = excelDateToFormattedDate(processedDate)
+  //         console.log(`Лист: ${sheetName}, Строка ${index + 1}:`);
+  //         console.log(`#: ${recordNumber}`);
+  //         console.log(`campaign: ${campaign}`);
+  //         console.log(`crm_order_id: ${crmOrderId}`);
+  //         console.log(`user_id: ${userId}`);
+  //         console.log(`username: ${username}`);
+  //         console.log(`sub_status_name: ${subStatusName}`);
+  //         console.log(`sub_status_id: ${subStatusId}`);
+  //         console.log(`processed_date: ${formattedDate}`);
+  //         console.log(`processed_status: ${processedStatus}`);
+  //         console.log('--------------------------');
+
+  //         const dataToUpdate = {
+  //           operator_id: userId
+  //         }
+
+  //         if (subStatusName == 'Отменен') {
+  //           dataToUpdate.cancelled_at = formattedDate
+  //           const order = Order.update(+crmOrderId, dataToUpdate)
+  //           console.log(order)
+  //         }
+
+  //         if (subStatusName == 'Подтвержден ПД') {
+  //           dataToUpdate.approved_at = formattedDate
+  //           const order = Order.update(+crmOrderId, dataToUpdate)
+  //           console.log(order)
             
-          }
+  //         }
 
-          if (subStatusName == 'Подтвержден КД') {
-            dataToUpdate.approved_at = formattedDate
-            const order = Order.update(+crmOrderId, dataToUpdate)
-            console.log(order)
-          }
-      });
-  });
+  //         if (subStatusName == 'Подтвержден КД') {
+  //           dataToUpdate.approved_at = formattedDate
+  //           const order = Order.update(+crmOrderId, dataToUpdate)
+  //           console.log(order)
+  //         }
+  //     });
+  // });
 
-  res.send('Файл обработан. Данные выведены в консоль.');
+  // res.send('Файл обработан. Данные выведены в консоль.');
 };
