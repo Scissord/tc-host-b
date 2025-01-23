@@ -6,6 +6,7 @@ dotenv.config();
 export const getSendedOrderInfo = async (req, res) => {
   try {
 	const { ext_id } = req.query
+	console.log(ext_id)
 	const data = await ketService.getOrderInfoFromKet(ext_id)
 
 	res.status(200).send({
