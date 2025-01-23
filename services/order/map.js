@@ -132,7 +132,6 @@ export async function mapOrder(order) {
   order.cancelled_at = order.cancelled_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
   order.shipped_at = order.shipped_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
   order.buyout_at = order.buyout_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
-  order.returned_at = order.returned_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null;
 
   order.gender = genders.find((g) => +g.id === +order.gender_id) ?? '-';
   order.payment_method = paymentMethods.find((p) => +p.id === order.payment_method_id) ?? '-';
