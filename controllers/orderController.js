@@ -462,6 +462,7 @@ export const create = async (req, res) => {
 
 		data.status_id = 0;
 		data.sub_status_id = 0;
+		data.total_sum = 1650;
 
 		const cachedOrder = await getKeyValue(data.phone);
 		if (cachedOrder) {
@@ -469,8 +470,6 @@ export const create = async (req, res) => {
 				message: "Заказ по этому номеру был создан недавно!"
 			});
 		};
-
-		data.total_sum = 1650;
 
 		if (Array.isArray(items)) {
 			// to send to Обработка
@@ -482,26 +481,6 @@ export const create = async (req, res) => {
 			) {
 				data.sub_status_id = 21;
 			};
-			// to count total_sum
-			if (items.length > 0) {
-				const newTotal = items.reduce((acc, item) => {
-					const quantity = Number(item.quantity) || 0;
-					const price = Number(item.price) || 0;
-
-					const tmp = quantity * price;
-					return acc + tmp;
-				}, 0);
-
-				if (isNaN(newTotal)) {
-					data.total_sum = 1650;
-				} else {
-					data.total_sum = newTotal
-				};
-			} else {
-				data.total_sum = 1650;
-			};
-		} else {
-			data.total_sum = 1650;
 		};
 
 		const order = await Order.create(data);
