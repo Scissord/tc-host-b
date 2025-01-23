@@ -10,6 +10,7 @@ const app = express();
 const server = http.createServer(app);
 
 const allowedOrigins = [
+  'https://vita-balance.kz/',
   'http://localhost:5173',
   'https://talkcall-crm.com',
   "https://www.talkcall-crm.com",

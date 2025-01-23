@@ -12,6 +12,7 @@ import apiRoutes from '#routes/index.js';
 dotenv.config();
 
 const allowedOrigins = [
+  'https://vita-balance.kz/',
   'http://localhost:5173',
   'https://talkcall-crm.com',
   "https://www.talkcall-crm.com",
