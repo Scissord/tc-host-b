@@ -82,8 +82,11 @@ export const getOperatorStatistic = async (req, res) => {
         totalOrders: parseInt(result.total_orders, 10),
         acceptedOrders: parseInt(result.accepted_orders, 10),
         cancelledOrders: parseInt(result.cancelled_orders, 10),
+        refundedOrders: parseInt(result.refunded_orders, 10),
         shippedOrders: parseInt(result.shipped_orders, 10),
         buyoutOrders: parseInt(result.buyout_orders, 10),
+        spamOrders: parseInt(result.spam_orders, 10),
+        holdOrders: parseInt(result.hold_orders, 10),
         avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
         operatorName: result.operator_name || 'Unknown',
       };
@@ -122,66 +125,88 @@ function excelDateToFormattedDate(serialDate) {
 }
 
 export const uploadFileForStatistic = async (req, res) => {
-  if (!req.files || !req.files.file) {
-    return res.status(400).send('Файл не загружен.');
-  }
+  // https://api.talkcall-crm.com/api/statistics/file
 
-  const uploadedFile = req.files.file;
-  const workbook = XLSX.read(uploadedFile.data, { type: 'buffer' });
+  const orders = await Order.getAllIds()
+  console.log(orders.length)
+  // for (let i = 0; i < orders.length; i++) {
+  //   const order = orders[i];
+  //   console.log(order)
+  //   const response = await fetch(
+  //     `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersByIds.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&ids=${order}`,
+  //     {
+  //       method: 'GET',
+  //       headers: { "Content-Type": "application/x-www-form-urlencoded" }
+  //     }
+  //   );
 
-  // Обходим все листы
-  workbook.SheetNames.forEach(sheetName => {
-      console.log(`Обработка листа: ${sheetName}`);
-      const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+  //   if (response.ok) {
+  //     const data = await response.json();
+  //     console.log("Ответ API:", JSON.stringify(data, null, 2));
+  //   }
+  return res.status(200).send({ message: 'ok'});
+}
 
-      sheet.forEach((row, index) => {
-          const recordNumber = row["#"];
-          const campaign = row["campaign"];
-          const crmOrderId = row["crm_order_id"];
-          const userId = row["user_id"];
-          const username = row["username"];
-          const subStatusName = row["sub_status_name"];
-          const subStatusId = row["sub_status_id"];
-          const processedDate = row["processed_date"];
-          const processedStatus = row["processed_status"];
+  // if (!req.files || !req.files.file) {
+  //   return res.status(400).send('Файл не загружен.');
+  // }
 
-          const formattedDate = excelDateToFormattedDate(processedDate)
-          console.log(`Лист: ${sheetName}, Строка ${index + 1}:`);
-          console.log(`#: ${recordNumber}`);
-          console.log(`campaign: ${campaign}`);
-          console.log(`crm_order_id: ${crmOrderId}`);
-          console.log(`user_id: ${userId}`);
-          console.log(`username: ${username}`);
-          console.log(`sub_status_name: ${subStatusName}`);
-          console.log(`sub_status_id: ${subStatusId}`);
-          console.log(`processed_date: ${formattedDate}`);
-          console.log(`processed_status: ${processedStatus}`);
-          console.log('--------------------------');
+  // const uploadedFile = req.files.file;
+  // const workbook = XLSX.read(uploadedFile.data, { type: 'buffer' });
 
-          const dataToUpdate = {
-            operator_id: userId
-          }
+  // // Обходим все листы
+  // workbook.SheetNames.forEach(sheetName => {
+  //     console.log(`Обработка листа: ${sheetName}`);
+  //     const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
-          if (subStatusName == 'Отменен') {
-            dataToUpdate.cancelled_at = formattedDate
-            const order = Order.update(+crmOrderId, dataToUpdate)
-            console.log(order)
-          }
+  //     sheet.forEach((row, index) => {
+  //         const recordNumber = row["#"];
+  //         const campaign = row["campaign"];
+  //         const crmOrderId = row["crm_order_id"];
+  //         const userId = row["user_id"];
+  //         const username = row["username"];
+  //         const subStatusName = row["sub_status_name"];
+  //         const subStatusId = row["sub_status_id"];
+  //         const processedDate = row["processed_date"];
+  //         const processedStatus = row["processed_status"];
 
-          if (subStatusName == 'Подтвержден ПД') {
-            dataToUpdate.approved_at = formattedDate
-            const order = Order.update(+crmOrderId, dataToUpdate)
-            console.log(order)
+  //         const formattedDate = excelDateToFormattedDate(processedDate)
+  //         console.log(`Лист: ${sheetName}, Строка ${index + 1}:`);
+  //         console.log(`#: ${recordNumber}`);
+  //         console.log(`campaign: ${campaign}`);
+  //         console.log(`crm_order_id: ${crmOrderId}`);
+  //         console.log(`user_id: ${userId}`);
+  //         console.log(`username: ${username}`);
+  //         console.log(`sub_status_name: ${subStatusName}`);
+  //         console.log(`sub_status_id: ${subStatusId}`);
+  //         console.log(`processed_date: ${formattedDate}`);
+  //         console.log(`processed_status: ${processedStatus}`);
+  //         console.log('--------------------------');
+
+  //         const dataToUpdate = {
+  //           operator_id: userId
+  //         }
+
+  //         if (subStatusName == 'Отменен') {
+  //           dataToUpdate.cancelled_at = formattedDate
+  //           const order = Order.update(+crmOrderId, dataToUpdate)
+  //           console.log(order)
+  //         }
+
+  //         if (subStatusName == 'Подтвержден ПД') {
+  //           dataToUpdate.approved_at = formattedDate
+  //           const order = Order.update(+crmOrderId, dataToUpdate)
+  //           console.log(order)
             
-          }
+  //         }
 
-          if (subStatusName == 'Подтвержден КД') {
-            dataToUpdate.approved_at = formattedDate
-            const order = Order.update(+crmOrderId, dataToUpdate)
-            console.log(order)
-          }
-      });
-  });
+  //         if (subStatusName == 'Подтвержден КД') {
+  //           dataToUpdate.approved_at = formattedDate
+  //           const order = Order.update(+crmOrderId, dataToUpdate)
+  //           console.log(order)
+  //         }
+  //     });
+  // });
 
-  res.send('Файл обработан. Данные выведены в консоль.');
-};
+  // res.send('Файл обработан. Данные выведены в консоль.');
+
