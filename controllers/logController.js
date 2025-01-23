@@ -1,4 +1,5 @@
 import * as Log from '#models/log.js';
+import { hideString } from '#utils/hideString.js';
 
 export const getOrderLogs = async (req, res) => {
   try {
@@ -7,7 +8,12 @@ export const getOrderLogs = async (req, res) => {
 
     for (const log of logs) {
       log.created_at = new Date(log.created_at).toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' })
-      log.phone = '***';
+      if (log?.old_metadata?.phone) {
+        log.old_metadata.phone = hideString(log.old_metadata.phone);
+      }
+      if (log?.new_metadata?.phone) {
+        log.new_metadata.phone = hideString(log.new_metadata.phone);
+      }
     };
 
     res.status(200).send({ message: 'ok', logs });
