@@ -330,6 +330,13 @@ export const getOrderInfoFromKet = async (ext_id) => {
 		);
 		
 		const data = await response.json();
+		if (data?.data) {
+            Object.keys(data.data).forEach((key) => {
+                if (data.data[key]?.phone) {
+                    delete data.data[key].phone;
+                }
+            });
+        }
 		
 		return data;
 	} catch(err) {
