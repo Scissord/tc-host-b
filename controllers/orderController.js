@@ -473,7 +473,6 @@ export const create = async (req, res) => {
 		data.total_sum = 1650;
 
 		if (Array.isArray(items)) {
-			console.log(items);
 			// to send to Обработка
 			if (
 				data.phone.startsWith('77') &&
