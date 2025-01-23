@@ -313,7 +313,31 @@ export const checkSendedOrders = async () => {
 };
 
 
+export const getOrderInfoFromKet = async (ext_id) => { 
 
+	const bodyData = new URLSearchParams({
+		data: JSON.stringify({ ext_id: ext_id })
+	}).toString();
+
+	try {
+		const response = await fetch(
+			`${process.env.KETKZ_GET_URL}?uid=${process.env.KETKZ_UID}&s=${process.env.KETKZ_SECRET}`,
+			{
+				method: 'POST',
+				headers: { "Content-Type": "application/x-www-form-urlencoded" },
+				body: bodyData
+			}
+		);
+		
+		const data = await response.json();
+		
+		return data;
+	} catch(err) {
+		console.error("Ошибка при выполнении запроса:", err.message);
+		throw fetchError;
+	}
+
+}
 
   
   
