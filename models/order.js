@@ -1368,3 +1368,11 @@ export const getUnloadingOrders = async function (
 
   return orders;
 };
+
+
+
+
+export const getAllIds= async () => {
+  return await db('order as o')
+    .pluck('o.id')
+};
