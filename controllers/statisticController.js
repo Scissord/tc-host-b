@@ -82,6 +82,7 @@ export const getOperatorStatistic = async (req, res) => {
         totalOrders: parseInt(result.total_orders, 10),
         acceptedOrders: parseInt(result.accepted_orders, 10),
         cancelledOrders: parseInt(result.cancelled_orders, 10),
+        refundedOrders: parseInt(result.refunded_orders, 10),
         shippedOrders: parseInt(result.shipped_orders, 10),
         buyoutOrders: parseInt(result.buyout_orders, 10),
         avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,

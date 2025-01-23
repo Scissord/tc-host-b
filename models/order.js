@@ -830,29 +830,42 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
     const query = db('order as o')
       .select(
         db.raw(`
-          ${by_date ? 'DATE(o.created_at) AS date,' : ''} 
+          ${by_date ? 'DATE(COALESCE(o.approved_at, o.cancelled_at)) AS date,' : ''} 
           o.operator_id AS operator_id,
           COUNT(*) AS total_orders,
           SUM(
             CASE
-              WHEN o.approved_at IS NOT NULL AND (o.cancelled_at IS NULL OR o.approved_at > o.cancelled_at)
+              WHEN o.approved_at IS NOT NULL 
+                  AND (o.cancelled_at IS NULL OR o.approved_at > o.cancelled_at)
               THEN 1 ELSE 0
             END
           ) AS accepted_orders,
           SUM(
             CASE
-              WHEN o.cancelled_at IS NOT NULL AND (o.approved_at IS NULL OR o.cancelled_at > o.approved_at)
-              THEN 1 ELSE 0
+            WHEN o.cancelled_at IS NOT NULL 
+                 AND (o.approved_at IS NULL OR o.cancelled_at > o.approved_at)
+                 AND (o.additional5 IS NULL OR o.cancelled_at > o.additional5)
+            THEN 1 
+            ELSE 0
             END
-          ) AS cancelled_orders,
+        ) AS cancelled_orders
           SUM(
             CASE
               WHEN o.shipped_at IS NOT NULL 
                 AND (o.cancelled_at IS NULL OR o.shipped_at > o.cancelled_at)
+                AND (o.additional5 IS NULL OR o.shipped_at > o.additional5)
                 AND o.buyout_at IS NULL
               THEN 1 ELSE 0
             END
           ) AS shipped_orders,
+          SUM(
+            CASE
+              WHEN o.additional5 IS NOT NULL 
+                AND (o.cancelled_at IS NULL OR o.additional5 > o.cancelled_at)
+                AND o.buyout_at IS NULL
+              THEN 1 ELSE 0
+            END
+          ) AS refunded_orders,
           SUM(
             CASE
               WHEN o.buyout_at IS NOT NULL
@@ -876,10 +889,10 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           q.where('o.operator_id', operator_id);
         }
       })
-      .andWhereBetween('o.created_at', [startDate, endDate]);
+      .andWhereBetween('o.approved_at', [startDate, endDate]);
 
     if (by_date) {
-      query.groupByRaw('DATE(o.created_at), o.operator_id, u.login').orderByRaw('DATE(o.created_at), o.operator_id');
+      query.groupByRaw('DATE(COALESCE(o.approved_at, o.cancelled_at)), o.operator_id, u.login').orderByRaw('DATE(COALESCE(o.approved_at, o.cancelled_at)), o.operator_id');
     } else {
       query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id');
     }
@@ -898,6 +911,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           cancelled_orders: 0,
           shipped_orders: 0,
           buyout_orders: 0,
+          refunded_orders: 0,
           avg_total_sum: 0,
           operator_name: 'Unknown',
         }]
@@ -908,6 +922,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           cancelled_orders: 0,
           shipped_orders: 0,
           buyout_orders: 0,
+          refunded_orders: 0,
           avg_total_sum: 0,
           operator_name: 'Unknown',
         };
