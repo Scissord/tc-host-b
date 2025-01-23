@@ -7,6 +7,7 @@ export const getOrderLogs = async (req, res) => {
 
     for (const log of logs) {
       log.created_at = new Date(log.created_at).toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' })
+      log.phone = '***';
     };
 
     res.status(200).send({ message: 'ok', logs });
