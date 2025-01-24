@@ -246,7 +246,7 @@ export const toggleOrder = async (req, res) => {
     await Log.create({
       order_id: id,
       operator_id: operator_id,
-      action: `${user.name} ${isBlocked ? 'вошёл (-а) в заказ' : 'вышел (-а) из заказа'} №${id}`,
+      action: `${user.name} ${isBlocked ? 'вошёл (-а) в заказ' : 'вышел (-а) из заказа'} через дайлер №${id}`,
       ip,
     });
 
@@ -377,6 +377,8 @@ export const changeOrderItem = async (req, res) => {
   try {
     const { id } = req.query;
     const data = req.body;
+
+    console.log('changeOrderItem', data)
 
     if (!id) {
       return res.status(400).send({
