@@ -213,7 +213,7 @@ export const sendPostalOrders = async () => {
 		};
 
     await sendOrders(newOrders);
-	await Order.updateWhereIn(orderIds, {sub_status_id: 3})
+	await Order.updateWhereIn(orderIds, {sub_status_id: 13})
 
 }
 
