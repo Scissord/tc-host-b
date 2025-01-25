@@ -63,18 +63,20 @@ const verify = async (req, res, next) => {
     //   message: ERRORS.NEED_TO_RELOGIN
     // });
 
+  
+    const user = await User.find(decoded.userId);
+
     if (decoded.updated_at) {
-      const currentTime = Date.now(); 
       const userLastUpdated = new Date(decoded.updated_at).getTime(); 
-      console.log(`сравниваются updated_at ${currentTime} ${userLastUpdated}`)
-      if (userLastUpdated > currentTime) {
+      const user_update = new Date(user.updated_at).getTime(); 
+      console.log(`сравниваются updated_at ${user_update} ${userLastUpdated}`)
+      if (userLastUpdated > user_update) {
         return res.status(401).send({
           message: ERRORS.INVALID_UPDATED_AT 
         });
       }
     }
-  
-    const user = await User.find(decoded.userId);
+    
     if (!user) return res.status(401).send({
       message: ERRORS.USER_NOT_FOUND
     });
