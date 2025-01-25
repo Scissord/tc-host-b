@@ -238,7 +238,7 @@ export const makeBodyRow = async (sheet, order, row) => {
   bodyCell.font = body;
 
   bodyCell = sheet.getCell(`S${row}`);
-  bodyCell.value = order.phone;
+  bodyCell.value = '***';
   bodyCell.font = body;
 
   bodyCell = sheet.getCell(`T${row}`);
