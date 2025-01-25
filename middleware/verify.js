@@ -68,14 +68,11 @@ const verify = async (req, res, next) => {
 
   
     const user = await User.find(decoded.userId);
-    console.log(`Данные user в базе: ${JSON.stringify(user, null, 2)}`);
-    console.log(`Данные user в токене: ${JSON.stringify(decoded, null, 2)}`);
 
     if (decoded.updated_at) {
       const userLastUpdated = new Date(decoded.updated_at).getTime(); 
       const user_update = new Date(user.updated_at).getTime(); 
-      console.log(`сравниваются updated_at ${user_update} ${userLastUpdated}`)
-      console.log(user)
+  
       if (userLastUpdated < user_update) {
         return res.status(401).send({
           message: ERRORS.INVALID_UPDATED_AT 
