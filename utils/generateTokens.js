@@ -9,7 +9,7 @@ const generateTokens = (userId, updated_at = null) => {
   );
 
   const refreshToken = jwt.sign(
-    { userId, jti: uuidv4() },
+    { userId, updated_at, jti: uuidv4() },
     process.env.JWT_REFRESH_SECRET,
     { expiresIn: process.env.JWT_REFRESH_LIFE_TIME}
   );

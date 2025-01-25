@@ -105,15 +105,26 @@ export const refresh = async (req, res) => {
 
       // 3. Check if user exist
       const user = await User.find(decodedRefresh.userId);
+       
+
       if (!user) return res.status(401).send({
         message: ERRORS.USER_NOT_FOUND
       });
+            // Преобразуем даты в миллисекунды
+      const userUpdatedAt = new Date(user.updated_at).getTime();
+      const tokenUpdatedAt = new Date(decodedRefresh.updated_at).getTime();
 
+      // Сравниваем дату обновления пользователя с датой из токена
+      if (userUpdatedAt > tokenUpdatedAt) {
+        return res.status(401).send({
+          message: 'Your token is invalid because your account was updated after the token was issued. Please re-login.'
+        });
+      }
       // 4. if user exist and we get decodedRefresh, we generate JWT TOKEN
       const {
         accessToken: newAccessToken,
         refreshToken: newRefreshToken
-      } = generateTokens(user.id);
+      } = generateTokens(user.id, user.updated_at);
 
       // 5. save refreshToken in DB
       await UserToken.updateWhere({ user_id: user.id }, {
