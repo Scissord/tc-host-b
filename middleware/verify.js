@@ -63,7 +63,9 @@ const verify = async (req, res, next) => {
     //   message: ERRORS.NEED_TO_RELOGIN
     // });
 
+    console.log(decoded)
     if (decoded.updated_at) {
+      console.log(decoded)
       const currentTime = Date.now(); 
       const userLastUpdated = new Date(decoded.updated_at).getTime(); 
 
