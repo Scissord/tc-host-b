@@ -42,6 +42,8 @@ export const signin = async (req, res) => {
     };
 
     // 3. generate JWT TOKEN
+    console.log(result)
+    console.log(result.user.updated_at)
     const { accessToken, refreshToken } = generateTokens(user.id, result.user.updated_at);
 
     // 4. save refreshToken in DB
