@@ -40,7 +40,10 @@ const verify = async (req, res, next) => {
           if (!user) return res.status(401).send({
             message: ERRORS.USER_NOT_FOUND
           });
-
+          
+          if (!decodedRefresh.updated_at) return res.status(401).send({
+            message: ERRORS.NEED_TO_RELOGIN
+          });
           // 9. refreshToken is valid, but need new accessToken
           return res.status(401).send({
             message: ERRORS.INVALID_ACCESS
