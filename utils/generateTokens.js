@@ -3,8 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const generateTokens = (userId, updated_at = null) => {
   const accessToken = jwt.sign(
-    { userId},
-    updated_at,
+    { userId, updated_at},
     process.env.JWT_ACCESS_SECRET,
     {expiresIn: process.env.JWT_ACCESS_LIFE_TIME}
   );
