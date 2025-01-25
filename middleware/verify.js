@@ -59,9 +59,9 @@ const verify = async (req, res, next) => {
       };
     };
 
-    // if (!decoded.updated_at) return res.status(401).send({
-    //   message: ERRORS.NEED_TO_RELOGIN
-    // });
+    if (!decoded.updated_at) return res.status(401).send({
+      message: ERRORS.NEED_TO_RELOGIN
+    });
 
   
     const user = await User.find(decoded.userId);
