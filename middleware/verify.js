@@ -63,12 +63,10 @@ const verify = async (req, res, next) => {
     //   message: ERRORS.NEED_TO_RELOGIN
     // });
 
-    console.log(decoded)
     if (decoded.updated_at) {
-      console.log(decoded)
       const currentTime = Date.now(); 
       const userLastUpdated = new Date(decoded.updated_at).getTime(); 
-
+      console.log(`сравниваются updated_at ${currentTime} ${userLastUpdated}`)
       if (userLastUpdated > currentTime) {
         return res.status(401).send({
           message: ERRORS.INVALID_UPDATED_AT 
