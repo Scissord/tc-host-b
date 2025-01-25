@@ -828,12 +828,6 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
     const formattedStartDate = startDate.toISOString();
     const formattedEndDate = endDate.toISOString();
 
-
-    console.log('Start:', formattedStartDate);
-    console.log('End:', formattedEndDate);
-    console.log('Operator ID:', operator_id);
-    console.log('by_date:', by_date);
-
     const query = db('order as o')
       .select(
         db.raw(`
@@ -921,7 +915,6 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
       query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id');
     }
 
-    console.log('Generated Query:', query.toString());
 
     const results = await query;
 
