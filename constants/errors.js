@@ -3,6 +3,9 @@ const ERRORS = {
   INVALID_CREDENTIALS: 'Неверно введенные данные!',
   USER_NOT_FOUND: 'Пользователь не найден!',
   INVALID_PASSWORD: 'Неверный пароль!',
+  NEED_TO_RELOGIN: 'Перезайдите в систему!',
+  INVALID_UPDATED_AT: 'Было обновление у этого пользователя',
+
   // tokens
   TOKEN_EXPIRED: 'TokenExpiredError',
   NO_ACCESS: 'Unauthorized - No Token Provided',

@@ -45,6 +45,8 @@ export const update = async (req, res) => {
 			data.password = await bcrypt.hash(data.password, salt);
 		};
 
+		data.updated_at = new Date().toISOString();
+		
 		const newUser = await User.update(user_id, data);
 
 		res.status(200).send({ message: 'ok', user: newUser });

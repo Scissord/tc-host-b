@@ -42,7 +42,7 @@ export const signin = async (req, res) => {
     };
 
     // 3. generate JWT TOKEN
-    const { accessToken, refreshToken } = generateTokens(user.id);
+    const { accessToken, refreshToken } = generateTokens(user.id, user.updated_at);
 
     // 4. save refreshToken in DB
     const user_token = await UserToken.findWhere({ user_id: user.id });

@@ -110,7 +110,7 @@ export const update = async (req, res) => {
 		const operator = await Operator.update(operator_id, data);
 		const user = await User.find(operator.user_id);
 		operator.name = user.name;
-
+		
 		res.status(200).send({ message: 'ok', operator });
 	} catch (err) {
 		console.log("Error in update operator controller", err.message);
