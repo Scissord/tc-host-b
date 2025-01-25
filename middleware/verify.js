@@ -65,7 +65,7 @@ const verify = async (req, res, next) => {
 
   
     const user = await User.find(decoded.userId);
-
+    console.log(user, decoded)
     if (decoded.updated_at) {
       const userLastUpdated = new Date(decoded.updated_at).getTime(); 
       const user_update = new Date(user.updated_at).getTime(); 
