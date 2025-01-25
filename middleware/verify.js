@@ -63,15 +63,17 @@ const verify = async (req, res, next) => {
     //   message: ERRORS.NEED_TO_RELOGIN
     // });
 
-    // const currentTime = Date.now(); 
-    // const userLastUpdated = new Date(decoded.updated_at).getTime(); 
+    if (decoded.updated_at) {
+      const currentTime = Date.now(); 
+      const userLastUpdated = new Date(decoded.updated_at).getTime(); 
 
-    // if (userLastUpdated > currentTime) {
-    //   return res.status(401).send({
-    //     message: ERRORS.INVALID_UPDATED_AT 
-    //   });
-    // }
-
+      if (userLastUpdated > currentTime) {
+        return res.status(401).send({
+          message: ERRORS.INVALID_UPDATED_AT 
+        });
+      }
+    }
+  
     const user = await User.find(decoded.userId);
     if (!user) return res.status(401).send({
       message: ERRORS.USER_NOT_FOUND

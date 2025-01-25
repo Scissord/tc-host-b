@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 
-const generateTokens = (userId) => {
+const generateTokens = (userId, updated_at) => {
   const accessToken = jwt.sign(
-    { userId},
+    { userId, updated_at},
     process.env.JWT_ACCESS_SECRET,
     {expiresIn: process.env.JWT_ACCESS_LIFE_TIME}
   );
