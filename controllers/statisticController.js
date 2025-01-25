@@ -99,7 +99,6 @@ export const getOperatorStatistic = async (req, res) => {
     });
 
     const result = calculateStatistics(statistics, by_date);
-    console.log(result)
     return res.status(200).send({ message: 'ok', result });
   } catch (err) {
     console.log("Error in getOperatorStatistic statistic controller", err.message);
