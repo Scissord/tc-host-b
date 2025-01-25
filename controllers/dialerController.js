@@ -352,6 +352,7 @@ export const updateOrder = async (req, res) => {
     if (+check_order.operator_id && data.operator_id) {
       delete data.operator_id;
     };
+
     const order = await Order.update(id, data);
 
     // 7 logs
