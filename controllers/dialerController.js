@@ -381,8 +381,6 @@ export const changeOrderItem = async (req, res) => {
     const { id } = req.query;
     const data = req.body;
 
-    console.log('changeOrderItem', data)
-
     if (!id) {
       return res.status(400).send({
         message: ERRORS.REQUIRED_ID
