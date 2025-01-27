@@ -351,8 +351,8 @@ export const updateOrder = async (req, res) => {
     let tmp_operator_id = data?.operator_id || null;
 
     // 7. update order
-    if (+check_order.operator_id && data.operator_id) {
-      delete data.operator_id;
+    if (data?.operator_id) {
+      delete data?.operator_id;
     };
 
     const order = await Order.update(id, data);
@@ -396,7 +396,9 @@ export const changeOrderItem = async (req, res) => {
     await OrderItem.hardDeleteByOrderId(id);
 
     let items = [];
+    let total_sum = 0;
     for (const order_item of data) {
+      total_sum += order_item?.price ?? 0;
       const item = await OrderItem.create({
         order_id: id,
         product_id: order_item.product_id,
@@ -405,6 +407,8 @@ export const changeOrderItem = async (req, res) => {
       });
       items.push(item);
     };
+
+    await Order.update(id, { total_sum });
 
     res.status(200).json(items);
   } catch (err) {
