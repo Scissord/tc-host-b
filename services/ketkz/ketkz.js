@@ -276,7 +276,7 @@ export const checkSendedOrders = async () => {
 							console.log(`Статус ${apiResponse.status_cur} не найден для KD заказа ID: ${id}`);
 						}
 
-					} else if ([13, 48, 26].includes(orderStatuses[id])) { // pd
+					} else if ([13, 48, 26, 46].includes(orderStatuses[id])) { // pd
 						console.log(`Обработка PD заказа ID: ${id}`);
 						if (apiResponse.send_status === 5) {
 							console.log(`Обновление PD заказа ID: ${id}, новый статус: 6`);
