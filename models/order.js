@@ -331,7 +331,7 @@ export const getUserOrdersPaginated = async function (
         q.whereBetween('o.delivery_at', [start, end]);
       };
     })
-    .orderBy(sort_by ?? 'o.id', order_by ?? 'desc')
+    .orderByRaw(`${sort_by} ${order_by}`)
     .paginate({
       perPage: limit,
       currentPage: page,
@@ -1416,7 +1416,7 @@ export const getUnloadingOrders = async function (
 
 
 
-export const getAllIds= async () => {
+export const getAllIds = async () => {
   return await db('order as o')
     .pluck('o.id')
 };
