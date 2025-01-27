@@ -348,21 +348,23 @@ export const updateOrder = async (req, res) => {
     // 5 change updated_at
     data.updated_at = new Date();
 
-    // 6. update order
+    let tmp_operator_id = data?.operator_id || null;
+
+    // 7. update order
     if (+check_order.operator_id && data.operator_id) {
       delete data.operator_id;
     };
 
     const order = await Order.update(id, data);
 
-    // 7 logs
+    // 6. logs
     await Log.create({
       order_id: id,
-      operator_id: data?.operator_id ? data.operator_id : check_order.operator_id,
+      operator_id: tmp_operator_id || null,
       old_sub_status_id: check_order?.sub_status_id,
-      new_sub_status_id: data?.sub_status_id ? data?.sub_status_id : check_order?.sub_status_id,
-      action: `Изменение заказа оператором ${data?.operator_id ? data.operator_id : check_order.operator_id} через дайлер`,
-      old_metadata: data,
+      new_sub_status_id: data?.sub_status_id || null,
+      action: `Изменение заказа оператором ${tmp_operator_id} через дайлер`,
+      old_metadata: check_order,
       new_metadata: order,
       ip,
     });

@@ -385,7 +385,7 @@ export const changeStatus = async (req, res) => {
 
 				await Log.create({
 					order_id: order.id,
-					operator_id: responsible_id,
+					operator_id: order?.operator_id || null,
 					old_sub_status_id: old_sub_status_id,
 					new_sub_status_id: new_sub_status_id,
 					action: `Все заказы из статуса ${old_sub_status_id} перенесены в ${new_sub_status_id}, ${responsible} №${responsible_id}.`,
@@ -451,14 +451,13 @@ export const changeStatus = async (req, res) => {
 
 			await Log.create({
 				order_id: order.id,
-				operator_id: responsible_id,
+				operator_id: order?.operator_id ?? null,
 				old_sub_status_id: old_sub_status_id,
 				new_sub_status_id: new_sub_status_id,
 				action: `Изменение статуса у заказа №${order.id}, ${responsible} №${responsible_id}.`,
 				ip,
 			});
 		};
-
 
 		res.status(200).send({
 			message: 'ok',
@@ -648,8 +647,8 @@ export const update = async (req, res) => {
 		// 5. create log
 		await Log.create({
 			order_id,
-			operator_id: responsible_id,
-			old_sub_status_id: order.sub_status_id,
+			operator_id: oldOrder?.operator_id || null,
+			old_sub_status_id: oldOrder.sub_status_id,
 			new_sub_status_id: updatedOrder.sub_status_id,
 			old_metadata: { ...oldOrder, items: Array.isArray(oldItems) ? oldItems : [] },
 			new_metadata: { ...updatedOrder },
