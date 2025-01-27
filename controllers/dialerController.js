@@ -297,8 +297,8 @@ export const updateOrder = async (req, res) => {
     };
 
     // 3. if 1, 4 or 12 change approved_by and cancelled_by
-    const check_order = await Order.find(id);
-    if (!check_order.operator_id && (+data?.sub_status_id === 1 || +data?.sub_status_id === 4 || +data?.sub_status_id === 12)) {
+    const oldOrder = await Order.find(id);
+    if (!oldOrder.operator_id && (+data?.sub_status_id === 1 || +data?.sub_status_id === 4 || +data?.sub_status_id === 12)) {
       await Order.update(id, { operator_id: data.operator_id });
     };
 
@@ -348,21 +348,23 @@ export const updateOrder = async (req, res) => {
     // 5 change updated_at
     data.updated_at = new Date();
 
-    // 6. update order
-    if (+check_order.operator_id && data.operator_id) {
+    let tmp_operator_id = data?.operator_id || null;
+
+    // 7. update order
+    if (+oldOrder.operator_id && data.operator_id) {
       delete data.operator_id;
     };
 
     const order = await Order.update(id, data);
 
-    // 7 logs
+    // 6. logs
     await Log.create({
       order_id: id,
-      operator_id: data?.operator_id ? data.operator_id : check_order.operator_id,
-      old_sub_status_id: check_order?.sub_status_id,
-      new_sub_status_id: data?.sub_status_id ? data?.sub_status_id : check_order?.sub_status_id,
-      action: `Изменение заказа оператором ${data?.operator_id ? data.operator_id : check_order.operator_id} через дайлер`,
-      old_metadata: data,
+      operator_id: tmp_operator_id || null,
+      old_sub_status_id: oldOrder?.sub_status_id,
+      new_sub_status_id: data?.sub_status_id || null,
+      action: `Изменение заказа оператором ${tmp_operator_id} через дайлер`,
+      old_metadata: oldOrder,
       new_metadata: order,
       ip,
     });
@@ -374,12 +376,10 @@ export const updateOrder = async (req, res) => {
   }
 };
 
-export const changeOrderItem = async (req, res) => {
+export const updateOrderItem = async (req, res) => {
   try {
     const { id } = req.query;
     const data = req.body;
-
-    console.log('changeOrderItem', data)
 
     if (!id) {
       return res.status(400).send({
@@ -408,7 +408,7 @@ export const changeOrderItem = async (req, res) => {
 
     res.status(200).json(items);
   } catch (err) {
-    console.log("Error in changeOrderItem dialer controller", err.message);
+    console.log("Error in updateOrderItem dialer controller", err.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -468,6 +468,10 @@ export const getOrdersByIds = async (req, res) => {
     const transformedStatuses = await Promise.all(orders.map(async (order) => {
       const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
 
+      if (order?.logist_recall_at) {
+        console.log(order?.logist_recall_at);
+      };
+
       return {
         ...order,
         webmaster: webmasters.find((w) => +w.id === +order.webmaster_id)?.name ?? '-',
@@ -481,6 +485,7 @@ export const getOrdersByIds = async (req, res) => {
             name: product ? product.name : null,
           };
         }),
+        // logist_recall_at: new Date(order?.logist_recall_at)?.toISOString().slice(0, 10) || null,
         gender: genders.find((g) => +g.id === +order.gender_id)?.name ?? '-',
         payment_method: paymentMethods.find((p) => +p.id === order.payment_id)?.name ?? '-',
         delivery_method: deliveryMethods.find((d) => +d.id === +order.delivery_id)?.name ?? '-',

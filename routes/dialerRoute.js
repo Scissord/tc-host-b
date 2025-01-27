@@ -57,7 +57,7 @@ router.patch("/update_order", checkDialer, controller.updateOrder);
 // Обновление заказа
 // http://localhost:8080/api/dialer/update_order_item?token=90f42555-0c00-4c54-b70e-2da4385683a4&id=10001
 // https://api.talkcall-crm.com/api/dialer/update_order_item?token=""&id=""
-router.patch("/change_order_item", checkDialer, controller.changeOrderItem);
+router.patch("/update_order_item", checkDialer, controller.updateOrderItem);
 
 // Обновление заказа
 // http://localhost:8080/api/dialer/toggle_order?token=90f42555-0c00-4c54-b70e-2da4385683a4&id=10001
