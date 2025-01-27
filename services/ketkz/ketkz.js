@@ -212,7 +212,7 @@ export const sendPostalOrders = async () => {
 
 export const checkSendedOrders = async () => {
 	try {
-		const filter_values = [3, 13, 27, 47, 48];
+		const filter_values = [46];
 		console.log("Filter values:", filter_values);
 
 		const orders = await Order.getWhereIn("o.sub_status_id", filter_values);
@@ -269,7 +269,7 @@ export const checkSendedOrders = async () => {
 							console.log(`Статус ${apiResponse.status_cur} не найден для KD заказа ID: ${id}`);
 						}
 
-					} else if ([13, 48, 26].includes(orderStatuses[id])) { // pd
+					} else if ([13, 48, 26, 46].includes(orderStatuses[id])) { // pd
 						console.log(`Обработка PD заказа ID: ${id}`);
 						if (apiResponse.send_status === 5) {
 							console.log(`Обновление PD заказа ID: ${id}, новый статус: 6`);
