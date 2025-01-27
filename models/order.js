@@ -820,7 +820,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
     }
 
     const startDate = new Date(start);
-    startDate.setHours(0, 0, 0, 0); 
+    startDate.setHours(0, 0, 0, 0);
 
     const endDate = new Date(end);
     endDate.setHours(23, 59, 59, 999);
@@ -834,6 +834,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           ${by_date ? 'DATE(COALESCE(o.approved_at, o.cancelled_at)) AS date,' : ''} 
           o.operator_id AS operator_id,
           COUNT(*) AS total_orders,
+          ARRAY_AGG(o.id) AS all_order_ids,
           SUM(
             CASE
               WHEN 
@@ -842,6 +843,14 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
               THEN 1 ELSE 0
             END
           ) AS accepted_orders,
+          ARRAY_AGG(
+            CASE
+              WHEN 
+              (o.approved_at IS NOT NULL 
+                  AND (o.cancelled_at IS NULL OR o.approved_at > o.cancelled_at))
+              THEN o.id ELSE NULL
+            END
+          ) AS accepted_orders_ids,
           SUM(
             CASE
             WHEN o.cancelled_at IS NOT NULL 
@@ -849,7 +858,14 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
             THEN 1 
             ELSE 0
             END
-        ) AS cancelled_orders,
+          ) AS cancelled_orders,
+          ARRAY_AGG(
+            CASE
+              WHEN o.cancelled_at IS NOT NULL 
+                   AND (o.status_id IN (4))
+              THEN o.id ELSE NULL
+            END
+          ) AS cancelled_orders_ids,
           SUM(
             CASE
               WHEN o.shipped_at IS NOT NULL 
@@ -860,6 +876,16 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
               THEN 1 ELSE 0
             END
           ) AS shipped_orders,
+          ARRAY_AGG(
+            CASE
+              WHEN o.shipped_at IS NOT NULL 
+                AND (o.cancelled_at IS NULL OR o.shipped_at > o.cancelled_at)
+                AND (o.returned_at IS NULL OR o.shipped_at > o.returned_at)
+                AND o.buyout_at IS NULL
+                AND (o.status_id IN (2))
+              THEN o.id ELSE NULL
+            END
+          ) AS shipped_orders_ids,
           SUM(
             CASE
               WHEN o.returned_at IS NOT NULL 
@@ -869,6 +895,15 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
               THEN 1 ELSE 0
             END
           ) AS refunded_orders,
+          ARRAY_AGG(
+            CASE
+              WHEN o.returned_at IS NOT NULL 
+                AND (o.cancelled_at IS NULL OR o.returned_at > o.cancelled_at)
+                AND o.buyout_at IS NULL
+                AND (o.status_id IN (5))
+              THEN o.id ELSE NULL
+            END
+          ) AS refunded_orders_ids,
           SUM(
             CASE
               WHEN o.buyout_at IS NOT NULL
@@ -876,6 +911,13 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
               THEN 1 ELSE 0
             END
           ) AS buyout_orders,
+          ARRAY_AGG(
+            CASE
+              WHEN o.buyout_at IS NOT NULL
+              AND (o.status_id IN (3))
+              THEN o.id ELSE NULL
+            END
+          ) AS buyout_orders_ids,
           SUM(
             CASE
               WHEN o.status_id IN (6)
@@ -906,14 +948,13 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
         }
       })
       .andWhereBetween('o.approved_at', [formattedStartDate, formattedEndDate])
-      .orWhereBetween('o.cancelled_at', [formattedStartDate, formattedEndDate])
+      .orWhereBetween('o.cancelled_at', [formattedStartDate, formattedEndDate]);
 
     if (by_date) {
       query.groupByRaw('DATE(COALESCE(o.approved_at, o.cancelled_at)), o.operator_id, u.login').orderByRaw('DATE(COALESCE(o.approved_at, o.cancelled_at)), o.operator_id');
     } else {
       query.groupByRaw('o.operator_id, u.login').orderByRaw('o.operator_id');
     }
-
 
     const results = await query;
 
@@ -924,10 +965,15 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           operator_id: operator_id || 'Unknown',
           total_orders: 0,
           accepted_orders: 0,
+          accepted_orders_ids: [],
           cancelled_orders: 0,
+          cancelled_orders_ids: [],
           shipped_orders: 0,
+          shipped_orders_ids: [],
           buyout_orders: 0,
+          buyout_orders_ids: [],
           refunded_orders: 0,
+          refunded_orders_ids: [],
           hold_orders: 0,
           spam_orders: 0,
           avg_total_sum: 0,
@@ -937,12 +983,17 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
           operator_id: operator_id || 'Unknown',
           total_orders: 0,
           accepted_orders: 0,
+          accepted_orders_ids: [],
           cancelled_orders: 0,
+          cancelled_orders_ids: [],
           shipped_orders: 0,
+          shipped_orders_ids: [],
+          buyout_orders: 0,
+          buyout_orders_ids: [],
+          refunded_orders: 0,
+          refunded_orders_ids: [],
           hold_orders: 0,
           spam_orders: 0,
-          buyout_orders: 0,
-          refunded_orders: 0,
           avg_total_sum: 0,
           operator_name: 'Unknown',
         };
@@ -954,6 +1005,7 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
     throw new Error('Не удалось получить статистику заказов');
   }
 };
+
 
 export const getByFilters = async function (filters) {
   const {

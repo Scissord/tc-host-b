@@ -81,10 +81,15 @@ export const getOperatorStatistic = async (req, res) => {
         date: by_date ? result.date : undefined,
         totalOrders: parseInt(result.total_orders, 10),
         acceptedOrders: parseInt(result.accepted_orders, 10),
+        acceptedOrdersIds: result.accepted_orders_ids || [], // Добавляем массив id
         cancelledOrders: parseInt(result.cancelled_orders, 10),
+        cancelledOrdersIds: result.cancelled_orders_ids || [], // Добавляем массив id
         refundedOrders: parseInt(result.refunded_orders, 10),
+        refundedOrdersIds: result.refunded_orders_ids || [], // Добавляем массив id
         shippedOrders: parseInt(result.shipped_orders, 10),
+        shippedOrdersIds: result.shipped_orders_ids || [], // Добавляем массив id
         buyoutOrders: parseInt(result.buyout_orders, 10),
+        buyoutOrdersIds: result.buyout_orders_ids || [], // Добавляем массив id
         spamOrders: parseInt(result.spam_orders, 10),
         holdOrders: parseInt(result.hold_orders, 10),
         avgTotalSum: result.avg_total_sum ? parseFloat(result.avg_total_sum) : 0,
