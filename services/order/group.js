@@ -234,12 +234,17 @@ export const calculateStatistics = (data, by_date = false) => {
   let overall = {
     totalOrders: 0,
     acceptedOrders: 0,
+    acceptedOrdersIds: [],
     cancelledOrders: 0,
+    cancelledOrdersIds: [],
     shippedOrders: 0,
+    shippedOrdersIds: [],
     refundedOrders: 0,
+    refundedOrdersIds: [],
     holdOrders: 0,
     spamOrders: 0,
     buyoutOrders: 0,
+    buyoutOrdersIds: [],
     avgTotalSum: 0,
   };
   let totalSumCount = 0;
@@ -283,7 +288,17 @@ export const calculateStatistics = (data, by_date = false) => {
 
 // Вспомогательная функция для расчёта статистики
 const calculateStatisticsForItem = (data) => {
-  const { totalOrders = 0, acceptedOrders = 0, cancelledOrders = 0, shippedOrders = 0, buyoutOrders = 0 } = data;
+  const { 
+    totalOrders = 0, 
+    acceptedOrders = 0, 
+    acceptedOrdersIds = [],
+    cancelledOrders = 0, 
+    cancelledOrdersIds = [],
+    shippedOrders = 0, 
+    shippedOrdersIds = [],
+    buyoutOrders = 0, 
+    buyoutOrdersIds = [] 
+  } = data;
 
   if (totalOrders === 0) {
     return {
@@ -309,6 +324,10 @@ const calculateStatisticsForItem = (data) => {
     cancelledPercentage: parseFloat(cancelledPercentage),
     shippedPercentage: parseFloat(shippedPercentage),
     buyoutPercentage: parseFloat(buyoutPercentage),
+    acceptedOrdersIds: acceptedOrdersIds.filter((id) => id !== null), // Убираем null
+    cancelledOrdersIds: cancelledOrdersIds.filter((id) => id !== null), // Убираем null
+    shippedOrdersIds: shippedOrdersIds.filter((id) => id !== null), // Убираем null
+    buyoutOrdersIds: buyoutOrdersIds.filter((id) => id !== null), // Убираем null
   };
 };
 
@@ -320,8 +339,16 @@ const aggregateOverall = (overall, item) => {
   overall.shippedOrders += item.shippedOrders || 0;
   overall.buyoutOrders += item.buyoutOrders || 0;
   overall.avgTotalSum += (item.avgTotalSum || 0) * (item.buyoutOrders || 0);
+
+  // Агрегируем массивы id
+  overall.acceptedOrdersIds = [...overall.acceptedOrdersIds, ...(item.acceptedOrdersIds || [])];
+  overall.cancelledOrdersIds = [...overall.cancelledOrdersIds, ...(item.cancelledOrdersIds || [])];
+  overall.shippedOrdersIds = [...overall.shippedOrdersIds, ...(item.shippedOrdersIds || [])];
+  overall.buyoutOrdersIds = [...overall.buyoutOrdersIds, ...(item.buyoutOrdersIds || [])];
+
   return overall;
 };
+
 
 
 export const groupOperators = (orders, operators) => {
