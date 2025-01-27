@@ -5,7 +5,6 @@ const ERRORS = {
   INVALID_PASSWORD: 'Неверный пароль!',
   NEED_TO_RELOGIN: 'Перезайдите в систему!',
   INVALID_UPDATED_AT: 'Было обновление у этого пользователя',
-
   // tokens
   TOKEN_EXPIRED: 'TokenExpiredError',
   NO_ACCESS: 'Unauthorized - No Token Provided',
@@ -35,6 +34,7 @@ const ERRORS = {
   PERMISSION_EXIST: 'У пользователя уже есть этот доступ!',
   // orders
   ORDERS_NOT_FOUND: 'Заказы не найдены!',
+  CHOSE_ORDERS: 'Выберите заказы!',
 };
 
 export default ERRORS;

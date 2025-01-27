@@ -323,81 +323,87 @@ export const changeStatus = async (req, res) => {
 		const responsible_id = req.operator?.id || null;
 		const responsible = responsible_id ? 'оператором' : 'администратором';
 
-		if (ids.length === 0) {
-			const subStatus = await SubStatus.find(old_sub_status_id);
-
-			let orders = [];
-			if (is_filtered) {
-				console.log(filters);
-				orders = await Order.getByFilters(filters);
-			} else {
-				orders = await Order.getWhere({ sub_status_id: old_sub_status_id });
-			};
-
-			await Order.updateWhereIn(orders.map(order => order.id), {
-				status_id: subStatus.status_id,
-				sub_status_id: new_sub_status_id,
-				updated_at: new Date(),
+		if (!ids.length) {
+			return res.status(400).send({
+				message: ERRORS.CHOSE_ORDERS
 			});
+		}
 
-			for (const order of orders) {
-				// 4. if 1, 4 or 12 change approved_by and cancelled_by
-				if (!order.operator_id && (+new_sub_status_id === 1 || +new_sub_status_id === 4 || +new_sub_status_id === 12)) {
-					await Order.update(order.id, { operator_id: responsible_id });
-				};
+		// if (ids.length === 0) {
+		// 	const newSubStatus = await SubStatus.find(new_sub_status_id);
 
-				if (+new_sub_status_id === 1 || +new_sub_status_id === 4) {
-					await Order.update(order.id, {
-						approved_at: new Date(),
-						updated_at: new Date(),
-					});
-				};
+		// 	let orders = [];
+		// 	if (is_filtered) {
+		// 		console.log(filters);
+		// 		orders = await Order.getByFilters(filters);
+		// 	} else {
+		// 		orders = await Order.getWhere({ sub_status_id: old_sub_status_id });
+		// 	};
 
-				if (+new_sub_status_id === 12) {
-					await Order.update(order.id, {
-						cancelled_at: new Date(),
-						updated_at: new Date()
-					});
-				};
+		// 	await Order.updateWhereIn(orders.map(order => order.id), {
+		// 		status_id: newSubStatus.status_id,
+		// 		sub_status_id: new_sub_status_id,
+		// 		updated_at: new Date(),
+		// 	});
 
-				if (+new_sub_status_id === 3 || +new_sub_status_id === 13) {
-					await Order.update(order.id, {
-						shipped_at: new Date(),
-						updated_at: new Date(),
-					});
-				};
+		// 	for (const order of orders) {
+		// 		// 4. if 1, 4 or 12 change approved_by and cancelled_by
+		// 		if (!order.operator_id && (+new_sub_status_id === 1 || +new_sub_status_id === 4 || +new_sub_status_id === 12)) {
+		// 			await Order.update(order.id, { operator_id: responsible_id });
+		// 		};
 
-				if (+new_sub_status_id === 5 || +new_sub_status_id === 6 || +new_sub_status_id === 27) {
-					await Order.update(order.id, {
-						buyout_at: new Date(),
-						updated_at: new Date(),
-					});
-				};
+		// 		if (+new_sub_status_id === 1 || +new_sub_status_id === 4) {
+		// 			await Order.update(order.id, {
+		// 				approved_at: new Date(),
+		// 				updated_at: new Date(),
+		// 			});
+		// 		};
 
-				if (+new_sub_status_id === 7 || +new_sub_status_id === 47 || +new_sub_status_id === 48) {
-					await Order.update(order.id, {
-						returned_at: new Date(),
-						updated_at: new Date(),
-					});
-				};
+		// 		if (+new_sub_status_id === 12) {
+		// 			await Order.update(order.id, {
+		// 				cancelled_at: new Date(),
+		// 				updated_at: new Date()
+		// 			});
+		// 		};
 
-				await OrderSignals.statusChangeSignal(+order.id, +new_sub_status_id);
+		// 		if (+new_sub_status_id === 3 || +new_sub_status_id === 13) {
+		// 			await Order.update(order.id, {
+		// 				shipped_at: new Date(),
+		// 				updated_at: new Date(),
+		// 			});
+		// 		};
 
-				await Log.create({
-					order_id: order.id,
-					operator_id: order?.operator_id || null,
-					old_sub_status_id: old_sub_status_id,
-					new_sub_status_id: new_sub_status_id,
-					action: `Все заказы из статуса ${old_sub_status_id} перенесены в ${new_sub_status_id}, ${responsible} №${responsible_id}.`,
-					ip,
-				});
-			};
+		// 		if (+new_sub_status_id === 5 || +new_sub_status_id === 6 || +new_sub_status_id === 27) {
+		// 			await Order.update(order.id, {
+		// 				buyout_at: new Date(),
+		// 				updated_at: new Date(),
+		// 			});
+		// 		};
 
-			return res.status(200).send({
-				message: 'ok',
-				orders
-			});
-		};
+		// 		if (+new_sub_status_id === 7 || +new_sub_status_id === 47 || +new_sub_status_id === 48) {
+		// 			await Order.update(order.id, {
+		// 				returned_at: new Date(),
+		// 				updated_at: new Date(),
+		// 			});
+		// 		};
+
+		// 		await OrderSignals.statusChangeSignal(+order.id, +new_sub_status_id);
+
+		// 		await Log.create({
+		// 			order_id: order.id,
+		// 			operator_id: order?.operator_id || null,
+		// 			old_sub_status_id: old_sub_status_id,
+		// 			new_sub_status_id: new_sub_status_id,
+		// 			action: `Все заказы из статуса ${old_sub_status_id} перенесены в ${new_sub_status_id}, ${responsible} №${responsible_id}.`,
+		// 			ip,
+		// 		});
+		// 	};
+
+		// 	return res.status(200).send({
+		// 		message: 'ok',
+		// 		orders
+		// 	});
+		// };
 
 		const newSubStatus = await SubStatus.find(new_sub_status_id);
 		const orders = await Order.updateWhereIn(ids, {

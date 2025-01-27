@@ -1,6 +1,7 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
 
+import * as Log from '#models/log.js';
 import * as Order from '#models/order.js';
 import * as OrderItems from '#models/order_item.js';
 import * as SubStatus from '#models/sub_status.js';
@@ -8,6 +9,7 @@ import * as SubStatus from '#models/sub_status.js';
 dotenv.config();
 
 const cancelledOrder = async (order, sub_status_id) => {
+    const oldOrder = order;
     const sub_status = await SubStatus.find(sub_status_id);
 
     const orderItems = await OrderItems.getByOrderId([order.id]);
@@ -46,6 +48,15 @@ const cancelledOrder = async (order, sub_status_id) => {
     await Promise.all(
         updatedOrderItems.map((item) => OrderItems.create(item))
     );
+
+    await Log.create({
+        order_id: new_order.id,
+        old_sub_status_id: oldOrder.sub_status_id,
+        new_sub_status_id: sub_status_id,
+        action: `Заказ №${new_order.id} был пересоздан, старый - ${oldOrder.id}`,
+        old_metadata: oldOrder,
+        new_metadata: new_order,
+    });
 };
 
 export const orderCreateSignal = async (new_order) => {
@@ -104,7 +115,7 @@ export const statusChangeSignal = async (order_id, sub_status_id) => {
 };
 
 export const postbackKeitaroSignal = async (utm_term, domain, status) => {
-    
+
     const params = {
         subid: utm_term,
         payout: 0,

@@ -1,62 +1,67 @@
 import dotenv from 'dotenv';
 import * as Order from '#models/order.js';
-import * as OrderGood from '#models/order_item.js'
-import * as City from '#models/city.js'
-import * as KetUtils from '#utils/ketOrderName.js'
+import * as OrderGood from '#models/order_item.js';
+import * as City from '#models/city.js';
+import * as KetUtils from '#utils/ketOrderName.js';
+import * as Log from '#models/log.js';
 import { getCityCode } from '#utils/cityCode.js';
 import { getKetStatus } from '#utils/ketStatusArray.js'
 
 dotenv.config();
 
 export const sendOrders = async (orders) => {
-    try {
-        const promises = orders.map(order =>
-            fetch(`${process.env.KETKZ_URL}?uid=${order.client_id}`, { 
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(order),
-            })
-        );
+	try {
+		const promises = orders.map(order =>
+			fetch(`${process.env.KETKZ_URL}?uid=${order.client_id}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(order),
+			})
+		);
 
-        const responses = await Promise.all(promises);
+		const responses = await Promise.all(promises);
 
-        for (const [index, response] of responses.entries()) {
-            if (!response.ok) {
-                console.error(
-                    `Ошибка при отправке заказа ${orders[index].id}: ${response.status} - ${response.statusText}`
-                );
-            } else {
-                try {
-                    const data = await response.json();
-                    console.log(`Заказ ${orders[index].id} успешно отправлен:`, data);
-                } catch (jsonError) {
-                    console.error(`Ошибка парсинга JSON для заказа ${orders[index].id}:`, jsonError.message);
-                }
-            }
-        }
+		for (const [index, response] of responses.entries()) {
+			if (!response.ok) {
+				console.error(
+					`Ошибка при отправке заказа ${orders[index].id}: ${response.status} - ${response.statusText}`
+				);
+			} else {
+				try {
+					const data = await response.json();
+					console.log(`Заказ ${orders[index].id} успешно отправлен:`, data);
+					// await Log.create({
+					// 	order_id: orders[index].id,
+					// 	action: `Заказ ${orders[index].id} успешно отправлен (ketkz):`,
+					// 	old_metadata: orders[index],
+					// });
+				} catch (jsonError) {
+					console.error(`Ошибка парсинга JSON для заказа ${orders[index].id}:`, jsonError.message);
+				}
+			}
+		}
 
-        console.log("Все заказы обработаны!");
-    } catch (error) {
-        console.error("Общая ошибка при обработке заказов:", error.message);
-    }
+		console.log("Все заказы обработаны!");
+	} catch (error) {
+		console.error("Общая ошибка при обработке заказов:", error.message);
+	}
 };
 
 
 export const sendCourierOrders = async () => {
-    const tomorrow = new Date();
+	const tomorrow = new Date();
 	tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const formattedTomorrow = tomorrow.toISOString().split('T')[0]; 
+	const formattedTomorrow = tomorrow.toISOString().split('T')[0];
 
 	const orders = await Order.getWhere({
-            sub_status_id: 15,
-            delivery_at: formattedTomorrow
-        });
+		sub_status_id: 15,
+		delivery_at: formattedTomorrow
+	});
 
-    
-    const newOrders = [];
+	const newOrders = [];
 	const orderIds = [];
 
 	for (const order of orders) {
@@ -65,12 +70,12 @@ export const sendCourierOrders = async () => {
 		if (!orderItems || orderItems.length === 0) {
 			console.log(`Заказ ${order.id} не содержит товаров.`);
 			continue;
-			}
+		};
 
 		const firstItem = orderItems[0];
 		const orderName = KetUtils.getOrderName(firstItem.product_id, firstItem.quantity);
-			
-	
+
+
 		const city = await City.find(order.city_id);
 		const cityCode = getCityCode(city.name);
 
@@ -90,37 +95,33 @@ export const sendCourierOrders = async () => {
 		};
 
 		newOrders.push(newOrder);
-		
+		orderIds.push(order.id);
+	};
 
-		orderIds.push(order.id)
+	await sendOrders(newOrders);
 
-		};
-
-    await sendOrders(newOrders);
-
-	await Order.updateWhereIn(orderIds, {sub_status_id: 3})
-
-}
+	await Order.updateWhereIn(orderIds, { sub_status_id: 3 })
+};
 
 
 export const sendCourierCityOrders = async () => {
-    const tomorrow = new Date();
+	const tomorrow = new Date();
 	tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const formattedTomorrow = tomorrow.toISOString().split('T')[0]; 
+	const formattedTomorrow = tomorrow.toISOString().split('T')[0];
 
 	const orders = await Order.getWhere({
-            sub_status_id: 15,
-            delivery_at: formattedTomorrow
-        });
+		sub_status_id: 15,
+		delivery_at: formattedTomorrow
+	});
 
-    
-    const newOrders = [];
+
+	const newOrders = [];
 	const orderIds = [];
 
 	for (const order of orders) {
 
-        const cityIds = [4, 5];
+		const cityIds = [4, 5];
 
 		if (cityIds.includes(order.city_id)) {
 			console.log(`City ID ${order.city_id} is in the array.`);
@@ -132,12 +133,12 @@ export const sendCourierCityOrders = async () => {
 		if (!orderItems || orderItems.length === 0) {
 			console.log(`Заказ ${order.id} не содержит товаров.`);
 			continue;
-			}
+		}
 
 		const firstItem = orderItems[0];
 		const orderName = KetUtils.getOrderName(firstItem.product_id, firstItem.quantity);
-			
-	
+
+
 		const city = await City.find(order.city_id);
 		const cityCode = getCityCode(city.name);
 
@@ -157,25 +158,21 @@ export const sendCourierCityOrders = async () => {
 		};
 
 		newOrders.push(newOrder);
-		
+		orderIds.push(order.id);
+	};
 
-		orderIds.push(order.id)
+	await sendOrders(newOrders);
 
-		};
-
-    await sendOrders(newOrders);
-
-	await Order.updateWhereIn(orderIds, {sub_status_id: 3})
-
-}
+	await Order.updateWhereIn(orderIds, { sub_status_id: 3 })
+};
 
 
 export const sendPostalOrders = async () => {
 	const orders = await Order.getWhere({
-            sub_status_id: 16
-        });
+		sub_status_id: 16
+	});
 
-    const newOrders = [];
+	const newOrders = [];
 	const orderIds = [];
 
 	for (const order of orders) {
@@ -184,42 +181,38 @@ export const sendPostalOrders = async () => {
 		if (!orderItems || orderItems.length === 0) {
 			console.log(`Заказ ${order.id} не содержит товаров.`);
 			continue;
-			}
+		}
 
 		const firstItem = orderItems[0];
 		const orderName = KetUtils.getOrderName(firstItem.product_id, firstItem.quantity);
-			
+
 		const newOrder = {
-            phone: order.phone,
-            price: order.total_sum,
-            order_id: order.id,
-            name: order.fio,
-            country: 'kz',
-            addr: order.region,
-            kz_delivery: "32",
-            offer: orderName,
-            secret: process.env.KETKZ_SECRET,
-            date_delivery: order.delivery_at,
-            client_id: process.env.KETKZ_UID,
-            deliv_desc: order.address,
-            index: order.postal_code
-        };
-
-		newOrders.push(newOrder);
-		
-
-		orderIds.push(order.id)
-
+			phone: order.phone,
+			price: order.total_sum,
+			order_id: order.id,
+			name: order.fio,
+			country: 'kz',
+			addr: order.region,
+			kz_delivery: "32",
+			offer: orderName,
+			secret: process.env.KETKZ_SECRET,
+			date_delivery: order.delivery_at,
+			client_id: process.env.KETKZ_UID,
+			deliv_desc: order.address,
+			index: order.postal_code
 		};
 
-    await sendOrders(newOrders);
-	await Order.updateWhereIn(orderIds, {sub_status_id: 13})
+		newOrders.push(newOrder);
+		orderIds.push(order.id)
+	};
 
-}
+	await sendOrders(newOrders);
+	await Order.updateWhereIn(orderIds, { sub_status_id: 13 })
+};
 
 export const checkSendedOrders = async () => {
 	try {
-		const filter_values = [3, 13, 27, 47 ,48];
+		const filter_values = [3, 13, 27, 47, 48];
 		console.log("Filter values:", filter_values);
 
 		const orders = await Order.getWhereIn("o.sub_status_id", filter_values);
@@ -313,8 +306,7 @@ export const checkSendedOrders = async () => {
 };
 
 
-export const getOrderInfoFromKet = async (ext_id) => { 
-
+export const getOrderInfoFromKet = async (ext_id) => {
 	const bodyData = new URLSearchParams({
 		data: JSON.stringify([{ ext_id }])
 	}).toString();
@@ -328,17 +320,17 @@ export const getOrderInfoFromKet = async (ext_id) => {
 				body: bodyData
 			}
 		);
-		
+
 		const data = await response.json();
-	    console.log(data)
+		console.log(data)
 		if (data) {
-			const orderKey = Object.keys(data)[0]; 
+			const orderKey = Object.keys(data)[0];
 			console.log(orderKey)
-			const returnData = { ...data[orderKey] }; 
+			const returnData = { ...data[orderKey] };
 			console.log(returnData)
-			delete returnData.phone; 
-	
-			return returnData; 
+			delete returnData.phone;
+
+			return returnData;
 		} else {
 			throw new Error("Данные отсутствуют в ответе.");
 		}
@@ -346,10 +338,7 @@ export const getOrderInfoFromKet = async (ext_id) => {
 		console.error("Ошибка при выполнении запроса:", err.message);
 		throw err;
 	}
-	
+};
 
-}
 
-  
-  
-  
+
