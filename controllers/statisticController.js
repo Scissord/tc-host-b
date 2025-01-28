@@ -271,7 +271,7 @@ export const fromHundredThousand = async (req, res) => {
           console.log(`Нет данных для заказа ID: ${order.id}`);
           continue;
         }
-
+        console.log(data)
         const leadvertex_id = data[0];
         console.log(
           `Leadvertex ID ${leadvertex_id} найден для заказа ID: ${order.id}. Обновляем статус...`
