@@ -263,30 +263,30 @@ export const fromHundredThousand = async (req, res) => {
         console.log(`Получение Leadvertex ID для заказа ID: ${order.id}...`);
         
 
-        const response = await axios({
-          method: "GET",
-          url: `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&additional19=${order.id}`,
-        });
+        // const response = await axios({
+        //   method: "GET",
+        //   url: `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&additional19=${order.id}`,
+        // });
 
-        const data = response.data;
-        if (!data || data.length === 0) {
-          console.log(`Нет данных для заказа ID: ${order.id}`);
-          return;
-        }
-        let leadvertex_id = null
-        if (data.length > 0) {
-          leadvertex_id = data[data.length - 1];
-        }
-        leadvertex_id = data[0];
+        // const data = response.data;
+        // if (!data || data.length === 0) {
+        //   console.log(`Нет данных для заказа ID: ${order.id}`);
+        //   return;
+        // }
+        // let leadvertex_id = null
+        // if (data.length > 0) {
+        //   leadvertex_id = data[data.length - 1];
+        // }
+        // leadvertex_id = data[0];
 
-        console.log(`Данные ответа для заказа ID ${order.id}:`, data);
-        console.log(
-          `Leadvertex ID ${leadvertex_id} найден для заказа ID: ${order.id}. Обновляем статус...`
-        );
+        // console.log(`Данные ответа для заказа ID ${order.id}:`, data);
+        // console.log(
+        //   `Leadvertex ID ${leadvertex_id} найден для заказа ID: ${order.id}. Обновляем статус...`
+        // );
 
         const updateResponse = await axios({
           method: "POST",
-          url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${leadvertex_id}`,
+          url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${order.id}`,
           data: new URLSearchParams({
             status: order.sub_status_id,
           }).toString(),
