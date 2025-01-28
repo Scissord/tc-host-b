@@ -311,9 +311,9 @@ export const fromHundredThousand = async (req, res) => {
       ? [
         {
           add: items.map((item) => ({
-            "goodID": `${item.product_id}`,
-            "quantity": `${item.quantity}`,
-            "price": `${item.price}`,
+            goodID: `${item.product_id}`,
+            quantity: `${item.quantity}`,
+            price: `${item.price}`,
           })),
         }
       ]
