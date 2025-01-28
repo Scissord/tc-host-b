@@ -358,7 +358,7 @@ export const fromHundredThousand = async (req, res) => {
                 kazpostTrack: order.additional4,
                 utm_term: order.utm_term,
                 domain: order.additional1,
-                goods: JSON.stringify(goods),
+                goods: goods,
               },
             });
 
@@ -368,7 +368,7 @@ export const fromHundredThousand = async (req, res) => {
         const updateResponse = await axios.post(
           `${apiUrlToUpdate}?token=${apiKey}&id=${order.id}`,
           new URLSearchParams({
-            status: subStatusId,
+            status: order.sub_status_id,
           }),
           {
             headers: {
