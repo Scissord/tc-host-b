@@ -365,17 +365,16 @@ export const fromHundredThousand = async (req, res) => {
     if (response.status == 200){
       console.log('OK')
         
-        const updateResponse = await axios.post(
-          `${apiUrlToUpdate}?token=${apiKey}&id=${order.id}`,
-          {
+        const updateResponse = await axios({
+          method: 'POST',
+          url: `${apiUrlToUpdate}?token=${apiKey}&id=${order.id}`,
+          data: {
             status: order.sub_status_id,
           },
-          {
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
           }
-        );
+        });
 
         if (updateResponse.status === 200) {
           console.log('Order successfully updated:', updateResponse.data);
