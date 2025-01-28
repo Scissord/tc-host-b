@@ -308,16 +308,16 @@ export const fromHundredThousand = async (req, res) => {
   for (const order of orders) {
     const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
     const goods = Array.isArray(items) && items.length > 0
-      ? [
-        {
-          add: items.map((item) => ({
+      ? [{
+        "add": [
+          items.map((item) => ({
             goodID: item.product_id,
             quantity: item.quantity,
             price: item.price,
           })),
-        }
-      ]
-      : [{ add: [] }];
+        ]
+      }]
+      : [{ "add": [] }];
 
     const res = await axios({
       method: 'GET',
