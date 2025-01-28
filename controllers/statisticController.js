@@ -308,15 +308,15 @@ export const fromHundredThousand = async (req, res) => {
   const payment_methods = await Payment.get();
   const delivery_methods = await Delivery.get();
   const order_cancel_reasons = await CancelReason.get();
-  const orders = await Order.getFrom(104910);
+  const orders = await Order.getFrom(104960);
 
   for (const order of orders) {
     const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
     const goods = Array.isArray(items) && items.length > 0
       ? items.map((item, index) => ({
         goodID: item.product_id,
-        quantity: item.quantity,
-        price: item.price,
+        quantity: item.quantity || 1,
+        price: item.price || 0,
       }))
       : [];
 
