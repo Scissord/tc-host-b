@@ -314,21 +314,19 @@ export const fromHundredThousand = async (req, res) => {
         "price": `${item.price}`,
       }))
       : [];
-
+    
     const res = await axios({
-      method: 'POST',
-      url: 'https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa',
+      method: 'GET',
+      url: `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&additional19=${order.id}`,
       headers: {
         "Content-Type": 'application/x-www-form-urlencoded'
-      },
-      data: {
-        additional19: `${order.id}`
       }
     });
 
     if (res.status == 200) {
       const check_data = res.data;
       if (check_data?.length > 0) {
+        console.log(goods)
         const respo = await axios({
           method: 'POST',
           url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${check_data[0]}`,
