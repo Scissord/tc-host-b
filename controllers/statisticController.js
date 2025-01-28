@@ -344,9 +344,7 @@ export const fromHundredThousand = async (req, res) => {
           headers: {
             "Content-Type": 'application/x-www-form-urlencoded'
           },
-          data: {
-            goods: JSON.stringify(data),
-          }
+          data: JSON.stringify(data),
         });
 
         if (respo.status == 200) {
