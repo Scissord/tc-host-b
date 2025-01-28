@@ -319,7 +319,13 @@ export const fromHundredThousand = async (req, res) => {
     
     // Формирование тела запроса
     const data = new URLSearchParams();
-    data.append('goods', JSON.stringify(goods));
+    for (const [key, value] of Object.entries(goods)) {
+      value.forEach((item, index) => {
+        data.append(`goods[${key}][${index}][goodID]`, item.goodID);
+        data.append(`goods[${key}][${index}][quantity]`, item.quantity);
+        data.append(`goods[${key}][${index}][price]`, item.price);
+      });
+    }
     
     
 
