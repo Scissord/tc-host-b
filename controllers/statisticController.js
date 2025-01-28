@@ -327,6 +327,9 @@ export const fromHundredThousand = async (req, res) => {
       });
     }
 
+    const data_to_send = [
+      {"add": [data]}
+    ]
     const res = await axios({
       method: 'GET',
       url: `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&additional19=${order.id}`,
@@ -344,7 +347,7 @@ export const fromHundredThousand = async (req, res) => {
           headers: {
             "Content-Type": 'application/x-www-form-urlencoded'
           },
-          data: data.toString(),
+          data: data_to_send,
         });
 
         if (respo.status == 200) {
