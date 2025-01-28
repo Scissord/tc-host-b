@@ -1004,7 +1004,6 @@ export const getOrderStatisticForOperator = async (start, end, operator_id = nul
   }
 };
 
-
 export const getByFilters = async function (filters) {
   const {
     id,
@@ -1410,9 +1409,6 @@ export const getUnloadingOrders = async function (
 
   return orders;
 };
-
-
-
 
 export const getAllIds = async () => {
   return await db('order as o')

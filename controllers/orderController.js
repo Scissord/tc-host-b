@@ -8,7 +8,11 @@ import * as Log from '#models/log.js';
 import { setKeyValue, getKeyValue } from '#services/redis/redis.js';
 import { mapOrders, mapOrder } from '#services/order/map.js';
 import { hideString, hidePhoneInComment } from '#utils/hideString.js';
-import { unloadingIdsOrders, unloadingFilteredOrders, unloadingSubStatusOrders } from '#services/xlsx/unloadingOrders.js';
+import {
+	unloadingIdsOrders,
+	unloadingFilteredOrders,
+	unloadingSubStatusOrders,
+} from '#services/xlsx/unloadingOrders.js';
 import ERRORS from '#constants/errors.js';
 import globalPrice from '#constants/price.js';
 
@@ -323,87 +327,86 @@ export const changeStatus = async (req, res) => {
 		const responsible_id = req.operator?.id || null;
 		const responsible = responsible_id ? 'оператором' : 'администратором';
 
-		if (!ids.length) {
-			return res.status(400).send({
-				message: ERRORS.CHOSE_ORDERS
-			});
-		}
-
-		// if (ids.length === 0) {
-		// 	const newSubStatus = await SubStatus.find(new_sub_status_id);
-
-		// 	let orders = [];
-		// 	if (is_filtered) {
-		// 		console.log(filters);
-		// 		orders = await Order.getByFilters(filters);
-		// 	} else {
-		// 		orders = await Order.getWhere({ sub_status_id: old_sub_status_id });
-		// 	};
-
-		// 	await Order.updateWhereIn(orders.map(order => order.id), {
-		// 		status_id: newSubStatus.status_id,
-		// 		sub_status_id: new_sub_status_id,
-		// 		updated_at: new Date(),
-		// 	});
-
-		// 	for (const order of orders) {
-		// 		// 4. if 1, 4 or 12 change approved_by and cancelled_by
-		// 		if (!order.operator_id && (+new_sub_status_id === 1 || +new_sub_status_id === 4 || +new_sub_status_id === 12)) {
-		// 			await Order.update(order.id, { operator_id: responsible_id });
-		// 		};
-
-		// 		if (+new_sub_status_id === 1 || +new_sub_status_id === 4) {
-		// 			await Order.update(order.id, {
-		// 				approved_at: new Date(),
-		// 				updated_at: new Date(),
-		// 			});
-		// 		};
-
-		// 		if (+new_sub_status_id === 12) {
-		// 			await Order.update(order.id, {
-		// 				cancelled_at: new Date(),
-		// 				updated_at: new Date()
-		// 			});
-		// 		};
-
-		// 		if (+new_sub_status_id === 3 || +new_sub_status_id === 13) {
-		// 			await Order.update(order.id, {
-		// 				shipped_at: new Date(),
-		// 				updated_at: new Date(),
-		// 			});
-		// 		};
-
-		// 		if (+new_sub_status_id === 5 || +new_sub_status_id === 6 || +new_sub_status_id === 27) {
-		// 			await Order.update(order.id, {
-		// 				buyout_at: new Date(),
-		// 				updated_at: new Date(),
-		// 			});
-		// 		};
-
-		// 		if (+new_sub_status_id === 7 || +new_sub_status_id === 47 || +new_sub_status_id === 48) {
-		// 			await Order.update(order.id, {
-		// 				returned_at: new Date(),
-		// 				updated_at: new Date(),
-		// 			});
-		// 		};
-
-		// 		await OrderSignals.statusChangeSignal(+order.id, +new_sub_status_id);
-
-		// 		await Log.create({
-		// 			order_id: order.id,
-		// 			operator_id: order?.operator_id || null,
-		// 			old_sub_status_id: old_sub_status_id,
-		// 			new_sub_status_id: new_sub_status_id,
-		// 			action: `Все заказы из статуса ${old_sub_status_id} перенесены в ${new_sub_status_id}, ${responsible} №${responsible_id}.`,
-		// 			ip,
-		// 		});
-		// 	};
-
-		// 	return res.status(200).send({
-		// 		message: 'ok',
-		// 		orders
+		// if (!ids.length) {
+		// 	return res.status(400).send({
+		// 		message: ERRORS.CHOSE_ORDERS
 		// 	});
 		// };
+
+		if (ids.length === 0) {
+			const newSubStatus = await SubStatus.find(new_sub_status_id);
+
+			let orders = [];
+			if (is_filtered) {
+				orders = await Order.getByFilters(filters);
+			} else {
+				orders = await Order.getWhere({ sub_status_id: old_sub_status_id });
+			};
+
+			await Order.updateWhereIn(orders.map(order => order.id), {
+				status_id: newSubStatus.status_id,
+				sub_status_id: new_sub_status_id,
+				updated_at: new Date(),
+			});
+
+			for (const order of orders) {
+				// 4. if 1, 4 or 12 change approved_by and cancelled_by
+				if (!order.operator_id && (+new_sub_status_id === 1 || +new_sub_status_id === 4 || +new_sub_status_id === 12)) {
+					await Order.update(order.id, { operator_id: responsible_id });
+				};
+
+				if (+new_sub_status_id === 1 || +new_sub_status_id === 4) {
+					await Order.update(order.id, {
+						approved_at: new Date(),
+						updated_at: new Date(),
+					});
+				};
+
+				if (+new_sub_status_id === 12) {
+					await Order.update(order.id, {
+						cancelled_at: new Date(),
+						updated_at: new Date()
+					});
+				};
+
+				if (+new_sub_status_id === 3 || +new_sub_status_id === 13) {
+					await Order.update(order.id, {
+						shipped_at: new Date(),
+						updated_at: new Date(),
+					});
+				};
+
+				if (+new_sub_status_id === 5 || +new_sub_status_id === 6 || +new_sub_status_id === 27) {
+					await Order.update(order.id, {
+						buyout_at: new Date(),
+						updated_at: new Date(),
+					});
+				};
+
+				if (+new_sub_status_id === 7 || +new_sub_status_id === 47 || +new_sub_status_id === 48) {
+					await Order.update(order.id, {
+						returned_at: new Date(),
+						updated_at: new Date(),
+					});
+				};
+
+				await OrderSignals.statusChangeSignal(+order.id, +new_sub_status_id);
+
+				await Log.create({
+					order_id: order.id,
+					operator_id: order?.operator_id || null,
+					old_sub_status_id: old_sub_status_id,
+					new_sub_status_id: new_sub_status_id,
+					action: `Все заказы из статуса ${old_sub_status_id} перенесены в ${new_sub_status_id}, ${responsible} №${responsible_id}.`,
+					ip,
+				});
+			};
+
+			return res.status(200).send({
+				message: 'ok',
+				orders
+			});
+		};
 
 		const newSubStatus = await SubStatus.find(new_sub_status_id);
 		const orders = await Order.updateWhereIn(ids, {
@@ -702,144 +705,72 @@ export const unloading = async (req, res) => {
 };
 
 // export const sync = async (req, res) => {
-// 	console.log()
-// };
+// 	// additional19 - externalID
 
-// export const sync = async (req, res) => {
-// 	try {
-// 		// 29.01.2025
-// 		// 15.01.2025
+// 	// orders from 100000
+// 	const cities = await City.get();
+// 	const orders = await Order.getFrom(100000);
+// 	for (const order of orders) {
+// 		const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
+// 		const goods = Array.isArray(items) && items.length > 0
+// 			? items.map((item, index) => ({
+// 				goodID: item.product_id,
+// 				quantity: item.quantity,
+// 				price: item.price,
+// 			}))
+// 			: [];
 
-// 		// Получаем текущие заказы
-// 		const orders_from_db = await Order.get();
-// 		const current_orders = orders_from_db.map(({ id, ...rest }) => ({ ...rest }));
 
-// 		// Получаем их items
-// 		const order_items_from_db = await OrderItem.get();
-// 		const current_items = order_items_from_db.map(({ id, ...rest }) => rest);
-
-// 		// Удаляем items
-// 		await OrderItem.hardDeleteAll();
-// 		await db.raw("SELECT setval('order_item_id_seq', 1, false)");
-
-// 		// Удаляем сами orders
-// 		await Order.hardDeleteAll();
-// 		await db.raw("SELECT setval('order_id_seq', 100000, false)");
-
-// 		// Создаём новые orders
-// 		const orders = await Order.createMany(current_orders);
-
-// 		// Создаём маппинг старых и новых order_id
-// 		const orderIdMap = {};
-// 		orders_from_db.forEach((oldOrder, index) => {
-// 			orderIdMap[oldOrder.id] = orders[index].id;
+// 		await axios({
+// 			method: 'POST',
+// 			url: 'https://talkcall-kz.leadvertex.ru/api/admin/addOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa',
+// 			headers: {
+// 				"Content-Type": 'application/x-www-form-urlencoded'
+// 			},
+// 			data: {
+// 				webmasterID: order.webmaster_id,
+// 				operatorID: order.operator_id,
+// 				externalID: order.additional6,
+// 				externalWebmaster: null,
+// 				country: null,
+// 				region: order.region,
+// 				city: cities.find((c) => +c.id === +order.city_id),
+// 				postIndex: order.postal_code,
+// 				address: order.address,
+// 				fio: order.fio,
+// 				phone: order.phone,
+// 				email: order.email,
+// 				price: items[0]?.price ? items[0]?.price : 1650,
+// 				total: order?.total_sum ? order?.total_sum : 1650,
+// 				quantity: 1,
+// 				additional1: Array.isArray(items) && items.length > 0 ? items.reduce((acc, item) => +acc + +item.quantity) : 1650,
+// 				additional2: order.additional2,
+// 				additional3: order.additional3,
+// 				additional4: order.additional4,
+// 				additional5: order.additional5,
+// 				additional6: order.additional6,
+// 				additional7: order.additional7,
+// 				additional8: order.additional8,
+// 				additional9: order.additional9,
+// 				additional10: order.additional10,
+// 				additional19: order.id,
+// 				comment: order.comment,
+// 				russianpostTrack: null,
+// 				novaposhtaTrack: null,
+// 				kazpostTrack: order.additional4,
+// 				belpostTrack: null,
+// 				timezone: null,
+// 				utm_source: null,
+// 				utm_medium: null,
+// 				utm_campaign: null,
+// 				utm_term: order.utm_term,
+// 				utm_content: null,
+// 				domain: order.additional1,
+// 				timeSpent: null,
+// 				ip: null,
+// 				referer: null,
+// 				goods,
+// 			},
 // 		});
-
-// 		// Обновляем items с новыми order_id
-// 		const updated_items = current_items.map(item => ({
-// 			...item,
-// 			order_id: orderIdMap[item.order_id], // Заменяем старый order_id на новый
-// 		}));
-
-// 		// Создаём новые items
-// 		await OrderItem.create(updated_items);
-
-// 		db.raw("SELECT setval('order_id_seq', 1, false)");
-
-// 		const genders = await Gender.get();
-// 		const cities = await City.get();
-// 		const payment_methods = await PaymentMethod.get();
-// 		const delivery_methods = await DeliveryMethod.get();
-// 		const order_cancel_reasons = await OrderCancelReason.get();
-
-// 		// достаём список статусов из leadvertex
-// 		const response_statuses = await axios({
-// 			method: 'GET',
-// 			url: 'https://talkcall-kz.leadvertex.ru/api/admin/getStatusList.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa'
-// 		});
-
-// 		let i = 0;
-
-// 		// достаём ids по статусам
-// 		for (const [status, data] of Object.entries(response_statuses.data)) {
-// 			const response_ids = await axios({
-// 				method: 'GET',
-// 				url: `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsInStatus.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&status=${status}`
-// 			});
-
-// 			const chunkedArray = chunkArray(response_ids.data, 100);
-// 			for (const ids of chunkedArray) {
-// 				const idsString = ids.join(',');
-// 				// достаём все старые заказы по статусам
-// 				const response_orders = await axios({
-// 					method: 'GET',
-// 					url: `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersByIds.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&ids=${idsString}`
-// 				});
-
-// 				Object.entries(response_orders.data).map(async ([order_id, order]) => {
-// 					const newOrder = await Order.create({
-// 						id: order_id,
-// 						fio: order.fio,
-// 						phone: order.phone,
-// 						region: order.region,
-// 						city_id: cities.find((c) => c.name === order.city)?.id ?? null,
-// 						address: order.address,
-// 						postal_code: order.postIndex,
-// 						comment: order.comment,
-// 						age: order.additional6 || "",
-// 						utm_term: order.utm_term,
-// 						webmaster_id: order?.webmaster?.id || null,
-// 						operator_id: order.operatorID || null,
-// 						status_id: groupToStatus(order.statusGroup),
-// 						sub_status_id: order.status || 0,
-// 						gender_id: genders.find((g) => g.name === order.additional4)?.id ?? null,
-// 						payment_method_id: payment_methods.find((pm) => pm.name === order.additional12)?.id ?? null,
-// 						delivery_method_id: delivery_methods.find((dm) => dm.name === order.additional2)?.id ?? null,
-// 						order_cancel_reason_id: order_cancel_reasons.find((ocr) => ocr.name === order.additional7)?.id ?? null,
-// 						total_sum: order.total || "",
-// 						created_at: order.datetime || null,
-// 						updated_at: order.lastUpdate || null,
-// 						delivery_at: order.additional1 || null,
-// 						logist_recall_at: order.additional3 || null,
-// 						approved_at: order.approvedAt || null,
-// 						cancelled_at: order.canceledAt || null,
-// 						shipped_at: order.shippedAt || null,
-// 						buyout_at: order.buyoutAt || null,
-// 						additional1: order.domain,
-// 						additional2: order.timeSpent,
-// 						additional3: order.externalWebmaster,
-// 						additional4: order.russianpostTrack,
-// 						additional5: order.refundedAt,
-// 						additional6: order.additional5,
-// 						additional7: order.additional7,
-// 						additional8: order.additional8,
-// 						additional9: order.additional10,
-// 						additional10: order.additional15,
-// 					});
-
-// 					if (order.goods) {
-// 						for (const [product_id, order_item] of Object.entries(order.goods)) {
-// 							const orderItem = await OrderItem.create({
-// 								order_id: newOrder.id,
-// 								quantity: order_item.quantity,
-// 								product_id,
-// 							});
-// 						};
-// 					};
-
-// 					i++;
-
-// 					return newOrder;
-// 				})
-
-// 				console.log(i);
-// 			};
-// 		};
-
-// 		db.raw("SELECT setval('order_id_seq', (SELECT MAX(id) FROM order))");
-// 		res.status(200).send({ message: 'ok' });
-// 	} catch (err) {
-// 		console.log("Error in sync order controller", err.message);
-// 		res.status(500).send({ error: "Internal Server Error" });
-// 	}
+// 	};
 // };
