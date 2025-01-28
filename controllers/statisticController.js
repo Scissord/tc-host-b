@@ -318,12 +318,12 @@ export const fromHundredThousand = async (req, res) => {
     };
     
 
+    
     const data = new URLSearchParams();
-    goods.add.forEach((item, index) => {
-      data.append(`goods[add][${index}][goodID]`, item.goodID);
-      data.append(`goods[add][${index}][quantity]`, item.quantity);
-      data.append(`goods[add][${index}][price]`, item.price);
-    });
+    data.append('goods[add][0][goodID]', 212251);
+    data.append('goods[add][0][quantity]', 2);
+    data.append('goods[add][0][price]', '1650.00');
+
 
 
     const res = await axios({
