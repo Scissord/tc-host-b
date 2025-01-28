@@ -282,9 +282,6 @@ export const fromHundredThousand = async (req, res) => {
           `Leadvertex ID ${leadvertex_id} найден для заказа ID: ${order.id}. Обновляем статус...`
         );
 
-        // Задержка перед обновлением
-        await delay(100);
-
         const updateResponse = await axios({
           method: "POST",
           url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${leadvertex_id}`,
