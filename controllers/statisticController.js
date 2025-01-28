@@ -312,7 +312,12 @@ export const fromHundredThousand = async (req, res) => {
           );
         }
       } catch (error) {
-        if (error.code === "ECONNABORTED") {
+        if (error.response) {
+          console.error(
+            `Ошибка при обработке заказа ID: ${order.id}. Код ответа: ${error.response.status}, Детали ответа:`,
+            error.response.data
+          );
+        } else if (error.code === "ECONNABORTED") {
           console.error(
             `Тайм-аут запроса для заказа ID: ${order.id}. Проверьте сервер.`
           );
@@ -322,11 +327,12 @@ export const fromHundredThousand = async (req, res) => {
           );
         } else {
           console.error(
-            `Ошибка при обработке заказа ID: ${order.id}. Детали:`,
+            `Неизвестная ошибка при обработке заказа ID: ${order.id}. Детали:`,
             error.message
           );
         }
       }
+
     });
 
     await Promise.all(promises);
