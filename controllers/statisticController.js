@@ -307,22 +307,26 @@ export const fromHundredThousand = async (req, res) => {
 
   for (const order of orders) {
     const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
+
+
     const goods = {
       add: items.map((item) => ({
         goodID: item.product_id,
         quantity: item.quantity,
-        price: item.price,
+        price: parseFloat(item.price).toFixed(2), // Преобразуем цену к float
       })),
       update: [],
       delete: []
     };
-    
 
-    
+    // Формируем данные для отправки
     const data = new URLSearchParams();
-    data.append('goods[add][0][goodID]', 212251);
-    data.append('goods[add][0][quantity]', 2);
-    data.append('goods[add][0][price]', '1650.00');
+    goods.add.forEach((item, index) => {
+      data.append(`goods[add][${index}][goodID]`, item.goodID);
+      data.append(`goods[add][${index}][quantity]`, item.quantity);
+      data.append(`goods[add][${index}][price]`, item.price);
+    });
+
 
 
 
@@ -341,10 +345,12 @@ export const fromHundredThousand = async (req, res) => {
           method: 'POST',
           url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${check_data[0]}`,
           headers: {
-            "Content-Type": 'application/x-www-form-urlencoded'
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json", // Указываем, что ожидаем JSON
           },
-          data: data,
+          data: data.toString(), // Преобразование в строку для x-www-form-urlencoded
         });
+        
 
         if (respo.status == 200) {
           console.log(`${order.id} updated succesfully`)
