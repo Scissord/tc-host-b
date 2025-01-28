@@ -175,13 +175,19 @@ export const uploadFileForStatistic = async (req, res) => {
       const data = {
         operator_id: userId
       }
-      // if (subStatusId === )
+      if (+subStatusId === 12) {
+        data.cancelled_at = formattedDate
+      }
+
+      if (+subStatusId === 1 || +subStatusId === 4) {
+        data.approved_at = formattedDate
+      }
       const updated_order = await Order.update(crmOrderId, data)
 
       console.log(updated_order)
       break
 
-      
+
       // const order = Order.find(crmOrderId);
       // if (order.city) {
       //   const city_name = City.find(order.city);
