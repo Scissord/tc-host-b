@@ -260,29 +260,29 @@ export const uploadFileForStatistic = async (req, res) => {
       //       }
       //     );
 
-      //     if (response.status === 200) {
-      //       console.log('Order successfully added:', response.data);
+          // if (response.status === 200) {
+          //   console.log('Order successfully added:', response.data);
             
-      //       const updateResponse = await axios.post(
-      //         `${apiUrlToUpdate}?token=${apiKey}&id=${order.id}`,
-      //         new URLSearchParams({
-      //           status: subStatusId,
-      //         }),
-      //         {
-      //           headers: {
-      //             'Content-Type': 'application/x-www-form-urlencoded',
-      //           },
-      //         }
-      //       );
+          //   const updateResponse = await axios.post(
+          //     `${apiUrlToUpdate}?token=${apiKey}&id=${order.id}`,
+          //     new URLSearchParams({
+          //       status: subStatusId,
+          //     }),
+          //     {
+          //       headers: {
+          //         'Content-Type': 'application/x-www-form-urlencoded',
+          //       },
+          //     }
+          //   );
 
-      //       if (updateResponse.status === 200) {
-      //         console.log('Order successfully updated:', updateResponse.data);
-      //         break; // Прекращаем цикл, если заказ успешно отправлен
-      //       }
-      //     }  else {
-      //       console.log('oshibka pri update order')
-      //       break
-      //     }
+          //   if (updateResponse.status === 200) {
+          //     console.log('Order successfully updated:', updateResponse.data);
+          //     break; // Прекращаем цикл, если заказ успешно отправлен
+          //   }
+          // }  else {
+          //   console.log('oshibka pri update order')
+          //   break
+          // }
   
       //   } catch (error) {
       //     console.error('Error adding or updating order:', error.response ? error.response.data : error.message);
@@ -298,6 +298,10 @@ export const uploadFileForStatistic = async (req, res) => {
 
 
 export const fromHundredThousand = async (req, res) => {
+  const apiUrl = 'https://talkcall-kz.leadvertex.ru/api/admin/addOrder.html';
+  const apiKey = 'kjsdaKRhlsrk0rjjekjskaaaaaaaa'; // Замените на ваш API-ключ
+  const apiUrlToUpdate = 'https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html';
+
     // additional19 - externalID
 
   // orders from 100000
@@ -360,10 +364,31 @@ export const fromHundredThousand = async (req, res) => {
 
     if (response.status == 200){
       console.log('OK')
+        
+        const updateResponse = await axios.post(
+          `${apiUrlToUpdate}?token=${apiKey}&id=${order.id}`,
+          new URLSearchParams({
+            status: subStatusId,
+          }),
+          {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          }
+        );
+
+        if (updateResponse.status === 200) {
+          console.log('Order successfully updated:', updateResponse.data);
+          break; // Прекращаем цикл, если заказ успешно отправлен
+        }
+      }  else {
+        console.log('oshibka pri update order')
+        break
+      }
+
       break
     }
-    break
-  };
-} 
+  }
+
 
 
