@@ -287,8 +287,8 @@ export const fromHundredThousand = async (req, res) => {
           url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${leadvertex_id}`,
           data: new URLSearchParams({
             status: order.sub_status_id,
-            additional1: order.delivery_at.toISOString().slice(0, 10),
-            additional3: order.logist_recall_at.toISOString().slice(0, 10),
+            additional1: order.delivery_at ? order.delivery_at.toISOString().slice(0, 10) : '',
+            additional3: order.logist_recall_at ? order.logist_recall_at.toISOString().slice(0, 10) : '',
           }).toString(),
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
