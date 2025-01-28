@@ -451,7 +451,6 @@ export const getOperatorOrdersPaginated = async function (
   additional8,
   is_filtered
 ) {
-  console.log(is_filtered);
   const result = await db('order as o')
     .select('o.*')
     .modify((q) => {
@@ -579,14 +578,13 @@ export const getOperatorOrdersPaginated = async function (
         q.where('o.additional8', 'ilike', `%${additional8}%`)
       };
       if (sub_status && is_filtered === 'false') {
-        console.log(is_filtered);
         q.where('o.sub_status_id', sub_status);
       };
       if (start && end) {
         q.whereBetween('o.delivery_at', [start, end]);
       };
     })
-    .orderBy(sort_by ?? 'o.id', order_by ?? 'desc')
+    .orderByRaw(`${sort_by} ${order_by}`)
     .paginate({
       perPage: limit,
       currentPage: page,

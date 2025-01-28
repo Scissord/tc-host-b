@@ -702,6 +702,10 @@ export const unloading = async (req, res) => {
 };
 
 // export const sync = async (req, res) => {
+// 	console.log()
+// };
+
+// export const sync = async (req, res) => {
 // 	try {
 // 		// 29.01.2025
 // 		// 15.01.2025
