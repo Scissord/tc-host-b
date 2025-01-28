@@ -258,20 +258,16 @@ export const fromHundredThousand = async (req, res) => {
 
     console.log(`Найдено ${orders.length} заказов. Начинаю обработку...`);
 
-    // Функция задержки между запросами
-    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+   
 
     const promises = orders.map(async (order, index) => {
       try {
         console.log(`Получение Leadvertex ID для заказа ID: ${order.id}...`);
         
-        // Задержка между запросами, чтобы избежать перегрузки сервера
-        await delay(index * 200); // Задержка в 200 мс для каждого заказа
 
         const response = await axios({
           method: "GET",
           url: `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&status=0&additional19=${order.id}`,
-          timeout: 10000, // Тайм-аут запроса в 10 секунд
         });
 
         const data = response.data;
@@ -298,8 +294,7 @@ export const fromHundredThousand = async (req, res) => {
           }).toString(),
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
-          },
-          timeout: 10000, // Тайм-аут запроса в 10 секунд
+          }
         });
 
         if (updateResponse.status === 200) {
