@@ -185,7 +185,7 @@ export const uploadFileForStatistic = async (req, res) => {
       const updated_order = await Order.update(crmOrderId, data)
 
       console.log(updated_order)
-      break
+
 
 
       // const order = Order.find(crmOrderId);
