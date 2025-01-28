@@ -265,7 +265,7 @@ export const fromHundredThousand = async (req, res) => {
 
         const response = await axios({
           method: "GET",
-          url: `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&status=0&additional19=${order.id}`,
+          url: `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&additional19=${order.id}`,
         });
 
         const data = response.data;
@@ -273,9 +273,13 @@ export const fromHundredThousand = async (req, res) => {
           console.log(`Нет данных для заказа ID: ${order.id}`);
           return;
         }
-
+        let leadvertex_id = null
+        if (data.length > 0) {
+          leadvertex_id = data[data.length - 1];
+        }
+        leadvertex_id = data[0];
+        
         console.log(`Данные ответа для заказа ID ${order.id}:`, data);
-        const leadvertex_id = data[0];
         console.log(
           `Leadvertex ID ${leadvertex_id} найден для заказа ID: ${order.id}. Обновляем статус...`
         );
