@@ -370,7 +370,7 @@ export const fromHundredThousand = async (req, res) => {
         price: items[0]?.price ? items[0]?.price : 1650,
         total: order?.total_sum ? order?.total_sum : 1650,
         quantity: Array.isArray(items) && items.length > 0 ? items.reduce((acc, item) => +acc + +item.quantity) : 1,
-        additional1: order.delivery_at,
+        additional1: order.delivery_at?.toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) || null,
         additional2: delivery_methods.find((dm) => +dm.id === +order.delivery_method_id)?.name,
         additional3: order.logist_recall_at ? order.logist_recall_at : null,
         additional4: genders.find((g) => +g.id === +order.gender_id)?.name,
