@@ -316,13 +316,10 @@ export const fromHundredThousand = async (req, res) => {
       : [];
 
     const res = await axios({
-      method: 'POST',
-      url: 'https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa',
+      method: 'GET',
+      url: `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&additional19=${order.id}`,
       headers: {
         "Content-Type": 'application/x-www-form-urlencoded'
-      },
-      data: {
-        additional19: `${order.id}`
       }
     });
 
