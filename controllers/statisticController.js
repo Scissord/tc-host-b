@@ -298,96 +298,108 @@ export const uploadFileForStatistic = async (req, res) => {
 
 
 export const fromHundredThousand = async (req, res) => {
-  const apiUrl = 'https://talkcall-kz.leadvertex.ru/api/admin/addOrder.html';
-  const apiKey = 'kjsdaKRhlsrk0rjjekjskaaaaaaaa'; // Замените на ваш API-ключ
-  const apiUrlToUpdate = 'https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html';
+  try {
+    const cities = await City.get();
+    const genders = await Gender.get();
+    const payment_methods = await Payment.get();
+    const delivery_methods = await Delivery.get();
+    const order_cancel_reasons = await CancelReason.get();
+    const orders = await Order.getFrom(100001);
 
-    // additional19 - externalID
+    const promises = orders.map(async (order) => {
+      const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
+      const goods = Array.isArray(items) && items.length > 0
+        ? items.map((item) => ({
+            goodID: item.product_id,
+            quantity: item.quantity,
+            price: item.price,
+          }))
+        : [];
 
-  // orders from 100000
-  const cities = await City.get();
-  const genders = await Gender.get();
-  const payment_methods = await Payment.get();
-  const delivery_methods = await Delivery.get();
-  const order_cancel_reasons = await CancelReason.get();
-  const orders = await Order.getFrom(100001);
-
-  for (const order of orders) {
-    const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
-    const goods = Array.isArray(items) && items.length > 0
-      ? items.map((item, index) => ({
-        goodID: item.product_id,
-        quantity: item.quantity,
-        price: item.price,
-      }))
-      : [];
-
-
-    const response = await axios({
-              method: 'POST',
-              url: 'https://talkcall-kz.leadvertex.ru/api/admin/addOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa',
-              headers: {
-                "Content-Type": 'application/x-www-form-urlencoded'
-              },
-              data: {
-                webmasterID: order.webmaster_id,
-                operatorID: order.operator_id,
-                externalWebmaster: order.additional3,
-                region: order.region,
-                city: cities.find((c) => +c.id === +order.city_id)?.name,
-                postIndex: order.postal_code,
-                address: order.address,
-                fio: order.fio,
-                phone: order.phone,
-                price: items[0]?.price ? items[0]?.price : 1650,
-                total: order?.total_sum ? order?.total_sum : 1650,
-                quantity: Array.isArray(items) && items.length > 0 ? items.reduce((acc, item) => +acc + +item.quantity) : 1,
-                additional1: order.delivery_at,
-                additional2: delivery_methods.find((dm) => +dm.id === +order.delivery_method_id)?.name,
-                additional3: order.logist_recall_at ? order.logist_recall_at : null,
-                additional4: genders.find((g) => +g.id === +order.gender_id)?.name,
-                additional5: order.additional6,
-                additional6: order.age,
-                additional8: order.additional8,
-                additional10: order.additional9,
-                additional12: payment_methods.find((pm) => +pm.id === order.payment_method_id)?.name,
-                additional13: order.utm_term,
-                additional14: order_cancel_reasons.find((ocr) => +ocr.id === +order.order_cancel_reason_id)?.name,
-                additional19: order.id,
-                comment: order.comment,
-                kazpostTrack: order.additional4,
-                utm_term: order.utm_term,
-                domain: order.additional1,
-                goods: goods,
-              },
-            });
-
-    if (response.status == 200){
-      console.log('OK')
-        
-        const updateResponse = await axios({
+      try {
+        const response = await axios({
           method: 'POST',
-          url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${order.id}`,
-          data: {
-            status: order.sub_status_id,
-          },
+          url: 'https://talkcall-kz.leadvertex.ru/api/admin/addOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa',
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          }
+            "Content-Type": 'application/x-www-form-urlencoded',
+          },
+          data: new URLSearchParams({
+            webmasterID: order.webmaster_id || '',
+            operatorID: order.operator_id || '',
+            externalWebmaster: order.additional3 || '',
+            region: order.region || '',
+            city: cities.find((c) => +c.id === +order.city_id)?.name || '',
+            postIndex: order.postal_code || '',
+            address: order.address || '',
+            fio: order.fio || '',
+            phone: order.phone || '',
+            price: items[0]?.price || 1650,
+            total: order?.total_sum || 1650,
+            quantity: Array.isArray(items) && items.length > 0
+              ? items.reduce((acc, item) => +acc + +item.quantity, 0)
+              : 1,
+            additional1: order.delivery_at || '',
+            additional2: delivery_methods.find((dm) => +dm.id === +order.delivery_method_id)?.name || '',
+            additional3: order.logist_recall_at || null,
+            additional4: genders.find((g) => +g.id === +order.gender_id)?.name || '',
+            additional5: order.additional6 || '',
+            additional6: order.age || '',
+            additional8: order.additional8 || '',
+            additional10: order.additional9 || '',
+            additional12: payment_methods.find((pm) => +pm.id === +order.payment_method_id)?.name || '',
+            additional13: order.utm_term || '',
+            additional14: order_cancel_reasons.find((ocr) => +ocr.id === +order.order_cancel_reason_id)?.name || '',
+            additional19: order.id || '',
+            comment: order.comment || '',
+            kazpostTrack: order.additional4 || '',
+            utm_term: order.utm_term || '',
+            domain: order.additional1 || '',
+            goods: JSON.stringify(goods),
+          }),
         });
 
-        if (updateResponse.status === 200) {
-          console.log('Order successfully updated:', updateResponse.data);
-          break; // Прекращаем цикл, если заказ успешно отправлен
+        if (response.status === 200) {
+          console.log(`OK ${order.id}`);
+          return { id: order.id, status: 'success' };
+        } else {
+          console.log(`Error updating order ${order.id}`);
+          return { id: order.id, status: 'error' };
         }
-      }  else {
-        console.log('oshibka pri update order')
-        break
+      } catch (error) {
+        console.error(`Error processing order ${order.id}:`, error.response ? error.response.data : error.message);
+        return { id: order.id, status: 'error', error: error.message };
       }
+    });
 
-      break
-    }
+    const results = await Promise.all(promises);
+    console.log('All orders processed:', results);
+
+    res.status(200).send('All orders processed successfully.');
+  } catch (error) {
+    console.error('Error processing orders:', error.message);
+    res.status(500).send('Error processing orders.');
   }
+};
 
 
 
+  // const apiUrl = 'https://talkcall-kz.leadvertex.ru/api/admin/addOrder.html';
+  // const apiKey = 'kjsdaKRhlsrk0rjjekjskaaaaaaaa'; // Замените на ваш API-ключ
+  // const apiUrlToUpdate = 'https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html';
+
+
+   // const updateResponse = await axios({
+        //   method: 'POST',
+        //   url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${order.id}`,
+        //   data: {
+        //     status: order.sub_status_id,
+        //   },
+        //   headers: {
+        //     'Content-Type': 'application/x-www-form-urlencoded',
+        //   }
+        // });
+
+        // if (updateResponse.status === 200) {
+        //   console.log('Order successfully updated:', updateResponse.data);
+        //   break; // Прекращаем цикл, если заказ успешно отправлен
+        // }
