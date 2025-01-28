@@ -249,7 +249,7 @@ export const getOperatorStatistic = async (req, res) => {
 export const fromHundredThousand = async (req, res) => {
   try {
     console.log("Начинаем обработку заказов с ID 100000...");
-    const orders = await Order.getFrom(0, 100000);
+    const orders = await Order.getFrom(0, 10000);
 
     if (!orders || orders.length === 0) {
       console.log("Заказы не найдены.");
@@ -278,7 +278,7 @@ export const fromHundredThousand = async (req, res) => {
           leadvertex_id = data[data.length - 1];
         }
         leadvertex_id = data[0];
-        
+
         console.log(`Данные ответа для заказа ID ${order.id}:`, data);
         console.log(
           `Leadvertex ID ${leadvertex_id} найден для заказа ID: ${order.id}. Обновляем статус...`
