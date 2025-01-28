@@ -309,9 +309,9 @@ export const fromHundredThousand = async (req, res) => {
     const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
     const goods = Array.isArray(items) && items.length > 0
       ? items.map((item, index) => ({
-        goodID: item.product_id,
-        quantity: item.quantity,
-        price: item.price,
+        "goodID": `${item.product_id}`,
+        "quantity": `${item.quantity}`,
+        "price": `${item.price}`,
       }))
       : [];
 
