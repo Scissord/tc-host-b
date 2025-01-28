@@ -1,13 +1,5 @@
 import ExcelJS from 'exceljs';
 import * as Order from '#models/order.js';
-// import * as Product from '#models/product.js';
-// import * as Webmaster from '#models/webmaster.js';
-// import * as Operator from '#models/operator.js';
-// import * as SubStatus from '#models/sub_status.js';
-// import * as Gender from '#models/gender.js';
-// import * as PaymentMethod from '#models/payment_method.js';
-// import * as DeliveryMethod from '#models/delivery_method.js';
-// import * as OrderCancelReason from '#models/order_cancel_reason.js';
 import { mapOrders } from '#services/order/map.js';
 import { makeHeaders, makeBodyRow } from './helpers.js';
 
@@ -15,7 +7,7 @@ export async function unloadingIdsOrders(from, to, ids) {
   const ordersFromDb = await Order.getWhereIn('o.id', ids);
   const orders = await mapOrders(ordersFromDb, false);
 
-  const workbook = new ExcelJS.Workbook()
+  const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.readFile(from);
 
   const sheet = workbook.getWorksheet(1)
@@ -117,7 +109,7 @@ export async function unloadingFilteredOrders(from, to, data) {
   );
   const orders = await mapOrders(ordersFromDb, false);
 
-  const workbook = new ExcelJS.Workbook()
+  const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.readFile(from);
 
   const sheet = workbook.getWorksheet(1)
@@ -137,7 +129,7 @@ export async function unloadingSubStatusOrders(from, to, sub_status) {
   const ordersFromDb = await Order.getWhere({ sub_status_id: sub_status });
   const orders = await mapOrders(ordersFromDb, false);
 
-  const workbook = new ExcelJS.Workbook()
+  const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.readFile(from);
 
   const sheet = workbook.getWorksheet(1)
