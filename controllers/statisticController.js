@@ -308,7 +308,7 @@ export const fromHundredThousand = async (req, res) => {
   const payment_methods = await Payment.get();
   const delivery_methods = await Delivery.get();
   const order_cancel_reasons = await CancelReason.get();
-  const orders = await Order.getFrom(103875);
+  const orders = await Order.getFrom(104910);
 
   for (const order of orders) {
     const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
@@ -332,7 +332,7 @@ export const fromHundredThousand = async (req, res) => {
       fio: order.fio,
       phone: order.phone,
       price: items[0]?.price ? items[0]?.price : 1650,
-      total: order?.total_sum ? order?.total_sum : 1650,
+      total: order?.total_sum ? parseFloat(order?.total_sum) : 1650,
       quantity: Array.isArray(items) && items.length > 0 ? items.reduce((acc, item) => +acc + +item.quantity) : 1,
       additional2: delivery_methods.find((dm) => +dm.id === +order.delivery_method_id)?.name,
       additional4: genders.find((g) => +g.id === +order.gender_id)?.name,
@@ -375,10 +375,7 @@ export const fromHundredThousand = async (req, res) => {
        
       }  else {
         console.log('oshibka pri update order')
-        break
       }
-
-      break
     }
   }
 
