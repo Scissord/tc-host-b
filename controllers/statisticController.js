@@ -307,7 +307,7 @@ export const fromHundredThousand = async (req, res) => {
   const payment_methods = await Payment.get();
   const delivery_methods = await Delivery.get();
   const order_cancel_reasons = await CancelReason.get();
-  const orders = await Order.getFrom(100001);
+  const orders = await Order.getFrom(100000);
 
   for (const order of orders) {
     const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
@@ -352,7 +352,7 @@ export const fromHundredThousand = async (req, res) => {
           continue
         }
       }
-      
+
       }  else {
         console.log('oshibka pri check order')
         break
