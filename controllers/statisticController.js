@@ -307,15 +307,18 @@ export const fromHundredThousand = async (req, res) => {
 
   for (const order of orders) {
     const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
-    const goods = Array.isArray(items) && items.length > 0
-      ? {
-        add: items.map((item) => ({
-          goodID: item.product_id,
-          quantity: item.quantity,
-          price: item.price,
-        })),
-      }
-      : { add: [] };
+    const goods = {
+      add: Array.isArray(items) && items.length > 0
+        ? items.map((item) => ({
+            goodID: item.product_id,
+            quantity: item.quantity,
+            price: parseFloat(item.price).toFixed(2), // Убедитесь, что цена форматируется как число с двумя знаками
+          }))
+        : [],
+      update: [], // Добавьте сюда логику для обновления товаров, если нужно
+      delete: [], // Добавьте сюда логику для удаления товаров, если нужно
+    };
+    
 
     const res = await axios({
       method: 'GET',
