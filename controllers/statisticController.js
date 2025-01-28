@@ -307,17 +307,20 @@ export const fromHundredThousand = async (req, res) => {
 
   for (const order of orders) {
     const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
-    const goods = Array.isArray(items) && items.length > 0
-      ? [
-        {
-          add: items.map((item) => ({
-            goodID: `${item.product_id}`,
-            quantity: `${item.quantity}`,
-            price: `${item.price}`,
-          })),
-        }
-      ]
-      : [{ add: [] }];
+    const goods = {
+      add: items.map((item) => ({
+        goodID: item.product_id,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+      update: [], // Заполните, если требуется
+      delete: [], // Заполните, если требуется
+    };
+    
+    // Формирование тела запроса
+    const data = new URLSearchParams();
+    data.append('goods', JSON.stringify(goods));
+    
 
     const res = await axios({
       method: 'GET',
@@ -336,9 +339,7 @@ export const fromHundredThousand = async (req, res) => {
           headers: {
             "Content-Type": 'application/x-www-form-urlencoded'
           },
-          data: {
-            goods: goods
-          }
+          data: data
         });
 
         if (respo.status == 200) {
