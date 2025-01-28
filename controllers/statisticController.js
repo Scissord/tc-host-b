@@ -249,7 +249,7 @@ export const getOperatorStatistic = async (req, res) => {
 export const fromHundredThousand = async (req, res) => {
   try {
     console.log("Начинаем обработку заказов с ID 100000...");
-    const orders = await Order.getFrom(100000, 105000);
+    const orders = await Order.getFrom(100000);
 
     if (!orders || orders.length === 0) {
       console.log("Заказы не найдены.");
@@ -287,7 +287,8 @@ export const fromHundredThousand = async (req, res) => {
           url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${leadvertex_id}`,
           data: new URLSearchParams({
             status: order.sub_status_id,
-            additional1: order.delivery_at.toISOString().slice(0, 10)
+            additional1: order.delivery_at.toISOString().slice(0, 10),
+            additional3: order.logist_recall_at.toISOString().slice(0, 10),
           }).toString(),
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
