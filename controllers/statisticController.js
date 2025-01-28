@@ -367,7 +367,7 @@ export const fromHundredThousand = async (req, res) => {
         
         const updateResponse = await axios({
           method: 'POST',
-          url: `${apiUrlToUpdate}?token=${apiKey}&id=${order.id}`,
+          url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${order.id}`,
           data: {
             status: order.sub_status_id,
           },
