@@ -308,7 +308,7 @@ export const fromHundredThousand = async (req, res) => {
       } catch (error) {
         if (error.response) {
           console.error(
-            `Ошибка при обработке заказа ID: ${order.id}. ${order}Код ответа: ${error.response.status}, Детали ответа:`,
+            `Ошибка при обработке заказа ID: ${order.id}. ${JSON.stringify(order, null, 2)}Код ответа: ${error.response.status}, Детали ответа:`,
             error.response.data
           );
         } else if (error.code === "ECONNABORTED") {
