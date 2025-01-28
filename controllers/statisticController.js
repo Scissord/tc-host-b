@@ -249,7 +249,7 @@ export const getOperatorStatistic = async (req, res) => {
 export const fromHundredThousand = async (req, res) => {
   try {
     console.log("Начинаем обработку заказов с ID 100000...");
-    const orders = await Order.getFrom(80001, 90000);
+    const orders = await Order.getFrom(90001, 100000);
 
     if (!orders || orders.length === 0) {
       console.log("Заказы не найдены.");
