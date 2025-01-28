@@ -313,23 +313,19 @@ export const fromHundredThousand = async (req, res) => {
         quantity: item.quantity,
         price: item.price,
       })),
-      update: [], // Заполните, если требуется
-      delete: [], // Заполните, если требуется
+      update: [],
+      delete: []
     };
+    
 
-    // Формирование тела запроса
     const data = new URLSearchParams();
-    for (const [key, value] of Object.entries(goods)) {
-      value.forEach((item, index) => {
-        data.append(`goods[${key}][${index}][goodID]`, item.goodID);
-        data.append(`goods[${key}][${index}][quantity]`, item.quantity);
-        data.append(`goods[${key}][${index}][price]`, item.price);
-      });
-    }
+    goods.add.forEach((item, index) => {
+      data.append(`goods[add][${index}][goodID]`, item.goodID);
+      data.append(`goods[add][${index}][quantity]`, item.quantity);
+      data.append(`goods[add][${index}][price]`, item.price);
+    });
 
-    const data_to_send = [
-      {"add": [data]}
-    ]
+
     const res = await axios({
       method: 'GET',
       url: `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&additional19=${order.id}`,
@@ -347,7 +343,7 @@ export const fromHundredThousand = async (req, res) => {
           headers: {
             "Content-Type": 'application/x-www-form-urlencoded'
           },
-          data: data_to_send,
+          data: data.toString()
         });
 
         if (respo.status == 200) {
