@@ -258,7 +258,7 @@ export const fromHundredThousand = async (req, res) => {
 
     console.log(`Найдено ${orders.length} заказов. Начинаю обработку...`);
 
-    const promises = orders.map(async (order) => {
+    for (const order of orders) {
       try {
         console.log(`Получение Leadvertex ID для заказа ID: ${order.id}...`);
         const response = await axios({
@@ -269,7 +269,7 @@ export const fromHundredThousand = async (req, res) => {
         const data = response.data;
         if (!data || data.length === 0) {
           console.log(`Нет данных для заказа ID: ${order.id}`);
-          return;
+          continue;
         }
 
         const leadvertex_id = data[0];
@@ -304,9 +304,8 @@ export const fromHundredThousand = async (req, res) => {
           error.message
         );
       }
-    });
+    }
 
-    await Promise.all(promises);
     console.log("Обработка всех заказов завершена.");
     res.status(200).send("Обработка завершена.");
   } catch (error) {
@@ -314,4 +313,5 @@ export const fromHundredThousand = async (req, res) => {
     res.status(500).send("Ошибка сервера.");
   }
 };
+
 
