@@ -1418,3 +1418,10 @@ export const getAllIds = async () => {
   return await db('order as o')
     .pluck('o.id')
 };
+
+
+export const getFrom = async function (from) {
+  return await db('order as o')
+    .where('o.id', '>=', from)
+    .select('o.*');
+};
