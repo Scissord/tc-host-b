@@ -249,7 +249,7 @@ export const getOperatorStatistic = async (req, res) => {
 export const fromHundredThousand = async (req, res) => {
   try {
     console.log("Начинаем обработку заказов с ID 100000...");
-    const orders = await Order.getFrom(100000);
+    const orders = await Order.getFrom(100000, 105000);
 
     if (!orders || orders.length === 0) {
       console.log("Заказы не найдены.");
@@ -258,12 +258,20 @@ export const fromHundredThousand = async (req, res) => {
 
     console.log(`Найдено ${orders.length} заказов. Начинаю обработку...`);
 
-    const promises = orders.map(async (order) => {
+    // Функция задержки между запросами
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    const promises = orders.map(async (order, index) => {
       try {
         console.log(`Получение Leadvertex ID для заказа ID: ${order.id}...`);
+        
+        // Задержка между запросами, чтобы избежать перегрузки сервера
+        await delay(index * 200); // Задержка в 200 мс для каждого заказа
+
         const response = await axios({
           method: "GET",
           url: `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&status=0&additional19=${order.id}`,
+          timeout: 10000, // Тайм-аут запроса в 10 секунд
         });
 
         const data = response.data;
@@ -278,6 +286,9 @@ export const fromHundredThousand = async (req, res) => {
           `Leadvertex ID ${leadvertex_id} найден для заказа ID: ${order.id}. Обновляем статус...`
         );
 
+        // Задержка перед обновлением
+        await delay(100);
+
         const updateResponse = await axios({
           method: "POST",
           url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${leadvertex_id}`,
@@ -287,6 +298,7 @@ export const fromHundredThousand = async (req, res) => {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
           },
+          timeout: 10000, // Тайм-аут запроса в 10 секунд
         });
 
         if (updateResponse.status === 200) {
@@ -300,10 +312,20 @@ export const fromHundredThousand = async (req, res) => {
           );
         }
       } catch (error) {
-        console.error(
-          `Ошибка при обработке заказа ID: ${order.id}. Детали:`,
-          error.message
-        );
+        if (error.code === "ECONNABORTED") {
+          console.error(
+            `Тайм-аут запроса для заказа ID: ${order.id}. Проверьте сервер.`
+          );
+        } else if (error.message.includes("EPIPE")) {
+          console.error(
+            `Сбой соединения для заказа ID: ${order.id}. Сервер закрыл соединение.`
+          );
+        } else {
+          console.error(
+            `Ошибка при обработке заказа ID: ${order.id}. Детали:`,
+            error.message
+          );
+        }
       }
     });
 
@@ -316,6 +338,7 @@ export const fromHundredThousand = async (req, res) => {
     res.status(500).send("Ошибка сервера.");
   }
 };
+
 
 
 

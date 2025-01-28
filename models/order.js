@@ -1416,9 +1416,10 @@ export const getAllIds = async () => {
 };
 
 
-export const getFrom = async function (from) {
+export const getFrom = async function (from, to) {
   return await db('order as o')
     .where('o.id', '>=', from)
+    .andWhere('o.id','<=', to)
     .select('o.*')
     .orderBy('o.id', 'asc')
 };
