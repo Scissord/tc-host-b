@@ -367,9 +367,9 @@ export const fromHundredThousand = async (req, res) => {
         
         const updateResponse = await axios.post(
           `${apiUrlToUpdate}?token=${apiKey}&id=${order.id}`,
-          new URLSearchParams({
+          {
             status: order.sub_status_id,
-          }),
+          },
           {
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
