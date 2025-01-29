@@ -250,7 +250,6 @@ export const fromHundredThousand = async (req, res) => {
  
   const orders = await Order.getWhereIn('o.sub_status_id', [21])
   console.log(orders.length)
-  return
   for (const order of orders) {
     const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
     const goods = Array.isArray(items) && items.length > 0
