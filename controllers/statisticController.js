@@ -134,14 +134,12 @@ export const sendProccessOrders = async (req, res) => {
         
         const order_items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
 
-        let goods = [];
-        if (order_items && order_items.length > 0) {
-          goods = order_items.map((item) => ({
+        order.goods = order_items.map((item) => ({
             goodID: item.product_id,
             quantity: item.quantity,
-            price: parseFloat(item.price) || 1650,
+            price: parseFloat(item?.price).toFixed(2) || 1650,
           }));
-        }
+        
 
         const params = new URLSearchParams();
         params.append("fio", order.fio);
@@ -150,7 +148,7 @@ export const sendProccessOrders = async (req, res) => {
         params.append("webmasterID", order.webmaster_id || 0);
         params.append("domain", order.additional1 || '');
         params.append("additional8", order.additional8 || '');
-        params.append("goods", goods); 
+        params.append("goods", order.goods); 
 
         try {
           const response = await axios.post(
