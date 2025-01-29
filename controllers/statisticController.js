@@ -290,7 +290,8 @@ export const fromHundredThousand = async (req, res) => {
     });
 
     if (response.status == 200){
-      console.log(`OK ${order.id}`)
+      const datas = response.data
+      console.log(`OK ${datas}`)
       break
        
       }  else {
