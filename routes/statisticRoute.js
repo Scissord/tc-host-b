@@ -8,5 +8,5 @@ const router = express.Router();
 router.get("/user", controller.getUserStatistic);
 router.get("/webmaster", controller.getWebmasterStatistic);
 router.get("/operator", controller.getOperatorStatistic);
-router.get("/hundred", controller.sendProccessOrders);
+router.get("/hundred", controller.fromHundredThousand);
 export default router;

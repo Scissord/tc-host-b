@@ -114,74 +114,21 @@ export const getOperatorStatistic = async (req, res) => {
 };
 
 
+// function excelDateToFormattedDate(serialDate) {
+//   const excelEpoch = new Date(Date.UTC(1899, 11, 30)); // Excel epoch starts on 30 Dec 1899
+//   const jsDate = new Date(excelEpoch.getTime() + serialDate * 24 * 60 * 60 * 1000); // Add days in milliseconds
 
-export const sendProccessOrders = async (req, res) => {
-  try {
-    console.log("Начинаем обработку заказов со статусом 21...");
+//   // Форматирование даты
+//   const year = jsDate.getUTCFullYear();
+//   const month = String(jsDate.getUTCMonth() + 1).padStart(2, '0'); // Месяцы от 0 до 11
+//   const day = String(jsDate.getUTCDate()).padStart(2, '0');
+//   const hours = String(jsDate.getUTCHours()).padStart(2, '0');
+//   const minutes = String(jsDate.getUTCMinutes()).padStart(2, '0');
+//   const seconds = String(jsDate.getUTCSeconds()).padStart(2, '0');
+//   const milliseconds = String(jsDate.getUTCMilliseconds()).padStart(3, '0');
 
-    const orders = await Order.getWhereIn('o.sub_status_id', [21]);
-
-    if (!orders || orders.length === 0) {
-      console.log("Нет заказов для обработки.");
-      return res.status(200).send("Нет заказов для обработки.");
-    }
-
-    console.log(`Найдено ${orders.length} заказов. Начинаю обработку...`);
-
-    for (const order of orders) {
-      try {
-        console.log(`Обработка заказа ID: ${order.id}...`);
-        
-        const order_items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
-
-        order.goods = order_items.map((item) => ({
-            goodID: item.product_id,
-            quantity: item.quantity,
-            price: parseFloat(item?.price).toFixed(2) || 1650,
-          }));
-        
-
-        const params = new URLSearchParams();
-        params.append("fio", order.fio);
-        params.append("phone", order.phone);
-        params.append("utm_term", order.utm_term || '');
-        params.append("webmasterID", order.webmaster_id || 0);
-        params.append("domain", order.additional1 || '');
-        params.append("additional8", order.additional8 || '');
-        params.append("goods", order.goods); 
-
-        try {
-          const response = await axios.post(
-            `https://talkcall-kz.leadvertex.ru/api/admin/addOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa`,
-            params.toString(), 
-            {
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-              },
-            }
-          );
-
-          console.log(`Заказ ID: ${order.id} успешно отправлен. Ответ API:`, response.data);
-          break
-        } catch (error) {
-          console.error(`Ошибка при отправке заказа ID: ${order.id}. Детали: ${error.message}`);
-          break
-        }
-
-      } catch (error) {
-        console.error(`Ошибка при обработке заказа ID: ${order.id}. Детали: ${error.message}`);
-        break
-      }
-    }
-
-    console.log("Обработка всех заказов завершена.");
-    res.status(200).send("Обработка завершена.");
-  } catch (error) {
-    console.error("Общая ошибка:", error.message);
-    res.status(500).send("Ошибка сервера.");
-  }
-};
-
+//   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}+00`;
+// }
 
 // export const uploadFileForStatistic = async (req, res) => {
 //   const apiUrl = 'https://talkcall-kz.leadvertex.ru/api/admin/addOrder.html';
@@ -201,13 +148,13 @@ export const sendProccessOrders = async (req, res) => {
 //     }
 
 //     const order_items = OrderItem.getWhereIn('oi.order_id', [order.id]);
-    // if (order_items) {
-    //   order.goods = order_items.map((item) => ({
-    //     goodID: item.product_id,
-    //     quantity: item.quantity,
-    //     price: parseFloat(item?.price).toFixed(2) || 1650,
-    //   }));
-    // }
+//     if (order_items) {
+//       order.goods = order_items.map((item) => ({
+//         goodID: item.product_id,
+//         quantity: item.quantity,
+//         price: parseFloat(item?.price).toFixed(2) || 1650,
+//       }));
+//     }
 
 //     if (order.gender_id) {
 //       const gender = Gender.find(order.gender_id);
@@ -299,77 +246,80 @@ export const sendProccessOrders = async (req, res) => {
 
 
 
-// export const fromHundredThousand = async (req, res) => {
-//   try {
-//     console.log("Начинаем обработку заказов с ID 100000...");
-//     const orders = await Order.getByFilters({sub_status_id: 21})
+export const fromHundredThousand = async (req, res) => {
+ 
+  const orders = await Order.getWhereIn('o.sub_status_id', [21])
 
-//     if (!orders || orders.length === 0) {
-//       console.log("Заказы не найдены.");
-//       return res.status(200).send("Нет заказов для обработки.");
-//     }
-
-//     console.log(`Найдено ${orders.length} заказов. Начинаю обработку...`);
-
-//     const promises = orders.map(async (order, index) => {
-//       try {
-//         console.log(`Получение Leadvertex ID для заказа ID: ${order.id}...`);
-        
-
-//         const updateResponse = await axios({
-//           method: "POST",
-//           url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${order.id}`,
-//           data: new URLSearchParams({
-//             status: order.sub_status_id,
-//           }).toString(),
-//           headers: {
-//             "Content-Type": "application/x-www-form-urlencoded",
-//           }
-//         });
-
-//         if (updateResponse.status === 200) {
-//           console.log(
-//             `Заказ ID: ${order.id} успешно обновлен. Ответ:`,
-//             updateResponse.data
-//           );
-//         } else {
-//           console.error(
-//             `Ошибка обновления заказа ID: ${order.id}. Статус ответа: ${updateResponse.status}`
-//           );
-//         }
-//       } catch (error) {
-//         if (error.response) {
-//           console.error(
-//             `Ошибка при обработке заказа ID: ${order.id}. ${JSON.stringify(order, null, 2)}Код ответа: ${error.response.status}, Детали ответа:`,
-//             error.response.data
-//           );
-//         } else if (error.code === "ECONNABORTED") {
-//           console.error(
-//             `Тайм-аут запроса для заказа ID: ${order.id}. Проверьте сервер.`
-//           );
-//         } else if (error.message.includes("EPIPE")) {
-//           console.error(
-//             `Сбой соединения для заказа ID: ${order.id}. Сервер закрыл соединение.`
-//           );
-//         } else {
-//           console.error(
-//             `Неизвестная ошибка при обработке заказа ID: ${order.id}. Детали:`,
-//             error.message
-//           );
-//         }
-//       }
-
-//     });
-
-//     await Promise.all(promises);
-
-//     console.log("Обработка всех заказов завершена.");
-//     res.status(200).send("Обработка завершена.");
-//   } catch (error) {
-//     console.error("Общая ошибка:", error.message);
-//     res.status(500).send("Ошибка сервера.");
-//   }
-// };
+  for (const order of orders) {
+    const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
+    const goods = Array.isArray(items) && items.length > 0
+      ? items.map((item, index) => ({
+        goodID: item.product_id,
+        quantity: item.quantity || 1,
+        price: item.price || 0,
+      }))
+      : [];
 
 
+    let updateData = {
+      webmasterID: order.webmaster_id,
+      operatorID: order.operator_id,
+      fio: order.fio,
+      phone: order.phone,
+      price: items[0]?.price ? items[0]?.price : 1650,
+      total: order?.total_sum ? parseFloat(order?.total_sum) : 1650,
+      quantity: Array.isArray(items) && items.length > 0 ? items.reduce((acc, item) => +acc + +item.quantity) : 1,
+      additional8: order.additional8,
+      additional13: order.utm_term,
+      utm_term: order.utm_term,
 
+      comment: order.comment,
+      domain: order.additional1,
+      goods: goods,
+    }
+
+  
+
+    const response = await axios({
+      method: 'POST',
+      url: 'https://talkcall-kz.leadvertex.ru/api/admin/addOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa',
+      headers: {
+        "Content-Type": 'application/x-www-form-urlencoded'
+      },
+      data: updateData,
+    });
+
+    if (response.status == 200){
+      console.log(`OK ${order.id}`)
+      break
+       
+      }  else {
+        console.log('oshibka pri update order')
+        break
+      }
+
+      break
+    }
+  }
+
+
+  // const apiUrl = 'https://talkcall-kz.leadvertex.ru/api/admin/addOrder.html';
+  // const apiKey = 'kjsdaKRhlsrk0rjjekjskaaaaaaaa'; // Замените на ваш API-ключ
+  // const apiUrlToUpdate = 'https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html';
+
+
+   // const updateResponse = await axios({
+        //   method: 'POST',
+        //   url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${order.id}`,
+        //   data: {
+        //     status: order.sub_status_id,
+        //   },
+        //   headers: {
+        //     'Content-Type': 'application/x-www-form-urlencoded',
+        //   }
+        // });
+
+        // if (updateResponse.status === 200) {
+        //   console.log('Order successfully updated:', updateResponse.data);
+        //   break; // Прекращаем цикл, если заказ успешно отправлен
+        // }
