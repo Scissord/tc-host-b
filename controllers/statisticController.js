@@ -150,7 +150,7 @@ export const sendProccessOrders = async (req, res) => {
         params.append("webmasterID", order.webmaster_id || 0);
         params.append("domain", order.additional1 || '');
         params.append("additional8", order.additional8 || '');
-        params.append("goods", JSON.stringify(goods)); 
+        params.append("goods", goods); 
 
         try {
           const response = await axios.post(
