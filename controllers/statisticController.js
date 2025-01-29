@@ -292,14 +292,11 @@ export const fromHundredThousand = async (req, res) => {
     if (response.status == 200){
       const datas = response.data
       console.log(`OK ${JSON.stringify(datas, null, 2)}`)
-      break
        
       }  else {
         console.log('oshibka pri update order')
-        break
       }
 
-      break
     }
   }
 
