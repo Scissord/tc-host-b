@@ -291,7 +291,7 @@ export const fromHundredThousand = async (req, res) => {
 
     if (response.status == 200){
       const datas = response.data
-      console.log(`OK ${datas}`)
+      console.log(`OK ${JSON.stringify(datas, null, 2)}`)
       break
        
       }  else {
