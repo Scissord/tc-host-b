@@ -164,12 +164,15 @@ export const sendProccessOrders = async (req, res) => {
           );
 
           console.log(`Заказ ID: ${order.id} успешно отправлен. Ответ API:`, response.data);
+          break
         } catch (error) {
           console.error(`Ошибка при отправке заказа ID: ${order.id}. Детали: ${error.message}`);
+          break
         }
 
       } catch (error) {
         console.error(`Ошибка при обработке заказа ID: ${order.id}. Детали: ${error.message}`);
+        break
       }
     }
 
