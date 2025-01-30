@@ -344,9 +344,12 @@ export const updateOrderIdsFile = async (req, res) => {
   const sheet = workbook.Sheets[sheetName];
   const jsonData = XLSX.utils.sheet_to_json(sheet);
 
+  let processedCount = 0;
+
   try {
     for (const row of jsonData) {
       const payload = {
+        processedCount: processedCount,
         id: row['ID'],
         external_id: row['ID внешний'],
         send_status: row['Статус отправки'],
@@ -354,6 +357,7 @@ export const updateOrderIdsFile = async (req, res) => {
         delivery_type: row['Тип доставки']
       };
       console.log(payload)
+      processedCount++;
       // await axios.post(apiUrl, payload, {
       //   headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
       // });
