@@ -8,19 +8,10 @@ import * as City from '#models/city.js'
 import * as Payment from '#models/payment_method.js'
 import * as Delivery from '#models/delivery_method.js'
 import * as CancelReason from '#models/order_cancel_reason.js'
-import path from 'path';
 import fs from 'fs';
 import axios from 'axios';
-import { fileURLToPath } from 'url';
 
-
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-
-const logFilePath = path.join(__dirname, 'update_logs.txt');
-
+const logFilePath = 'update_logs.txt'; // Просто имя файла, запишет в ту же папку
 
 const writeLog = (message) => {
   fs.appendFileSync(logFilePath, `${new Date().toISOString()} - ${message}\n`);
