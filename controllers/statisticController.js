@@ -491,7 +491,7 @@ export const updateOrderIdsFile = async (req, res) => {
         
       }
 
-      if (payload.external_id > 0 && payload.external_id <= 100000) {
+      if (+payload.external_id > 0 && +payload.external_id <= 100000) {
             const updateResponse = await axios({
               method: 'POST',
               url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${payload.external_id}`,
