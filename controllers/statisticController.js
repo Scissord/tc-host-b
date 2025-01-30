@@ -11,7 +11,10 @@ import * as CancelReason from '#models/order_cancel_reason.js'
 import path from 'path';
 import fs from 'fs';
 import axios from 'axios';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 const logFilePath = path.join(__dirname, 'update_logs.txt');
