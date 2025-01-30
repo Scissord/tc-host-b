@@ -494,10 +494,13 @@ export const updateOrderIdsFile = async (req, res) => {
         continue
       }
       if (+payload.external_id > 0 && +payload.external_id <= 100000) {
+            const data = new URLSearchParams();
+            data.append('status', data_to_update.status);
+
             const updateResponse = await axios({
               method: 'POST',
               url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${payload.external_id}`,
-              data: data_to_update,
+              data: data,
               headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
               }
@@ -525,11 +528,13 @@ export const updateOrderIdsFile = async (req, res) => {
             if (response.data && response.data.length > 0) {
               const lastOrderId = response.data[response.data.length - 1];
               console.log(`Последний заказ: ${lastOrderId}`);
+              const data = new URLSearchParams();
+              data.append('status', data_to_update.status);
 
               const updateResponse = await axios({
                 method: 'POST',
                 url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${lastOrderId}`,
-                data: data_to_update,
+                data: data,
                 headers: {
                   'Content-Type': 'application/x-www-form-urlencoded',
                 }
