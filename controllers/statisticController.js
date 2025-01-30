@@ -8,7 +8,19 @@ import * as City from '#models/city.js'
 import * as Payment from '#models/payment_method.js'
 import * as Delivery from '#models/delivery_method.js'
 import * as CancelReason from '#models/order_cancel_reason.js'
+import path from 'path';
+import fs from 'fs';
 import axios from 'axios';
+
+
+
+const logFilePath = path.join(__dirname, 'update_logs.txt');
+
+const writeLog = (message) => {
+  fs.appendFileSync(logFilePath, `${new Date().toISOString()} - ${message}\n`);
+};
+
+
 
 import {
   groupByDate,
@@ -327,13 +339,105 @@ export const getOperatorStatistic = async (req, res) => {
 
 
 
-
+const statuses_dict = {
+    "УТОЧНИТЬ": {"status_in_leadvertex": 3},
+    "НД": {"status_in_leadvertex": 28},
+    "ОЖИДАЕТ": {"status_in_leadvertex": 3},
+    "СЛЕДУЮЩИЙ": {"status_in_leadvertex": 3},
+    "ВЫЕХАЛ": {"status_in_leadvertex": 3},
+    "сделать замену": {"status_in_leadvertex": null},
+    "сделать возврат денег": {"status_in_leadvertex": null},
+    "нет товара": {"status_in_leadvertex": null},
+    "ОТКАЗ": {"status_in_leadvertex": 40},
+    "ОД": {"status_in_leadvertex": 29},
+    "сделан возврат денег": {"status_in_leadvertex": null},
+    "замена сделана": {"status_in_leadvertex": null},
+    "Перенос оплатить": {"status_in_leadvertex": 29},
+    "отказ проплатить": {"status_in_leadvertex": null},
+    "выезд дважды": {"status_in_leadvertex": null},
+    "ОПЛ располовинен": {"status_in_leadvertex": 5},
+    "ОПЛ дальний располовинен": {"status_in_leadvertex": 5},
+    "ОПЛ дальний": {"status_in_leadvertex": 5},
+    "ОПЛ": {"status_in_leadvertex": 5},
+    "ОД оплатить": {"status_in_leadvertex": 29},
+    "перенос сделать возврат денег (0)": {"status_in_leadvertex": 29},
+    "Замена сделана клиент оплатил (0)": {"status_in_leadvertex": null},
+    "ПЕРЕНОС": {"status_in_leadvertex": 29},
+    "Перезвонить": {"status_in_leadvertex": null},
+    "Опл транспортировка": {"status_in_leadvertex": 27},
+    "Выезд дважды. Распол": {"status_in_leadvertex": null},
+    "ОПЛ ДОП": {"status_in_leadvertex": 5},
+    "Продажа курьер": {"status_in_leadvertex": null},
+    "ОПЛ карта": {"status_in_leadvertex": 5},
+    "ОПЛ тс Карта": {"status_in_leadvertex": 27},
+    "Продажа курьер распол": {"status_in_leadvertex": null},
+    "Не упакован": {"status_in_leadvertex": null},
+    "ОПЛ ДОП РАСПОЛ": {"status_in_leadvertex": 5},
+    "Продажа карта выезд дважды": {"status_in_leadvertex": null},
+    "Продажа карта выезд дважды распол": {"status_in_leadvertex": null},
+    "Прозвон админа": {"status_in_leadvertex": null},
+    "ОПЛ карта дальний": {"status_in_leadvertex": 5},
+    "Вручить подарок": {"status_in_leadvertex": null},
+    "Подарок вручен": {"status_in_leadvertex": null},
+    "Опл нал/без нал": {"status_in_leadvertex": 5},
+    "ОПЛ Lucem": {"status_in_leadvertex": 5},
+    "ОПЛ Lucem Выезд дважды": {"status_in_leadvertex": 5},
+    "Замена перенос": {"status_in_leadvertex": 29},
+    "Замена невыкуп": {"status_in_leadvertex": null},
+    "опл карта партнер": {"status_in_leadvertex": 5},
+    "Замена сделана за счёт склада": {"status_in_leadvertex": null},
+    "Обработка": {"status_in_leadvertex": null},
+    "опл тс дубль": {"status_in_leadvertex": 5},
+    "ОПЛ карта дальний распол": {"status_in_leadvertex": 5},
+    "Опл карта тс партнер": {"status_in_leadvertex": 5},
+    "Опл карта располов партнер": {"status_in_leadvertex": 5},
+    "замена сделана за счёт партнёра": {"status_in_leadvertex": null},
+    "опл нал/без нал дальний": {"status_in_leadvertex": 5},
+    "опл нал/без нал дважды": {"status_in_leadvertex": 5},
+    "выезд дважды PAY": {"status_in_leadvertex": 5},
+    "опл дальний PAY": {"status_in_leadvertex": 5},
+    "Опл транспортировка PAY": {"status_in_leadvertex": 5},
+    "Опл располовинен PAY": {"status_in_leadvertex": 5},
+    "Опл дальний располовинен PAY": {"status_in_leadvertex": 5},
+    "Опл тс дубль PAY": {"status_in_leadvertex": 5},
+    "Опл доп PAY": {"status_in_leadvertex": 5},
+    "Опл доп распол PAY": {"status_in_leadvertex": 5},
+    "выезд дважды располовинен PAY": {"status_in_leadvertex": 5},
+    "Выезд 2 карта партнер": {"status_in_leadvertex": null},
+    "Опл карта партнер дальний": {"status_in_leadvertex": 5},
+    "Опл нал/безнал PAY": {"status_in_leadvertex": 5},
+    "Подтвержден": {"status_in_leadvertex": null},
+    "Подтвержден CLUB": {"status_in_leadvertex": null},
+    "ВЫВОД денег": {"status_in_leadvertex": null},
+    "ОПЛ PAY удаленно": {"status_in_leadvertex": 5},
+    "ОПЛ PAY удаленно дальний": {"status_in_leadvertex": 5},
+    "ОПЛ PAY удаленно дальний распол": {"status_in_leadvertex": 5},
+    "ОПЛ PAY удаленно распол": {"status_in_leadvertex": 5},
+    "ОПЛ PAY удаленно дважды": {"status_in_leadvertex": 5},
+    "ОПЛ PAY удаленно дважды распол": {"status_in_leadvertex": 5},
+    "ОПЛ Lucem дальний": {"status_in_leadvertex": 5},
+    "ОПЛ Lucem распол": {"status_in_leadvertex": 5},
+    "ОПЛ Lucem дальний распол": {"status_in_leadvertex": 5},
+    "ОПЛ Lucem выезд дважды распол": {"status_in_leadvertex": 5},
+    "ОПЛ JPay Располовинен": {"status_in_leadvertex": 5},
+    "Выезд дважды JPay распол": {"status_in_leadvertex": None},
+    "ОПЛ Терминал": {"status_in_leadvertex": 5},
+    "ОПЛ располовинен Терминал": {"status_in_leadvertex": 5},
+    "ОПЛ b2 Терминал": {"status_in_leadvertex": 5},
+    "ОПЛ дальний Терминал": {"status_in_leadvertex": 5},
+    "ОПЛ транспортировка Терминал": {"status_in_leadvertex": 5},
+    "Замена за счёт партнёра ALFA trade": {"status_in_leadvertex": null},
+    "Опл тасматат": {"status_in_leadvertex": 5},
+    "Опл люцем пэй": {"status_in_leadvertex": 5},
+    "Опл люцем пэй распол": {"status_in_leadvertex": 5},
+    "Опл люцем пэй выезд дважды": {"status_in_leadvertex": 5},
+    "Опл люцем пэй дальний": {"status_in_leadvertex": 5},
+    "Опл люцем пэй нал без нал": {"status_in_leadvertex": 5},
+    "Опл люцем пэй нал без нал дважды распол": {"status_in_leadvertex": 5},
+    "Опл люцем пэй дальний располов": {"status_in_leadvertex": 5},
+};
 
 export const updateOrderIdsFile = async (req, res) => {
-  // const apiUrl = 'https://talkcall-kz.leadvertex.ru/api/admin/addOrder.html';
-  // const apiKey = 'kjsdaKRhlsrk0rjjekjskaaaaaaaa'; // Замените на ваш API-ключ
-  // const apiUrlToUpdate = 'https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html';
-
   if (!req.files || !req.files.file) {
     return res.status(400).send('Файл не загружен.');
   }
@@ -344,27 +448,118 @@ export const updateOrderIdsFile = async (req, res) => {
   const sheet = workbook.Sheets[sheetName];
   const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-  let processedCount = 0;
-
   try {
     for (const row of jsonData) {
+      
       const payload = {
-        processedCount: processedCount,
         id: row['ID'],
         external_id: row['ID внешний'],
         send_status: row['Статус отправки'],
         cur_status: row['Статус курьера'],
         delivery_type: row['Тип доставки']
       };
-      console.log(payload)
-      processedCount++;
-      // await axios.post(apiUrl, payload, {
-      //   headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-      // });
+
+
+      let data_to_update = {}
+
+      if (payload.delivery_type == 'Почта'){
+
+
+        if (payload.send_status == 'Отправлен') {
+          data_to_update.status = 13
+        }
+        if (payload.send_status == 'На отправку') {
+          data_to_update.status = 13
+        }
+        if (payload.send_status == 'Оплачен') {
+          data_to_update.status = 6
+        }
+        if (payload.send_status == 'Отказ') {
+          data_to_update.status = 46
+        }
+
+      } else {
+      
+        const statusInfo = statuses_dict[payload.cur_status];
+
+        if ( statusInfo ) {
+          data_to_update.status = statusInfo.status_in_leadvertex;
+
+        } else {
+          continue
+        }
+        
+      }
+
+      if (payload.external_id > 0 && payload.external_id <= 100000) {
+            const updateResponse = await axios({
+              method: 'POST',
+              url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${payload.external_id}`,
+              data: data_to_update,
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              }
+
+            });
+            if (updateResponse.status === 200) {
+              console.log(`${payload}, был обновлен в статус ${data_to_update.status}`)
+              const logMessage = `${JSON.stringify(payload)}, был обновлен в статус ${data_to_update.status}`;
+              writeLog(logMessage);
+            }
+
+          }
+          
+        
+      else {
+
+          try {
+
+            const response = await axios.get(`https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa`, {
+              params: {
+                additional19: payload.external_id
+              }
+            });
+
+            if (response.data && response.data.length > 0) {
+              const lastOrderId = response.data[response.data.length - 1];
+              console.log(`Последний заказ: ${lastOrderId}`);
+
+              const updateResponse = await axios({
+                method: 'POST',
+                url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${lastOrderId}`,
+                data: data_to_update,
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                }
+  
+              });
+              if (updateResponse.status === 200) {
+                console.log(`${payload}, был обновлен в статус ${data_to_update.status}`)
+                const logMessage = `${JSON.stringify(payload)}, был обновлен в статус ${data_to_update.status}`;
+                writeLog(logMessage);
+              }
+
+            } else {
+              console.log(`Заказы не найдены. ${payload.external_id}`);
+              continue
+            }
+
+          } catch (error) {
+            console.error('Ошибка при запросе заказов:', error);
+          }
+      }
     }
     res.send('Данные успешно загружены и отправлены.');
+
   } catch (error) {
     console.error('Ошибка при отправке данных:', error);
     res.status(500).send('Ошибка при обработке файла.');
   }  
   }
+
+
+
+
+
+
+  
