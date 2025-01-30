@@ -246,59 +246,60 @@ export const getOperatorStatistic = async (req, res) => {
 
 
 
-export const fromHundredThousand = async (req, res) => {
+// export const fromHundredThousand = async (req, res) => {
+  
  
-  const orders = await Order.getWhereIn('o.sub_status_id', [21])
-  console.log(orders.length)
-  for (const order of orders) {
-    const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
-    const goods = Array.isArray(items) && items.length > 0
-      ? items.map((item, index) => ({
-        goodID: item.product_id,
-        quantity: item.quantity || 1,
-        price: item.price || 0,
-      }))
-      : [];
+//   const orders = await Order.getWhereIn('o.sub_status_id', [21])
+//   console.log(orders.length)
+//   for (const order of orders) {
+//     const items = await OrderItem.getWhereIn('oi.order_id', [order.id]);
+//     const goods = Array.isArray(items) && items.length > 0
+//       ? items.map((item, index) => ({
+//         goodID: item.product_id,
+//         quantity: item.quantity || 1,
+//         price: item.price || 0,
+//       }))
+//       : [];
 
 
-    let updateData = {
-      webmasterID: order.webmaster_id,
-      operatorID: order.operator_id,
-      fio: order.fio,
-      phone: order.phone,
-      price: items[0]?.price ? items[0]?.price : 1650,
-      total: order?.total_sum ? parseFloat(order?.total_sum) : 1650,
-      quantity: Array.isArray(items) && items.length > 0 ? items.reduce((acc, item) => +acc + +item.quantity) : 1,
-      additional8: order.additional8,
-      additional13: order.utm_term,
-      utm_term: order.utm_term,
+//     let updateData = {
+//       webmasterID: order.webmaster_id,
+//       operatorID: order.operator_id,
+//       fio: order.fio,
+//       phone: order.phone,
+//       price: items[0]?.price ? items[0]?.price : 1650,
+//       total: order?.total_sum ? parseFloat(order?.total_sum) : 1650,
+//       quantity: Array.isArray(items) && items.length > 0 ? items.reduce((acc, item) => +acc + +item.quantity) : 1,
+//       additional8: order.additional8,
+//       additional13: order.utm_term,
+//       utm_term: order.utm_term,
 
-      comment: order.comment,
-      domain: order.additional1,
-      goods: goods
-    }
+//       comment: order.comment,
+//       domain: order.additional1,
+//       goods: goods
+//     }
 
   
 
-    const response = await axios({
-      method: 'POST',
-      url: 'https://talkcall-kz.leadvertex.ru/api/admin/addOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa',
-      headers: {
-        "Content-Type": 'application/x-www-form-urlencoded'
-      },
-      data: updateData,
-    });
+//     const response = await axios({
+//       method: 'POST',
+//       url: 'https://talkcall-kz.leadvertex.ru/api/admin/addOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa',
+//       headers: {
+//         "Content-Type": 'application/x-www-form-urlencoded'
+//       },
+//       data: updateData,
+//     });
 
-    if (response.status == 200){
-      const datas = response.data
-      console.log(`OK ${JSON.stringify(datas, null, 2)}`)
+//     if (response.status == 200){
+//       const datas = response.data
+//       console.log(`OK ${JSON.stringify(datas, null, 2)}`)
        
-      }  else {
-        console.log('oshibka pri update order')
-      }
+//       }  else {
+//         console.log('oshibka pri update order')
+//       }
 
-    }
-  }
+//     }
+//   }
 
 
   // const apiUrl = 'https://talkcall-kz.leadvertex.ru/api/admin/addOrder.html';
@@ -321,3 +322,45 @@ export const fromHundredThousand = async (req, res) => {
         //   console.log('Order successfully updated:', updateResponse.data);
         //   break; // Прекращаем цикл, если заказ успешно отправлен
         // }
+
+
+
+
+
+
+
+export const updateOrderIdsFile = async (req, res) => {
+  // const apiUrl = 'https://talkcall-kz.leadvertex.ru/api/admin/addOrder.html';
+  // const apiKey = 'kjsdaKRhlsrk0rjjekjskaaaaaaaa'; // Замените на ваш API-ключ
+  // const apiUrlToUpdate = 'https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html';
+
+  if (!req.files || !req.files.file) {
+    return res.status(400).send('Файл не загружен.');
+  }
+
+  const uploadedFile = req.files.file;
+  const workbook = XLSX.read(uploadedFile.data, { type: 'buffer' });
+  const sheetName = workbook.SheetNames[0];
+  const sheet = workbook.Sheets[sheetName];
+  const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+  try {
+    for (const row of jsonData) {
+      const payload = {
+        id: row['ID'],
+        external_id: row['ID внешний'],
+        send_status: row['Статус отправки'],
+        cur_status: row['Статус курьера'],
+        delivery_type: row['Тип доставки']
+      };
+      console.log(payload)
+      // await axios.post(apiUrl, payload, {
+      //   headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      // });
+    }
+    res.send('Данные успешно загружены и отправлены.');
+  } catch (error) {
+    console.error('Ошибка при отправке данных:', error);
+    res.status(500).send('Ошибка при обработке файла.');
+  }  
+  }
