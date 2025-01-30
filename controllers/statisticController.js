@@ -489,6 +489,9 @@ export const updateOrderIdsFile = async (req, res) => {
         
       }
 
+      if (!data_to_update) {
+        continue
+      }
       if (+payload.external_id > 0 && +payload.external_id <= 100000) {
             const updateResponse = await axios({
               method: 'POST',
