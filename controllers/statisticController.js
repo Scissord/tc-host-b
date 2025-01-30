@@ -11,7 +11,7 @@ import * as CancelReason from '#models/order_cancel_reason.js'
 import fs from 'fs';
 import axios from 'axios';
 
-const logFilePath = 'update_logs.txt'; // Просто имя файла, запишет в ту же папку
+const logFilePath = 'update_logs.txt'; 
 
 const writeLog = (message) => {
   fs.appendFileSync(logFilePath, `${new Date().toISOString()} - ${message}\n`);
@@ -435,6 +435,7 @@ const statuses_dict = {
 };
 
 export const updateOrderIdsFile = async (req, res) => {
+  console.log('started')
   if (!req.files || !req.files.file) {
     return res.status(400).send('Файл не загружен.');
   }
