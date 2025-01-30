@@ -417,7 +417,7 @@ const statuses_dict = {
     "ОПЛ Lucem дальний распол": {"status_in_leadvertex": 5},
     "ОПЛ Lucem выезд дважды распол": {"status_in_leadvertex": 5},
     "ОПЛ JPay Располовинен": {"status_in_leadvertex": 5},
-    "Выезд дважды JPay распол": {"status_in_leadvertex": None},
+    "Выезд дважды JPay распол": {"status_in_leadvertex": null},
     "ОПЛ Терминал": {"status_in_leadvertex": 5},
     "ОПЛ располовинен Терминал": {"status_in_leadvertex": 5},
     "ОПЛ b2 Терминал": {"status_in_leadvertex": 5},
