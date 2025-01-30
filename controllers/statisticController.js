@@ -489,7 +489,7 @@ export const updateOrderIdsFile = async (req, res) => {
         
       }
       
-      if (!data_to_update) {
+      if (!data_to_update.status) {
         procc++
         continue
       }
