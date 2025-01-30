@@ -445,7 +445,7 @@ export const updateOrderIdsFile = async (req, res) => {
   const sheetName = workbook.SheetNames[0];
   const sheet = workbook.Sheets[sheetName];
   const jsonData = XLSX.utils.sheet_to_json(sheet);
-
+  let procc = 0
   try {
     for (const row of jsonData) {
       
@@ -488,8 +488,9 @@ export const updateOrderIdsFile = async (req, res) => {
         }
         
       }
-
+      
       if (!data_to_update) {
+        procc++
         continue
       }
       if (+payload.external_id > 0 && +payload.external_id <= 100000) {
@@ -550,6 +551,7 @@ export const updateOrderIdsFile = async (req, res) => {
           }
       }
     }
+    console.log(`${procc} было пропущено`)
     res.send('Данные успешно загружены и отправлены.');
 
   } catch (error) {
