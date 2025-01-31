@@ -559,7 +559,7 @@ export const updateOrdersWithKet = async (req, res) => {
 
     const orders = response.data; // Массив ID заказов
     if (!orders || orders.length === 0) {
-      console.log("⚠️ Нет заказов со статусом 3");
+      console.log("⚠️ Нет заказов со статусом 13");
       return res.json({ success: true, message: "Нет заказов для обработки" });
     }
 
@@ -615,7 +615,7 @@ export const updateOrdersWithKet = async (req, res) => {
         notFoundOrders.push(orderId);
         continue;
       }
-
+      console.log(ketOrderInfos)
       const latestOrder = Object.values(ketOrderInfos).pop();
       console.log(`✅ Ответ от ketkz.com для заказа ${lvIdToSearch} (или ${orderId}):`, latestOrder);
 
