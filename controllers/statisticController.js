@@ -631,6 +631,7 @@ export const updateOrdersWithKet = async (req, res) => {
       // Проверяем, если доставка "почта"
       if (latestOrder.kz_delivery !== "Почта") {
         console.log(`📦 Заказ ${orderId} отправляется курьер`);
+        console.log(latestOrder)
         postDeliveryOrders.push(orderId);
       }
     }
