@@ -434,117 +434,168 @@ const statuses_dict = {
     "Опл люцем пэй дальний располов": {"status_in_leadvertex": 5},
 };
 
-export const updateOrderIdsFile = async (req, res) => {
-  console.log('Started processing file upload')
-  writeLog('Started processing file upload');
+// export const updateOrderIdsFile = async (req, res) => {
+//   console.log('Started processing file upload')
+//   writeLog('Started processing file upload');
   
-  if (!req.files || !req.files.file) {
-    writeLog('Файл не загружен.');
-    return res.status(400).send('Файл не загружен.');
-  }
+//   if (!req.files || !req.files.file) {
+//     writeLog('Файл не загружен.');
+//     return res.status(400).send('Файл не загружен.');
+//   }
 
-  const uploadedFile = req.files.file;
-  const workbook = XLSX.read(uploadedFile.data, { type: 'buffer' });
-  const sheetName = workbook.SheetNames[0];
-  const sheet = workbook.Sheets[sheetName];
-  const jsonData = XLSX.utils.sheet_to_json(sheet);
-  let procc = 0;
+//   const uploadedFile = req.files.file;
+//   const workbook = XLSX.read(uploadedFile.data, { type: 'buffer' });
+//   const sheetName = workbook.SheetNames[0];
+//   const sheet = workbook.Sheets[sheetName];
+//   const jsonData = XLSX.utils.sheet_to_json(sheet);
+//   let procc = 0;
   
-  try {
-    for (const row of jsonData) {
-      const payload = {
-        id: row['ID'],
-        external_id: row['ID внешний'],
-        send_status: row['Статус отправки'],
-        cur_status: row['Статус курьера'],
-        delivery_type: row['Тип доставки']
-      };
-      console.log(`Processing row: ${JSON.stringify(payload)}`)
-      writeLog(`Processing row: ${JSON.stringify(payload)}`);
-      let data_to_update = {};
+//   try {
+//     for (const row of jsonData) {
+//       const payload = {
+//         id: row['ID'],
+//         external_id: row['ID внешний'],
+//         send_status: row['Статус отправки'],
+//         cur_status: row['Статус курьера'],
+//         delivery_type: row['Тип доставки']
+//       };
+//       console.log(`Processing row: ${JSON.stringify(payload)}`)
+//       writeLog(`Processing row: ${JSON.stringify(payload)}`);
+//       let data_to_update = {};
 
-      if (payload.delivery_type === 'Почта') {
-        if (payload.send_status === 'Отправлен' || payload.send_status === 'На отправку') {
-          data_to_update.status = 13;
-        } else if (payload.send_status === 'Оплачен') {
-          data_to_update.status = 6;
-        } else if (payload.send_status === 'Отказ') {
-          data_to_update.status = 46;
-        }
-      } else {
-        const statusInfo = statuses_dict[payload.cur_status];
-        if (statusInfo) {
-          data_to_update.status = statusInfo.status_in_leadvertex;
-        } else {
-          console.log(`Status not found for row: ${JSON.stringify(payload)}`)
-          writeLog(`Status not found for row: ${JSON.stringify(payload)}`);
-          continue;
-        }
-      }
+//       if (payload.delivery_type === 'Почта') {
+//         if (payload.send_status === 'Отправлен' || payload.send_status === 'На отправку') {
+//           data_to_update.status = 13;
+//         } else if (payload.send_status === 'Оплачен') {
+//           data_to_update.status = 6;
+//         } else if (payload.send_status === 'Отказ') {
+//           data_to_update.status = 46;
+//         }
+//       } else {
+//         const statusInfo = statuses_dict[payload.cur_status];
+//         if (statusInfo) {
+//           data_to_update.status = statusInfo.status_in_leadvertex;
+//         } else {
+//           console.log(`Status not found for row: ${JSON.stringify(payload)}`)
+//           writeLog(`Status not found for row: ${JSON.stringify(payload)}`);
+//           continue;
+//         }
+//       }
       
-      if (!data_to_update.status) {
-        procc++;
-        continue;
-      }
+//       if (!data_to_update.status) {
+//         procc++;
+//         continue;
+//       }
       
-      try {
-        if (+payload.external_id > 0 && +payload.external_id <= 100000) {
-          const data = new URLSearchParams();
-          data.append('status', data_to_update.status);
+//       try {
+//         if (+payload.external_id > 0 && +payload.external_id <= 100000) {
+//           const data = new URLSearchParams();
+//           data.append('status', data_to_update.status);
 
-          const updateResponse = await axios.post(
-            `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${payload.external_id}`,
-            data,
-            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-          );
+//           const updateResponse = await axios.post(
+//             `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${payload.external_id}`,
+//             data,
+//             { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+//           );
           
-          if (updateResponse.status === 200) {
-            console.log(`Order ${payload.external_id} updated to status ${data_to_update.status}`)
-            writeLog(`Order ${payload.external_id} updated to status ${data_to_update.status}`);
-          }
-        } else {
-          const response = await axios.get(
-            `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa`,
-            { params: { additional19: payload.external_id } }
-          );
-          let last_id 
-          if (response.data && response.data.length > 0) {
-            last_id = response.data[response.data.length - 1];
-            console.log(`Found last order ID: ${last_id} for external ID: ${payload.external_id}`)
-            writeLog(`Found last order ID: ${last_id} for external ID: ${payload.external_id}`);
+//           if (updateResponse.status === 200) {
+//             console.log(`Order ${payload.external_id} updated to status ${data_to_update.status}`)
+//             writeLog(`Order ${payload.external_id} updated to status ${data_to_update.status}`);
+//           }
+//         } else {
+//           const response = await axios.get(
+//             `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa`,
+//             { params: { additional19: payload.external_id } }
+//           );
+//           let last_id 
+//           if (response.data && response.data.length > 0) {
+//             last_id = response.data[response.data.length - 1];
+//             console.log(`Found last order ID: ${last_id} for external ID: ${payload.external_id}`)
+//             writeLog(`Found last order ID: ${last_id} for external ID: ${payload.external_id}`);
 
-          } 
+//           } 
 
-          if (!last_id){
-            last_id = payload.external_id
-          }
-          const data = new URLSearchParams();
-            data.append('status', data_to_update.status);
+//           if (!last_id){
+//             last_id = payload.external_id
+//           }
+//           const data = new URLSearchParams();
+//             data.append('status', data_to_update.status);
 
-            const updateResponse = await axios.post(
-              `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${last_id}`,
-              data,
-              { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-            );
+//             const updateResponse = await axios.post(
+//               `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${last_id}`,
+//               data,
+//               { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+//             );
 
-            if (updateResponse.status === 200) {
-              console.log(`Order ${last_id} updated to status ${data_to_update.status}`)
-              writeLog(`Order ${last_id} updated to status ${data_to_update.status}`);
-            }
+//             if (updateResponse.status === 200) {
+//               console.log(`Order ${last_id} updated to status ${data_to_update.status}`)
+//               writeLog(`Order ${last_id} updated to status ${data_to_update.status}`);
+//             }
 
-        }
-      } catch (error) {
-        console.log(`Error updating order ${payload.external_id}: ${error.message}`)
-        writeLog(`Error updating order ${payload.external_id}: ${error.message}`);
-      }
-    }
+//         }
+//       } catch (error) {
+//         console.log(`Error updating order ${payload.external_id}: ${error.message}`)
+//         writeLog(`Error updating order ${payload.external_id}: ${error.message}`);
+//       }
+//     }
     
-    writeLog(`${procc} rows were skipped`);
-    console.log(`${procc} rows were skipped`)
-    res.send('Данные успешно загружены и отправлены.');
+//     writeLog(`${procc} rows were skipped`);
+//     console.log(`${procc} rows were skipped`)
+//     res.send('Данные успешно загружены и отправлены.');
+//   } catch (error) {
+//     console.log(`Ошибка при обработке файла: ${error.message}`)
+//     writeLog(`Ошибка при обработке файла: ${error.message}`);
+//     res.status(500).send('Ошибка при обработке файла.');
+//   }
+// };
+
+
+export const updateOrdersWithKet = async (req, res) => {
+  try {
+      // get all orders in status
+    const response = await axios.get(
+      `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa`,
+      { params: { status: 6} }
+    );
+
+    const orders = response.data
+
+    for (const order in orders) {
+      // get info of order by id
+      const res = await axios.get(
+        `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersByIds.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&ids=${order}`,
+        { params: { status: 6} }
+      );
+      // order info is in orderInfo
+      const orderInfo = res.data[order]
+
+      let lvIdToSearch 
+
+      if ( orderInfo.additional19 ) {
+        lvIdToSearch = orderInfo.additional19
+      } else {
+        lvIdToSearch = order
+      }
+
+      data = {"data": json.dumps([{"ext_id": lvIdToSearch}])}
+
+      const ket_response = await axios.post({
+        method: 'POST',
+        url:`https://ketkz.com/api/get_orders.php?uid=99770715&s=OFxMG6K9`,
+        data: data,
+        headers: {"Content-Type": "application/x-www-form-urlencoded"}
+      })
+
+      const ketOrderInfo = ket_response.data
+
+      console.log(ketOrderInfo)
+      
+      break
+    }
   } catch (error) {
-    console.log(`Ошибка при обработке файла: ${error.message}`)
-    writeLog(`Ошибка при обработке файла: ${error.message}`);
-    res.status(500).send('Ошибка при обработке файла.');
+    console.log(`${error}`)
   }
-};
+ 
+
+  
+}

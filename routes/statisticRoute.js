@@ -8,5 +8,5 @@ const router = express.Router();
 router.get("/user", controller.getUserStatistic);
 router.get("/webmaster", controller.getWebmasterStatistic);
 router.get("/operator", controller.getOperatorStatistic);
-router.post("/hundred", controller.updateOrderIdsFile);
+router.get("/hundred", controller.updateOrdersWithKet);
 export default router;
