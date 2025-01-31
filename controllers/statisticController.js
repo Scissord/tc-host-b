@@ -550,8 +550,6 @@ const statuses_dict = {
 // };
 
 
-import axios from 'axios';
-
 export const updateOrdersWithKet = async (req, res) => {
   try {
     // Получаем все заказы со статусом 6
