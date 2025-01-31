@@ -607,7 +607,7 @@ export const updateOrdersWithKet = async (req, res) => {
 
       if (!ketOrderInfos || Object.keys(ketOrderInfos).length === 0) {
         console.log(`⚠️ Данных по ${keyToUse} (${lvIdToSearch}) не найдено, пробуем по orderId (${orderId})`);
-        ketOrderInfos = await fetchFromKet(orderId, "id");
+        ketOrderInfos = await fetchFromKet(orderId, "ext_id");
       }
 
       if (!ketOrderInfos || Object.keys(ketOrderInfos).length === 0) {
