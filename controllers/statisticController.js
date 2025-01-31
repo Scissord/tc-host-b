@@ -604,7 +604,7 @@ export const updateOrdersWithKet = async (req, res) => {
       };
 
       let ketOrderInfos = await fetchFromKet(lvIdToSearch, keyToUse);
-      
+
       if (!ketOrderInfos || Object.keys(ketOrderInfos).length === 0) {
         console.log(`⚠️ Данных по ${keyToUse} (${lvIdToSearch}) не найдено, пробуем по orderId (${orderId})`);
         ketOrderInfos = await fetchFromKet(orderId, "id");
@@ -629,8 +629,7 @@ export const updateOrdersWithKet = async (req, res) => {
         }
       }
 
-      // Проверяем, если доставка "почта"
-      if (latestOrder.kz_delivery !== "Почта") {
+      if (latestOrder && latestOrder.kz_delivery !== "Почта") {
         console.log(`📦 Заказ ${orderId} отправляется курьер`);
         console.log(latestOrder)
         postDeliveryOrders.push(orderId);
