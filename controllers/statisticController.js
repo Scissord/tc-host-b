@@ -621,7 +621,7 @@ export const updateOrdersWithKet = async (req, res) => {
       // Проверяем дату доставки
       if (latestOrder.delivery_date) {
         const deliveryYear = new Date(latestOrder.delivery_date).getFullYear();
-        if (deliveryYear !== 2025) {
+        if (deliveryYear !== 2025 && deliveryYear !== 2024) {
           console.log(`❌ Заказ ${orderId} имеет старую дату доставки (${latestOrder.delivery_date}), пропускаем`);
           notFoundOrders.push(orderId);
           continue;
