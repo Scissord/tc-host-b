@@ -564,12 +564,8 @@ export const updateOrdersWithKet = async (req, res) => {
     }
 
     let notFoundOrders = []; // Заказы, которых нет в KET
-    let postDeliveryOrders = []; // Заказы с доставкой "Почта"
-    let idsToSearch = []; // Список orderId для KET API
-    let extIdsToSearch = []; // Список additional19 для KET API
+    let postDeliveryOrders = []; // Заказы, у которых доставка "почта"
 
-    // Собираем все orderId и additional19
-    let orderData = {};
     for (const orderId of orders) {
       const resOrder = await axios.get(
         `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersByIds.html`,
@@ -582,61 +578,45 @@ export const updateOrdersWithKet = async (req, res) => {
         continue;
       }
 
-      orderData[orderId] = orderInfo;
-      if (orderInfo.additional19) {
-        extIdsToSearch.push(orderInfo.additional19);
-      } else {
-        idsToSearch.push(orderId);
-      }
-    }
+      let lvIdToSearch = orderInfo.additional19 || orderId;
+      let keyToUse = "ext_id"; 
 
-    // Функция для запроса в KET API
-    const fetchFromKet = async (idList, idType) => {
-      if (idList.length === 0) return {}; // Если список пуст, не делаем запрос
+      const fetchFromKet = async (idValue, idType) => {
+        const data = {
+          data: JSON.stringify([{ [idType]: idValue }])
+        };
 
-      const data = {
-        data: JSON.stringify(idList.map(id => ({ [idType]: id })))
+        try {
+          const ketResponse = await axios.post(
+            `https://ketkz.com/api/get_orders.php`,
+            data,
+            {
+              params: { uid: "99770715", s: "OFxMG6K9" },
+              headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            }
+          );
+
+          return ketResponse.data;
+        } catch (ketError) {
+          console.error(`❌ Ошибка запроса к KET API для ${idValue} (${idType}):`, ketError.message);
+          return null;
+        }
       };
 
-      try {
-        const ketResponse = await axios.post(
-          `https://ketkz.com/api/get_orders.php`,
-          data,
-          {
-            params: { uid: "99770715", s: "OFxMG6K9" },
-            headers: { "Content-Type": "application/x-www-form-urlencoded" }
-          }
-        );
+      let ketOrderInfos = await fetchFromKet(lvIdToSearch, keyToUse);
 
-        return ketResponse.data || {};
-      } catch (ketError) {
-        console.error(`❌ Ошибка запроса к KET API (${idType}):`, ketError.message);
-        return {};
+      if (!ketOrderInfos || Object.keys(ketOrderInfos).length === 0) {
+        console.log(`⚠️ Данных по ${keyToUse} (${lvIdToSearch}) не найдено, пробуем по orderId (${orderId})`);
+        ketOrderInfos = await fetchFromKet(orderId, "id");
       }
-    };
 
-    // 1. Запрос по `ext_id` (если есть)
-    let ketOrdersByExtId = await fetchFromKet(extIdsToSearch, "ext_id");
-
-    // 2. Запрос по `id` (если есть)
-    let ketOrdersById = await fetchFromKet(idsToSearch, "id");
-
-    // Объединяем результаты
-    let ketOrders = { ...ketOrdersByExtId, ...ketOrdersById };
-
-    // Обрабатываем заказы
-    for (const orderId of orders) {
-      const orderInfo = orderData[orderId];
-      let lvIdToSearch = orderInfo.additional19 || orderId;
-
-      let latestOrder = ketOrders[lvIdToSearch] || ketOrders[orderId];
-
-      if (!latestOrder) {
+      if (!ketOrderInfos || Object.keys(ketOrderInfos).length === 0) {
         console.log(`❌ Заказ ${orderId} не найден в KET`);
         notFoundOrders.push(orderId);
         continue;
       }
-
+      console.log(ketOrderInfos)
+      const latestOrder = Object.values(ketOrderInfos).pop();
       console.log(`✅ Ответ от ketkz.com для заказа ${lvIdToSearch} (или ${orderId}):`, latestOrder);
 
       // Проверяем дату доставки
@@ -649,15 +629,15 @@ export const updateOrdersWithKet = async (req, res) => {
         }
       }
 
-      // Проверяем `kz_delivery`
-      if (latestOrder.kz_delivery !== "Почта") {
-        console.log(`📬 Заказ ${orderId} отправляется курьером`);
+      if (latestOrder && latestOrder.kz_delivery !== "Почта") {
+        console.log(`📦 Заказ ${orderId} отправляется курьер`);
+        console.log(latestOrder)
         postDeliveryOrders.push(orderId);
       }
     }
 
     console.log("📌 Заказы, которых нет в KET:", notFoundOrders);
-    console.log("📬 Заказы с доставкой 'Почта':", postDeliveryOrders);
+    console.log("📬 Заказы с доставкой 'почта':", postDeliveryOrders);
 
     return res.json({
       success: true,
@@ -671,5 +651,4 @@ export const updateOrdersWithKet = async (req, res) => {
     return res.status(500).json({ success: false, message: "Ошибка сервера" });
   }
 };
-
 
