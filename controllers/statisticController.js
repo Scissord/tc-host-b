@@ -555,7 +555,7 @@ export const updateOrdersWithKet = async (req, res) => {
     // Получаем все заказы со статусом 13 (не 6, поправил комментарий)
     const response = await axios.get(
       `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html`,
-      { params: { token: "kjsdaKRhlsrk0rjjekjskaaaaaaaa", status: 56 } }
+      { params: { token: "kjsdaKRhlsrk0rjjekjskaaaaaaaa", status: 3 } }
     );
 
     const orders = response.data; // Массив ID заказов
@@ -623,7 +623,9 @@ export const updateOrdersWithKet = async (req, res) => {
       const latestOrder = Object.values(ketOrderInfos).pop();
       console.log(`✅ Ответ от ketkz.com для заказа ${lvIdToSearch} (или ${orderId}):`, latestOrder);
 
+      if (!latestOrder) {
 
+      }
     }
 
     return res.json({ success: true, message: "Обновление заказов завершено" });
