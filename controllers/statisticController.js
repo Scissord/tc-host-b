@@ -435,6 +435,7 @@ const statuses_dict = {
 };
 
 export const updateOrderIdsFile = async (req, res) => {
+  console.log('Started processing file upload')
   writeLog('Started processing file upload');
   
   if (!req.files || !req.files.file) {
@@ -458,7 +459,7 @@ export const updateOrderIdsFile = async (req, res) => {
         cur_status: row['Статус курьера'],
         delivery_type: row['Тип доставки']
       };
-      
+      console.log(`Processing row: ${JSON.stringify(payload)}`)
       writeLog(`Processing row: ${JSON.stringify(payload)}`);
       let data_to_update = {};
 
@@ -475,6 +476,7 @@ export const updateOrderIdsFile = async (req, res) => {
         if (statusInfo) {
           data_to_update.status = statusInfo.status_in_leadvertex;
         } else {
+          console.log(`Status not found for row: ${JSON.stringify(payload)}`)
           writeLog(`Status not found for row: ${JSON.stringify(payload)}`);
           continue;
         }
@@ -497,6 +499,7 @@ export const updateOrderIdsFile = async (req, res) => {
           );
           
           if (updateResponse.status === 200) {
+            console.log(`Order ${payload.external_id} updated to status ${data_to_update.status}`)
             writeLog(`Order ${payload.external_id} updated to status ${data_to_update.status}`);
           }
         } else {
@@ -507,6 +510,7 @@ export const updateOrderIdsFile = async (req, res) => {
 
           if (response.data && response.data.length > 0) {
             const lastOrderId = response.data[response.data.length - 1];
+            console.log(`Found last order ID: ${lastOrderId} for external ID: ${payload.external_id}`)
             writeLog(`Found last order ID: ${lastOrderId} for external ID: ${payload.external_id}`);
 
             const data = new URLSearchParams();
@@ -519,21 +523,26 @@ export const updateOrderIdsFile = async (req, res) => {
             );
 
             if (updateResponse.status === 200) {
+              console.log(`Order ${lastOrderId} updated to status ${data_to_update.status}`)
               writeLog(`Order ${lastOrderId} updated to status ${data_to_update.status}`);
             }
           } else {
+            console.log(`No orders found for external ID: ${payload.external_id}`)
             writeLog(`No orders found for external ID: ${payload.external_id}`);
             continue;
           }
         }
       } catch (error) {
+        console.log(`Error updating order ${payload.external_id}: ${error.message}`)
         writeLog(`Error updating order ${payload.external_id}: ${error.message}`);
       }
     }
     
     writeLog(`${procc} rows were skipped`);
+    console.log(`${procc} rows were skipped`)
     res.send('Данные успешно загружены и отправлены.');
   } catch (error) {
+    console.log(`Ошибка при обработке файла: ${error.message}`)
     writeLog(`Ошибка при обработке файла: ${error.message}`);
     res.status(500).send('Ошибка при обработке файла.');
   }
