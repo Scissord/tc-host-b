@@ -507,30 +507,31 @@ export const updateOrderIdsFile = async (req, res) => {
             `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa`,
             { params: { additional19: payload.external_id } }
           );
-
+          let last_id 
           if (response.data && response.data.length > 0) {
-            const lastOrderId = response.data[response.data.length - 1];
+            last_id = response.data[response.data.length - 1];
             console.log(`Found last order ID: ${lastOrderId} for external ID: ${payload.external_id}`)
             writeLog(`Found last order ID: ${lastOrderId} for external ID: ${payload.external_id}`);
 
-            const data = new URLSearchParams();
+          } 
+
+          if (!last_id){
+            last_id = payload.external_id
+          }
+          const data = new URLSearchParams();
             data.append('status', data_to_update.status);
 
             const updateResponse = await axios.post(
-              `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${lastOrderId}`,
+              `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${last_id}`,
               data,
               { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
             );
 
             if (updateResponse.status === 200) {
-              console.log(`Order ${lastOrderId} updated to status ${data_to_update.status}`)
-              writeLog(`Order ${lastOrderId} updated to status ${data_to_update.status}`);
+              console.log(`Order ${last_id} updated to status ${data_to_update.status}`)
+              writeLog(`Order ${last_id} updated to status ${data_to_update.status}`);
             }
-          } else {
-            console.log(`No orders found for external ID: ${payload.external_id}`)
-            writeLog(`No orders found for external ID: ${payload.external_id}`);
-            continue;
-          }
+
         }
       } catch (error) {
         console.log(`Error updating order ${payload.external_id}: ${error.message}`)
