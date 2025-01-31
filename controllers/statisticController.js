@@ -604,6 +604,7 @@ export const updateOrdersWithKet = async (req, res) => {
       };
 
       let ketOrderInfos = await fetchFromKet(lvIdToSearch, keyToUse);
+      
       if (!ketOrderInfos || Object.keys(ketOrderInfos).length === 0) {
         console.log(`⚠️ Данных по ${keyToUse} (${lvIdToSearch}) не найдено, пробуем по orderId (${orderId})`);
         ketOrderInfos = await fetchFromKet(orderId, "id");
