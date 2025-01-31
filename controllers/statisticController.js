@@ -550,52 +550,69 @@ const statuses_dict = {
 // };
 
 
+import axios from 'axios';
+
 export const updateOrdersWithKet = async (req, res) => {
   try {
-      // get all orders in status
+    // Получаем все заказы со статусом 6
     const response = await axios.get(
-      `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa`,
-      { params: { status: 6} }
+      `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html`,
+      { params: { token: "kjsdaKRhlsrk0rjjekjskaaaaaaaa", status: 6 } }
     );
 
-    const orders = response.data
+    const orders = response.data; // Массив ID заказов
+    if (!orders || orders.length === 0) {
+      console.log("⚠️ Нет заказов со статусом 6");
+      return res.json({ success: true, message: "Нет заказов для обработки" });
+    }
 
-    for (const order in orders) {
-      // get info of order by id
-      const res = await axios.get(
-        `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersByIds.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&ids=${order}`,
-        { params: { status: 6} }
+    for (const orderId of orders) {
+      // Получаем информацию о заказе по его ID
+      const resOrder = await axios.get(
+        `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersByIds.html`,
+        { params: { token: "kjsdaKRhlsrk0rjjekjskaaaaaaaa", ids: orderId } }
       );
-      // order info is in orderInfo
-      const orderInfo = res.data[order]
 
-      let lvIdToSearch 
+      const orderInfo = resOrder.data[orderId];
 
-      if ( orderInfo.additional19 ) {
-        lvIdToSearch = orderInfo.additional19
-      } else {
-        lvIdToSearch = order
+      // Проверка, существует ли заказ в ответе
+      if (!orderInfo) {
+        console.log(`⚠️ Заказ ${orderId} не найден в LeadVertex`);
+        continue; // Пропускаем итерацию
       }
 
-      data = {"data": json.dumps([{"ext_id": lvIdToSearch}])}
+      let lvIdToSearch = orderInfo.additional19 || orderId;
 
-      const ket_response = await axios.post({
-        method: 'POST',
-        url:`https://ketkz.com/api/get_orders.php?uid=99770715&s=OFxMG6K9`,
-        data: data,
-        headers: {"Content-Type": "application/x-www-form-urlencoded"}
-      })
+      // Подготовка JSON-данных для запроса в ketkz.com
+      const data = {
+        data: JSON.stringify([{ ext_id: lvIdToSearch }])
+      };
 
-      const ketOrderInfo = ket_response.data
+      // Отправляем POST-запрос в KET API
+      try {
+        const ketResponse = await axios.post(
+          `https://ketkz.com/api/get_orders.php`,
+          data,
+          {
+            params: { uid: "99770715", s: "OFxMG6K9" },
+            headers: { "Content-Type": "application/x-www-form-urlencoded" }
+          }
+        );
 
-      console.log(ketOrderInfo)
-      
-      break
+        const ketOrderInfo = ketResponse.data;
+        console.log(`✅ Ответ от ketkz.com для заказа ${lvIdToSearch}:`, ketOrderInfo);
+      } catch (ketError) {
+        console.error(`❌ Ошибка запроса к KET API для ${lvIdToSearch}:`, ketError.message);
+      }
+
+      break; // Если нужен только один заказ, оставляем `break`
     }
-  } catch (error) {
-    console.log(`${error}`)
-  }
- 
 
-  
-}
+    return res.json({ success: true, message: "Обновление заказов завершено" });
+
+  } catch (error) {
+    console.error("❌ Ошибка обработки заказов:", error.message);
+    return res.status(500).json({ success: false, message: "Ошибка сервера" });
+  }
+};
+
