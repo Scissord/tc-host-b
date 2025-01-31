@@ -552,15 +552,15 @@ const statuses_dict = {
 
 export const updateOrdersWithKet = async (req, res) => {
   try {
-    // Получаем все заказы со статусом 6
+    // Получаем все заказы со статусом 13 (не 6, поправил комментарий)
     const response = await axios.get(
       `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html`,
-      { params: { token: "kjsdaKRhlsrk0rjjekjskaaaaaaaa", status: 13 } }
+      { params: { token: "kjsdaKRhlsrk0rjjekjskaaaaaaaa", status: 56 } }
     );
 
     const orders = response.data; // Массив ID заказов
     if (!orders || orders.length === 0) {
-      console.log("⚠️ Нет заказов со статусом 6");
+      console.log("⚠️ Нет заказов со статусом 13");
       return res.json({ success: true, message: "Нет заказов для обработки" });
     }
 
@@ -581,34 +581,49 @@ export const updateOrdersWithKet = async (req, res) => {
 
       let lvIdToSearch = orderInfo.additional19 || orderId;
 
-      // Подготовка JSON-данных для запроса в ketkz.com
-      const data = {
-        data: JSON.stringify([{ ext_id: lvIdToSearch }])
+      // Функция для запроса в KET API
+      const fetchFromKet = async (extId) => {
+        const data = {
+          data: JSON.stringify([{ ext_id: extId }])
+        };
+
+        try {
+          const ketResponse = await axios.post(
+            `https://ketkz.com/api/get_orders.php`,
+            data,
+            {
+              params: { uid: "99770715", s: "OFxMG6K9" },
+              headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            }
+          );
+
+          return ketResponse.data;
+        } catch (ketError) {
+          console.error(`❌ Ошибка запроса к KET API для ${extId}:`, ketError.message);
+          return null;
+        }
       };
 
-      // Отправляем POST-запрос в KET API
-      try {
-        const ketResponse = await axios.post(
-          `https://ketkz.com/api/get_orders.php`,
-          data,
-          {
-            params: { uid: "99770715", s: "OFxMG6K9" },
-            headers: { "Content-Type": "application/x-www-form-urlencoded" }
-          }
-        );
+      // 1. Проверяем сначала по additional19 (если есть)
+      let ketOrderInfos = await fetchFromKet(lvIdToSearch);
 
-        const ketOrderInfos = ketResponse.data;
-        console.log(ketOrderInfos)
-
-        const latestOrder = Object.values(ketResponse.data).pop();
-        
-        console.log(`✅ Ответ от ketkz.com для заказа ${lvIdToSearch}:`, latestOrder);
-
-      } catch (ketError) {
-        console.error(`❌ Ошибка запроса к KET API для ${lvIdToSearch}:`, ketError.message);
+      // 2. Если данных нет, пробуем по orderId
+      if (!ketOrderInfos || Object.keys(ketOrderInfos).length === 0) {
+        console.log(`⚠️ Данных по additional19 (${lvIdToSearch}) не найдено, пробуем по orderId (${orderId})`);
+        ketOrderInfos = await fetchFromKet(orderId);
       }
 
-      break; // Если нужен только один заказ, оставляем `break`
+      // Если после двух проверок данных нет — логируем
+      if (!ketOrderInfos || Object.keys(ketOrderInfos).length === 0) {
+        console.log(`❌ Заказ ${orderId} не найден ни по additional19, ни по orderId в KET`);
+        continue;
+      }
+
+      // Получаем последний заказ из KET
+      const latestOrder = Object.values(ketOrderInfos).pop();
+      console.log(`✅ Ответ от ketkz.com для заказа ${lvIdToSearch} (или ${orderId}):`, latestOrder);
+
+
     }
 
     return res.json({ success: true, message: "Обновление заказов завершено" });
@@ -618,4 +633,3 @@ export const updateOrdersWithKet = async (req, res) => {
     return res.status(500).json({ success: false, message: "Ошибка сервера" });
   }
 };
-
