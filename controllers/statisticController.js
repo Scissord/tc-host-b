@@ -552,7 +552,6 @@ const statuses_dict = {
 
 export const updateOrdersWithKet = async (req, res) => {
   try {
-    // Получаем все заказы со статусом 13 (не 6, поправил комментарий)
     const response = await axios.get(
       `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html`,
       { params: { token: "kjsdaKRhlsrk0rjjekjskaaaaaaaa", status: 3 } }
@@ -560,31 +559,31 @@ export const updateOrdersWithKet = async (req, res) => {
 
     const orders = response.data; // Массив ID заказов
     if (!orders || orders.length === 0) {
-      console.log("⚠️ Нет заказов со статусом 13");
+      console.log("⚠️ Нет заказов со статусом 3");
       return res.json({ success: true, message: "Нет заказов для обработки" });
     }
 
+    let notFoundOrders = []; // Заказы, которых нет в KET
+    let postDeliveryOrders = []; // Заказы, у которых доставка "почта"
+
     for (const orderId of orders) {
-      // Получаем информацию о заказе по его ID
       const resOrder = await axios.get(
         `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersByIds.html`,
         { params: { token: "kjsdaKRhlsrk0rjjekjskaaaaaaaa", ids: orderId } }
       );
 
       const orderInfo = resOrder.data[orderId];
-
-      // Проверка, существует ли заказ в ответе
       if (!orderInfo) {
         console.log(`⚠️ Заказ ${orderId} не найден в LeadVertex`);
-        continue; // Пропускаем итерацию
+        continue;
       }
 
       let lvIdToSearch = orderInfo.additional19 || orderId;
+      let keyToUse = orderInfo.additional19 ? "ext_id" : "id"; 
 
-      // Функция для запроса в KET API
-      const fetchFromKet = async (extId) => {
+      const fetchFromKet = async (idValue, idType) => {
         const data = {
-          data: JSON.stringify([{ ext_id: extId }])
+          data: JSON.stringify([{ [idType]: idValue }])
         };
 
         try {
@@ -599,39 +598,56 @@ export const updateOrdersWithKet = async (req, res) => {
 
           return ketResponse.data;
         } catch (ketError) {
-          console.error(`❌ Ошибка запроса к KET API для ${extId}:`, ketError.message);
+          console.error(`❌ Ошибка запроса к KET API для ${idValue} (${idType}):`, ketError.message);
           return null;
         }
       };
 
-      // 1. Проверяем сначала по additional19 (если есть)
-      let ketOrderInfos = await fetchFromKet(lvIdToSearch);
-
-      // 2. Если данных нет, пробуем по orderId
+      let ketOrderInfos = await fetchFromKet(lvIdToSearch, keyToUse);
       if (!ketOrderInfos || Object.keys(ketOrderInfos).length === 0) {
-        console.log(`⚠️ Данных по additional19 (${lvIdToSearch}) не найдено, пробуем по orderId (${orderId})`);
-        ketOrderInfos = await fetchFromKet(orderId);
+        console.log(`⚠️ Данных по ${keyToUse} (${lvIdToSearch}) не найдено, пробуем по orderId (${orderId})`);
+        ketOrderInfos = await fetchFromKet(orderId, "id");
       }
 
-      // Если после двух проверок данных нет — логируем
       if (!ketOrderInfos || Object.keys(ketOrderInfos).length === 0) {
-        console.log(`❌ Заказ ${orderId} не найден ни по additional19, ни по orderId в KET`);
+        console.log(`❌ Заказ ${orderId} не найден в KET`);
+        notFoundOrders.push(orderId);
         continue;
       }
 
-      // Получаем последний заказ из KET
       const latestOrder = Object.values(ketOrderInfos).pop();
       console.log(`✅ Ответ от ketkz.com для заказа ${lvIdToSearch} (или ${orderId}):`, latestOrder);
 
-      if (!latestOrder) {
+      // Проверяем дату доставки
+      if (latestOrder.delivery_date) {
+        const deliveryYear = new Date(latestOrder.delivery_date).getFullYear();
+        if (deliveryYear !== 2025) {
+          console.log(`❌ Заказ ${orderId} имеет старую дату доставки (${latestOrder.delivery_date}), пропускаем`);
+          notFoundOrders.push(orderId);
+          continue;
+        }
+      }
 
+      // Проверяем, если доставка "почта"
+      if (latestOrder.kz_delivery === "почта") {
+        console.log(`📦 Заказ ${orderId} отправляется почтой`);
+        postDeliveryOrders.push(orderId);
       }
     }
 
-    return res.json({ success: true, message: "Обновление заказов завершено" });
+    console.log("📌 Заказы, которых нет в KET:", notFoundOrders);
+    console.log("📬 Заказы с доставкой 'почта':", postDeliveryOrders);
+
+    return res.json({
+      success: true,
+      message: "Обновление заказов завершено",
+      notFoundOrders,
+      postDeliveryOrders
+    });
 
   } catch (error) {
     console.error("❌ Ошибка обработки заказов:", error.message);
     return res.status(500).json({ success: false, message: "Ошибка сервера" });
   }
 };
+
