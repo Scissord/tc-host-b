@@ -510,8 +510,8 @@ export const updateOrderIdsFile = async (req, res) => {
           let last_id 
           if (response.data && response.data.length > 0) {
             last_id = response.data[response.data.length - 1];
-            console.log(`Found last order ID: ${lastOrderId} for external ID: ${payload.external_id}`)
-            writeLog(`Found last order ID: ${lastOrderId} for external ID: ${payload.external_id}`);
+            console.log(`Found last order ID: ${last_id} for external ID: ${payload.external_id}`)
+            writeLog(`Found last order ID: ${last_id} for external ID: ${payload.external_id}`);
 
           } 
 
