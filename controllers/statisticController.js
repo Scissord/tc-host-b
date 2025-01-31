@@ -554,7 +554,7 @@ export const updateOrdersWithKet = async (req, res) => {
   try {
     const response = await axios.get(
       `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html`,
-      { params: { token: "kjsdaKRhlsrk0rjjekjskaaaaaaaa", status: 13 } }
+      { params: { token: "kjsdaKRhlsrk0rjjekjskaaaaaaaa", status: 56} }
     );
 
     const orders = response.data; // Массив ID заказов
