@@ -554,7 +554,7 @@ export const updateOrdersWithKet = async (req, res) => {
   try {
     const response = await axios.get(
       `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html`,
-      { params: { token: "kjsdaKRhlsrk0rjjekjskaaaaaaaa", status: 3 } }
+      { params: { token: "kjsdaKRhlsrk0rjjekjskaaaaaaaa", status: 13 } }
     );
 
     const orders = response.data; // Массив ID заказов
@@ -629,8 +629,8 @@ export const updateOrdersWithKet = async (req, res) => {
       }
 
       // Проверяем, если доставка "почта"
-      if (latestOrder.kz_delivery === "почта") {
-        console.log(`📦 Заказ ${orderId} отправляется почтой`);
+      if (latestOrder.kz_delivery !== "Почта") {
+        console.log(`📦 Заказ ${orderId} отправляется курьер`);
         postDeliveryOrders.push(orderId);
       }
     }
