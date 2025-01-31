@@ -435,8 +435,10 @@ const statuses_dict = {
 };
 
 export const updateOrderIdsFile = async (req, res) => {
-  console.log('started')
+  writeLog('Started processing file upload');
+  
   if (!req.files || !req.files.file) {
+    writeLog('Файл не загружен.');
     return res.status(400).send('Файл не загружен.');
   }
 
@@ -445,10 +447,10 @@ export const updateOrderIdsFile = async (req, res) => {
   const sheetName = workbook.SheetNames[0];
   const sheet = workbook.Sheets[sheetName];
   const jsonData = XLSX.utils.sheet_to_json(sheet);
-  let procc = 0
+  let procc = 0;
+  
   try {
     for (const row of jsonData) {
-      
       const payload = {
         id: row['ID'],
         external_id: row['ID внешний'],
@@ -456,118 +458,83 @@ export const updateOrderIdsFile = async (req, res) => {
         cur_status: row['Статус курьера'],
         delivery_type: row['Тип доставки']
       };
-
-
-      let data_to_update = {}
-
-      if (payload.delivery_type == 'Почта'){
-
-
-        if (payload.send_status == 'Отправлен') {
-          data_to_update.status = 13
-        }
-        if (payload.send_status == 'На отправку') {
-          data_to_update.status = 13
-        }
-        if (payload.send_status == 'Оплачен') {
-          data_to_update.status = 6
-        }
-        if (payload.send_status == 'Отказ') {
-          data_to_update.status = 46
-        }
-
-      } else {
       
-        const statusInfo = statuses_dict[payload.cur_status];
+      writeLog(`Processing row: ${JSON.stringify(payload)}`);
+      let data_to_update = {};
 
-        if ( statusInfo ) {
-          data_to_update.status = statusInfo.status_in_leadvertex;
-
-        } else {
-          continue
+      if (payload.delivery_type === 'Почта') {
+        if (payload.send_status === 'Отправлен' || payload.send_status === 'На отправку') {
+          data_to_update.status = 13;
+        } else if (payload.send_status === 'Оплачен') {
+          data_to_update.status = 6;
+        } else if (payload.send_status === 'Отказ') {
+          data_to_update.status = 46;
         }
-        
+      } else {
+        const statusInfo = statuses_dict[payload.cur_status];
+        if (statusInfo) {
+          data_to_update.status = statusInfo.status_in_leadvertex;
+        } else {
+          writeLog(`Status not found for row: ${JSON.stringify(payload)}`);
+          continue;
+        }
       }
       
       if (!data_to_update.status) {
-        procc++
-        continue
+        procc++;
+        continue;
       }
-      if (+payload.external_id > 0 && +payload.external_id <= 100000) {
+      
+      try {
+        if (+payload.external_id > 0 && +payload.external_id <= 100000) {
+          const data = new URLSearchParams();
+          data.append('status', data_to_update.status);
+
+          const updateResponse = await axios.post(
+            `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${payload.external_id}`,
+            data,
+            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+          );
+          
+          if (updateResponse.status === 200) {
+            writeLog(`Order ${payload.external_id} updated to status ${data_to_update.status}`);
+          }
+        } else {
+          const response = await axios.get(
+            `https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa`,
+            { params: { additional19: payload.external_id } }
+          );
+
+          if (response.data && response.data.length > 0) {
+            const lastOrderId = response.data[response.data.length - 1];
+            writeLog(`Found last order ID: ${lastOrderId} for external ID: ${payload.external_id}`);
+
             const data = new URLSearchParams();
             data.append('status', data_to_update.status);
 
-            const updateResponse = await axios({
-              method: 'POST',
-              url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${payload.external_id}`,
-              data: data,
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-              }
+            const updateResponse = await axios.post(
+              `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${lastOrderId}`,
+              data,
+              { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+            );
 
-            });
             if (updateResponse.status === 200) {
-              console.log(`${payload}, был обновлен в статус ${data_to_update.status}`)
-              const logMessage = `${JSON.stringify(payload)}, был обновлен в статус ${data_to_update.status}`;
-              writeLog(logMessage);
+              writeLog(`Order ${lastOrderId} updated to status ${data_to_update.status}`);
             }
-
+          } else {
+            writeLog(`No orders found for external ID: ${payload.external_id}`);
+            continue;
           }
-          
-        
-      else {
-
-          try {
-
-            const response = await axios.get(`https://talkcall-kz.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa`, {
-              params: {
-                additional19: payload.external_id
-              }
-            });
-
-            if (response.data && response.data.length > 0) {
-              const lastOrderId = response.data[response.data.length - 1];
-              console.log(`Последний заказ: ${lastOrderId}`);
-              const data = new URLSearchParams();
-              data.append('status', data_to_update.status);
-
-              const updateResponse = await axios({
-                method: 'POST',
-                url: `https://talkcall-kz.leadvertex.ru/api/admin/updateOrder.html?token=kjsdaKRhlsrk0rjjekjskaaaaaaaa&id=${lastOrderId}`,
-                data: data,
-                headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded',
-                }
-  
-              });
-              if (updateResponse.status === 200) {
-                console.log(`${payload}, был обновлен в статус ${data_to_update.status}`)
-                const logMessage = `${JSON.stringify(payload)}, был обновлен в статус ${data_to_update.status}`;
-                writeLog(logMessage);
-              }
-
-            } else {
-              console.log(`Заказы не найдены. ${payload.external_id}`);
-              continue
-            }
-
-          } catch (error) {
-            console.error('Ошибка при запросе заказов:', error);
-          }
+        }
+      } catch (error) {
+        writeLog(`Error updating order ${payload.external_id}: ${error.message}`);
       }
     }
-    console.log(`${procc} было пропущено`)
+    
+    writeLog(`${procc} rows were skipped`);
     res.send('Данные успешно загружены и отправлены.');
-
   } catch (error) {
-    console.error('Ошибка при отправке данных:', error);
+    writeLog(`Ошибка при обработке файла: ${error.message}`);
     res.status(500).send('Ошибка при обработке файла.');
-  }  
   }
-
-
-
-
-
-
-  
+};
