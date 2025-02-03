@@ -32,6 +32,6 @@ router.patch("/status/update", verify, controller.changeStatus);
 router.post("/unloading", verify, controller.unloading);
 
 // Синхронизация со старыми заказами
-// router.get("/sync/leadvertex", controller.sync);
+router.get("/sync/leadvertex", controller.sync);
 
 export default router;
