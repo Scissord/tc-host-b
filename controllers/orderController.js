@@ -708,9 +708,9 @@ export const sync = async (req, res) => {
   // Начинаем с 1 до 10000
   for(let i = 1; i <= 10; i++) {
     // Ищем заказ
-    let order = null;
+    let orderResponse = null;
     try {
-      order = await axios({
+      orderResponse = await axios({
         method: 'GET',
         url: `https://callcenter-kyrgyzstan.leadvertex.ru/api/admin/getOrdersByIds.html?token=SLKAShgfeureiJEWGHJKlslak&ids=${i}`
       })
@@ -720,120 +720,120 @@ export const sync = async (req, res) => {
     };
 
     // Если не нашли заказ, то останавливаем
-    if(!order) {
+    if(!orderResponse.data) {
       console.error(`Заказа с id - ${i} не найден, завершаю цикл!`);
       break;
     };
 
-    console.log(order.data[i]);
+    const order = orderResponse.data[i]
 
     // Создаю данные
-    // let createdOrder = null;
-    // try {
-    //   createdOrder = await axios({
-    //     method: 'POST',
-    //     url: `https://callcenter-krg.leadvertex.ru/api/admin/addOrder.html?token=MedgfsaktuiddfuvhKg`,
-    //     headers: {
-    //       "Content-Type": 'application/x-www-form-urlencoded'
-    //     },
-    //     data: {
-    //       webmasterID: order.webmasterID,
-    //       operatorID: order.operatorID,
-    //       externalID: order.externalID,
-    //       externalWebmaster: order.externalWebmaster,
-    //       country: order.country,
-    //       region: order.region,
-    //       city: order.city,
-    //       postIndex: order.postIndex,
-    //       address: order.address,
-    //       house: order.house,
-    //       flat: order.flat,
-    //       fio: order.fio,
-    //       phone: order.phone,
-    //       email: order.email,
-    //       price: order.price,
-    //       total: order.total,
-    //       quantity: order.quantity,
-    //       additional1: order.additional1,
-    //       additional2: order.additional2,
-    //       additional3: order.additional3,
-    //       additional4: order.additional4,
-    //       additional5: order.additional5,
-    //       additional6: order.additional6,
-    //       additional7: order.additional7,
-    //       additional8: order.additional8,
-    //       additional9: order.additional9,
-    //       additional10: order.additional10,
-    //       additional11: order.additional11,
-    //       additional12: order.additional12,
-    //       additional13: order.additional13,
-    //       additional14: order.additional14,
-    //       additional15: order.additional15,
-    //       additional16: order.additional16,
-    //       additional17: order.additional17,
-    //       additional18: order.additional18,
-    //       additional19: order.additional19,
-    //       additional20: order.additional20,
-    //       additional21: order.additional21,
-    //       additional22: order.additional22,
-    //       additional23: order.additional23,
-    //       additional24: order.additional24,
-    //       additional25: order.additional25,
-    //       comment: order.comment,
-    //       russianpostTrack: order.russianpostTrack,
-    //       novaposhtaTrack: order.novaposhtaTrack,
-    //       kazpostTrack: order.kazpostTrack,
-    //       belpostTrack: order.belpostTrack,
-    //       timezone: order.timezone,
-    //       utm_source: order.utm_source,
-    //       utm_medium: order.utm_medium,
-    //       utm_campaign: order.utm_campaign,
-    //       utm_term: order.utm_term,
-    //       utm_content: order.utm_content,
-    //       domain: order.domain,
-    //       timeSpent: order.timeSpent,
-    //       ip: order.ip,
-    //       referer: order.referer,
-    //       goods: order.goods
-    //     },
-    //   });
-    // } catch (error) {
-    //   console.log(error.response.data);
-    //   console.error(`Ошибка при создании заказа id - ${i}, завершаю цикл!`, error.message);
-    //   break;
-    // };
+    let createdOrder = null;
+    try {
+      createdOrder = await axios({
+        method: 'POST',
+        url: `https://callcenter-krg.leadvertex.ru/api/admin/addOrder.html?token=MedgfsaktuiddfuvhKg`,
+        headers: {
+          "Content-Type": 'application/x-www-form-urlencoded'
+        },
+        data: {
+          webmasterID: order.webmasterID,
+          operatorID: order.operatorID,
+          externalID: order.externalID,
+          externalWebmaster: order.externalWebmaster,
+          country: order.country,
+          region: order.region,
+          city: order.city,
+          postIndex: order.postIndex,
+          address: order.address,
+          house: order.house,
+          flat: order.flat,
+          fio: order.fio,
+          phone: order.phone,
+          email: order.email,
+          price: order.price,
+          total: order.total,
+          quantity: order.quantity,
+          additional1: order.additional1,
+          additional2: order.additional2,
+          additional3: order.additional3,
+          additional4: order.additional4,
+          additional5: order.additional5,
+          additional6: order.additional6,
+          additional7: order.additional7,
+          additional8: order.additional8,
+          additional9: order.additional9,
+          additional10: order.additional10,
+          additional11: order.additional11,
+          additional12: order.additional12,
+          additional13: order.additional13,
+          additional14: order.additional14,
+          additional15: order.additional15,
+          additional16: order.additional16,
+          additional17: order.additional17,
+          additional18: order.additional18,
+          additional19: order.additional19,
+          additional20: order.additional20,
+          additional21: order.additional21,
+          additional22: order.additional22,
+          additional23: order.additional23,
+          additional24: order.additional24,
+          additional25: order.additional25,
+          comment: order.comment,
+          russianpostTrack: order.russianpostTrack,
+          novaposhtaTrack: order.novaposhtaTrack,
+          kazpostTrack: order.kazpostTrack,
+          belpostTrack: order.belpostTrack,
+          timezone: order.timezone,
+          utm_source: order.utm_source,
+          utm_medium: order.utm_medium,
+          utm_campaign: order.utm_campaign,
+          utm_term: order.utm_term,
+          utm_content: order.utm_content,
+          domain: order.domain,
+          timeSpent: order.timeSpent,
+          ip: order.ip,
+          referer: order.referer,
+          goods: order.goods
+        },
+      });
+    } catch (error) {
+      console.log(error.response.data);
+      console.error(`Ошибка при создании заказа id - ${i}, завершаю цикл!`, error.message);
+      break;
+    };
 
     // Если не создались, то останавливаю
-    // if(!createdOrder) {
-    //   console.error(`Заказа с id - ${i} не создался в leadvertex, завершаю цикл!`);
-    //   break;
-    // };
+    if(!createdOrder.data) {
+      console.error(`Заказа с id - ${i} не создался в leadvertex, завершаю цикл!`);
+      break;
+    };
 
     // Кидаю в свой статус
-    // let updatedOrder = null;
-    // try {
-    //   updatedOrder = await axios({
-    //     method: 'POST',
-    //     url: `https://callcenter-krg.leadvertex.ru/api/admin/addOrder.html?token=MedgfsaktuiddfuvhKg&id=${Object.keys(createdOrder)[0]}`,
-    //     headers: {
-    //       "Content-Type": 'application/x-www-form-urlencoded'
-    //     },
-    //     data: {
-    //       status: order.status,
-    //     }
-    //   });
-    // } catch (error) {
-    //   console.error(`Ошибка при обновлении заказа id - ${Object.keys(createdOrder)[0]}, завершаю цикл!`, error.message);
-    //   break;
-    // };
+    let updatedOrder = null;
+    try {
+      updatedOrder = await axios({
+        method: 'POST',
+        url: `https://callcenter-krg.leadvertex.ru/api/admin/addOrder.html?token=MedgfsaktuiddfuvhKg&id=${Object.keys(createdOrder.data)[0]}`,
+        headers: {
+          "Content-Type": 'application/x-www-form-urlencoded'
+        },
+        data: {
+          status: order.status,
+        }
+      });
+    } catch (error) {
+      console.error(`Ошибка при обновлении заказа id - ${Object.keys(createdOrder.data)[0]}, завершаю цикл!`, error.message);
+      break;
+    };
 
     // Если не обновил в новом leadvertex, то останавливаю
-    // if(!updatedOrder) {
-    //   console.error(`Заказа с id - ${Object.keys(createdOrder)[0]} не обновился в leadvertex, завершаю цикл!`);
-    //   break;
-    // };
+    if(!updatedOrder.data) {
+      console.error(`Заказа с id - ${Object.keys(createdOrder.data)[0]} не обновился в leadvertex, завершаю цикл!`);
+      break;
+    };
 
-    // console.log(i, Object.keys(createdOrder)[0]);
+    console.log(i, Object.keys(createdOrder)[0]);
 
     break
   };
