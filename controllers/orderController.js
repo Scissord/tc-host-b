@@ -706,7 +706,7 @@ export const unloading = async (req, res) => {
 
 export const sync = async (req, res) => {
   // Начинаем с 1 до 10000
-  for(let i = 1; i <= 10; i++) {
+  for(let i = 2; i <= 10; i++) {
     // Ищем заказ
     let orderResponse = null;
     try {
