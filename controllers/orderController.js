@@ -809,8 +809,7 @@ export const sync = async (req, res) => {
       break;
     };
 
-    console.log(createdOrder.data);
-    console.log(createdOrder.data[0]);
+    console.log(Object.keys(createdOrder.data)[0]);
 
     // Кидаю в свой статус
     // let updatedOrder = null;
