@@ -798,7 +798,7 @@ export const sync = async (req, res) => {
     } catch (error) {
       console.error(`Ошибка при создании заказа id - ${i}, завершаю цикл!`, error.message);
       break;
-    }
+    };
 
     // Если не создались, то останавливаю
     if(!createdOrder) {
