@@ -809,31 +809,32 @@ export const sync = async (req, res) => {
       break;
     };
 
+    console.log(createdOrder.data);
+    console.log(createdOrder.data[0]);
+
     // Кидаю в свой статус
-    let updatedOrder = null;
-    try {
-      updatedOrder = await axios({
-        method: 'POST',
-        url: `https://callcenter-krg.leadvertex.ru/api/admin/addOrder.html?token=MedgfsaktuiddfuvhKg&id=${Object.keys(createdOrder.data)[0]}`,
-        headers: {
-          "Content-Type": 'application/x-www-form-urlencoded'
-        },
-        data: {
-          status: order.status,
-        }
-      });
-    } catch (error) {
-      console.error(`Ошибка при обновлении заказа id - ${Object.keys(createdOrder.data)[0]}, завершаю цикл!`, error.message);
-      break;
-    };
+    // let updatedOrder = null;
+    // try {
+    //   updatedOrder = await axios({
+    //     method: 'POST',
+    //     url: `https://callcenter-krg.leadvertex.ru/api/admin/updateOrder.html?token=MedgfsaktuiddfuvhKg&id=${Object.keys(createdOrder.data)[0]}`,
+    //     headers: {
+    //       "Content-Type": 'application/x-www-form-urlencoded'
+    //     },
+    //     data: {
+    //       status: order.status,
+    //     }
+    //   });
+    // } catch (error) {
+    //   console.error(`Ошибка при обновлении заказа id - ${Object.keys(createdOrder.data)[0]}, завершаю цикл!`, error.message);
+    //   break;
+    // };
 
     // Если не обновил в новом leadvertex, то останавливаю
-    if(!updatedOrder.data) {
-      console.error(`Заказа с id - ${Object.keys(createdOrder.data)[0]} не обновился в leadvertex, завершаю цикл!`);
-      break;
-    };
-
-    console.log(i, createdOrder.data[0]);
+    // if(!updatedOrder.data) {
+    //   console.error(`Заказа с id - ${Object.keys(createdOrder.data)[0]} не обновился в leadvertex, завершаю цикл!`);
+    //   break;
+    // };
 
     break
   };
