@@ -725,7 +725,7 @@ export const sync = async (req, res) => {
       break;
     };
 
-    console.log(order);
+    console.log(order.data[i]);
 
     // Создаю данные
     // let createdOrder = null;
