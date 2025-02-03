@@ -833,7 +833,7 @@ export const sync = async (req, res) => {
       break;
     };
 
-    console.log(i, Object.keys(createdOrder)[0]);
+    console.log(i, createdOrder.data[0]);
 
     break
   };
