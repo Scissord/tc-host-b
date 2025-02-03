@@ -1,0 +1,78 @@
+{
+  "window.zoomLevel": 1.8,
+  "editor.fontSize": 15,
+  "editor.tabSize": 2,
+  "editor.fontFamily": "FiraCode Nerd Font, JetBrainsMono Nerd Font, monospace",
+  "editor.fontWeight": "500",
+  "editor.detectIndentation": false,
+  "editor.fontLigatures": true,
+  "editor.minimap.enabled": false,
+  "editor.wordWrap": "on",
+  "editor.wrappingIndent": "indent",
+  "editor.accessibilitySupport": "off",
+  "editor.formatOnSave": true,
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "prettier.requireConfig": true,
+
+  "workbench.editor.enablePreview": false,
+  "workbench.colorTheme": "One Monokai",
+  "workbench.iconTheme": "material-icon-theme",
+
+  "explorer.confirmDelete": false,
+  "explorer.compactFolders": false,
+  "explorer.confirmDragAndDrop": false,
+
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "javascript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
+
+  "diffEditor.ignoreTrimWhitespace": false,
+  "files.trimTrailingWhitespace": true,
+  "html.format.enable": true,
+  "css.lint.unknownAtRules": "ignore",
+
+  "git.ignoreMissingGitWarning": true,
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "git.autofetch": true,
+
+  "files.eol": "\n",
+
+  "liveSassCompile.settings.showOutputWindowOn": "Error",
+  "liveServer.settings.donotShowInfoMsg": true,
+  "liveServer.settings.port": 5501,
+
+  "cSpell.words": [
+    "@tailwind",
+    "Articuline",
+    "axios",
+    "beclean",
+    "eropower",
+    "Femiston",
+    "Instatus",
+    "Kanban",
+    "leadvertex",
+    "manbalance",
+    "nodenext",
+    "Pinia",
+    "prostrong",
+    "Scissord",
+    "Scissxrd",
+    "signin",
+    "Signup",
+    "tailwindcss",
+    "toastification",
+    "Артикулы",
+    "Главная",
+    "Номенклатура",
+    "свечение",
+    "Склад"
+  ],
+}
