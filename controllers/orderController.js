@@ -725,6 +725,8 @@ export const sync = async (req, res) => {
       break;
     };
 
+    console.log(order);
+
     // Создаю данные
     let createdOrder = null;
     try {
@@ -796,8 +798,7 @@ export const sync = async (req, res) => {
         },
       });
     } catch (error) {
-      console.log(createdOrder);
-      console.log(error.response);
+      console.log(error.response.data);
       console.error(`Ошибка при создании заказа id - ${i}, завершаю цикл!`, error.message);
       break;
     };
