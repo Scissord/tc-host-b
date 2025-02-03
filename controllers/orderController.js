@@ -831,5 +831,7 @@ export const sync = async (req, res) => {
     };
 
     console.log(i, Object.keys(createdOrder)[0]);
+
+    break
   };
 };
