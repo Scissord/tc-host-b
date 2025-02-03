@@ -706,7 +706,7 @@ export const unloading = async (req, res) => {
 
 export const sync = async (req, res) => {
   // Начинаем с 1 до 10000
-  for(let i = 2; i <= 10; i++) {
+  for(let i = 1; i <= 10; i++) {
     // Ищем заказ
     let orderResponse = null;
     try {
@@ -727,7 +727,16 @@ export const sync = async (req, res) => {
 
     const order = orderResponse.data[i]
 
-    console.log(order);
+    const data = new URLSearchParams();
+    for (const [key, value] of Object.entries(order.goods)) {
+      value.forEach((item, index) => {
+        data.append(`goods[${key}][${index}][goodID]`, item.goodID);
+        data.append(`goods[${key}][${index}][quantity]`, item.quantity);
+        data.append(`goods[${key}][${index}][price]`, item.price);
+      });
+    };
+
+    console.log(data);
 
     // Создаю данные
     let createdOrder = null;
@@ -739,7 +748,7 @@ export const sync = async (req, res) => {
           "Content-Type": 'application/x-www-form-urlencoded'
         },
         data: {
-          webmasterID: order.webmasterID,
+          webmasterID: order?.webmaster?.id || null,
           operatorID: order.operatorID,
           externalID: order.externalID,
           externalWebmaster: order.externalWebmaster,
@@ -796,7 +805,7 @@ export const sync = async (req, res) => {
           timeSpent: order.timeSpent,
           ip: order.ip,
           referer: order.referer,
-          goods: order.goods
+          goods: data,
         },
       });
     } catch (error) {
