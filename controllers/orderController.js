@@ -727,17 +727,16 @@ export const sync = async (req, res) => {
 
     const order = orderResponse.data[i]
 
-    const data = new URLSearchParams();
-    for (const [key, value] of Object.entries(order.goods)) {
-      data.append(`goods[${key}][goodID]`, value.goodID);
-      data.append(`goods[${key}][quantity]`, value.quantity);
-      data.append(`goods[${key}][price]`, value.price);
-    };
+    const goods = Object.entries(order.goods).map(([key, value]) => ({
+      goodID: findProductId(+value.goodID),
+      quantity: value.quantity,
+      price: parseFloat(value?.price).toFixed(2) || 1650,
+    }));
 
-    console.log(data);
+    console.log(goods);
 
     break;
-    // Создаю данные
+
     let createdOrder = null;
     try {
       createdOrder = await axios({
@@ -804,7 +803,7 @@ export const sync = async (req, res) => {
           timeSpent: order.timeSpent,
           ip: order.ip,
           referer: order.referer,
-          goods: data,
+          goods: JSON.stringify(goods),
         },
       });
     } catch (error) {
@@ -848,4 +847,26 @@ export const sync = async (req, res) => {
   };
 
   return res.status(200);
+};
+
+const findProductId = (lastPrice) => {
+  let newPrice = null;
+  switch(lastPrice) {
+    // alco:
+    case 204118:
+      newPrice = 212253;
+      break;
+    // flex
+    case 202914:
+      newPrice = 212256;
+      break;
+    // man
+    case 202619:
+      newPrice = 212257;
+      break
+    default:
+      newPrice = 212256;
+  }
+
+  return newPrice;
 };
