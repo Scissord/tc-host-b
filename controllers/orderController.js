@@ -728,7 +728,7 @@ export const sync = async (req, res) => {
     const order = orderResponse.data[i]
 
     const data = new URLSearchParams();
-    for (const [key, value] of Object.entries(order.goods)) {
+    for (const [key, value] of goods) {
       value.forEach((item, index) => {
         data.append(`goods[${key}][${index}][goodID]`, item.goodID);
         data.append(`goods[${key}][${index}][quantity]`, item.quantity);
@@ -738,6 +738,7 @@ export const sync = async (req, res) => {
 
     console.log(data);
 
+    break;
     // Создаю данные
     let createdOrder = null;
     try {
