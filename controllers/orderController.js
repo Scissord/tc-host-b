@@ -738,6 +738,8 @@ export const sync = async (req, res) => {
       }));
     };
 
+    console.log(goods)
+    break
     let createdOrder = null;
     try {
       const data = {
