@@ -706,7 +706,7 @@ export const unloading = async (req, res) => {
 
 export const sync = async (req, res) => {
   // Начинаем с 1 до 10000
-  for(let i = 12; i <= 50; i++) {
+  for(let i = 13; i <= 50; i++) {
     // Ищем заказ
     let orderResponse = null;
     try {
@@ -852,8 +852,6 @@ export const sync = async (req, res) => {
     };
 
     console.log(`Заказ №${Object.keys(createdOrder.data)[0]} успешно обработан!`)
-
-    break
   };
 
   return res.status(200);
