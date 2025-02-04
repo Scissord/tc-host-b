@@ -727,7 +727,9 @@ export const sync = async (req, res) => {
 
     const order = orderResponse.data[i]
 
-    const goods = Object.entries(order.goods).map(([key, value]) => ({
+    console.log(order.goods);
+
+    const goods = Object.entries(order?.goods).map(([key, value]) => ({
       goodID: findProductId(+value.goodID),
       quantity: value.quantity,
       price: parseFloat(value?.price).toFixed(2) || 1650,
