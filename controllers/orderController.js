@@ -728,18 +728,13 @@ export const sync = async (req, res) => {
     const order = orderResponse.data[i]
 
     const data = new URLSearchParams();
-    console.log(order.goods);
-    // for (const [key, value] of Object.entries(order.goods)) {
+    for (const [key, value] of Object.entries(order.goods)) {
+      data.append(`goods[${key}][goodID]`, value.goodID);
+      data.append(`goods[${key}][quantity]`, value.quantity);
+      data.append(`goods[${key}][price]`, value.price);
+    };
 
-    //   console.log(value);
-    //   value.forEach((item, index) => {
-    //     data.append(`goods[${key}][${index}][goodID]`, item.goodID);
-    //     data.append(`goods[${key}][${index}][quantity]`, item.quantity);
-    //     data.append(`goods[${key}][${index}][price]`, item.price);
-    //   });
-    // };
-
-    // console.log(data);
+    console.log(data);
 
     break;
     // Создаю данные
