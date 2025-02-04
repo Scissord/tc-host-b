@@ -706,7 +706,9 @@ export const unloading = async (req, res) => {
 
 export const sync = async (req, res) => {
   // Начинаем с 1 до 10000
-  for(let i = 10; i <= 11; i++) {
+  // 1
+  // 10
+  for(let i = 1; i <= 11; i++) {
     // Ищем заказ
     let orderResponse = null;
     try {
@@ -727,84 +729,88 @@ export const sync = async (req, res) => {
 
     const order = orderResponse.data[i]
 
-    console.log(order.goods);
-
-    const goods = Object.entries(order?.goods).map(([key, value]) => ({
-      goodID: findProductId(+value.goodID),
-      quantity: value.quantity,
-      price: parseFloat(value?.price).toFixed(2) || 1650,
-    }));
-
-    console.log(goods);
+    let goods = null;
+    if(order.goods) {
+      goods = Object.entries(order?.goods).map(([key, value]) => ({
+        goodID: findProductId(+value.goodID),
+        quantity: value.quantity,
+        price: parseFloat(value?.price).toFixed(2) || 1650,
+      }));
+    };
 
     let createdOrder = null;
     try {
+      const data = {
+        webmasterID: order?.webmaster?.id || null,
+        operatorID: order.operatorID,
+        externalID: order.externalID,
+        externalWebmaster: order.externalWebmaster,
+        country: order.country,
+        region: order.region,
+        city: order.city,
+        postIndex: order.postIndex,
+        address: order.address,
+        house: order.house,
+        flat: order.flat,
+        fio: order.fio,
+        phone: order.phone,
+        email: order.email,
+        price: order.price,
+        total: order.total,
+        quantity: order.quantity,
+        additional1: order.additional1,
+        additional2: order.additional2,
+        additional3: order.additional3,
+        additional4: order.additional4,
+        additional5: order.additional5,
+        additional6: order.additional6,
+        additional7: order.additional7,
+        additional8: order.additional8,
+        additional9: order.additional9,
+        additional10: order.additional10,
+        additional11: order.additional11,
+        additional12: order.additional12,
+        additional13: order.additional13,
+        additional14: order.additional14,
+        additional15: order.additional15,
+        additional16: order.additional16,
+        additional17: order.additional17,
+        additional18: order.additional18,
+        additional19: order.additional19,
+        additional20: order.additional20,
+        additional21: order.additional21,
+        additional22: order.additional22,
+        additional23: order.additional23,
+        additional24: order.additional24,
+        additional25: order.additional25,
+        comment: order.comment,
+        russianpostTrack: order.russianpostTrack,
+        novaposhtaTrack: order.novaposhtaTrack,
+        kazpostTrack: order.kazpostTrack,
+        belpostTrack: order.belpostTrack,
+        timezone: order.timezone,
+        utm_source: order.utm_source,
+        utm_medium: order.utm_medium,
+        utm_campaign: order.utm_campaign,
+        utm_term: order.utm_term,
+        utm_content: order.utm_content,
+        domain: order.domain,
+        timeSpent: order.timeSpent,
+        ip: order.ip,
+        referer: order.referer,
+      };
+
+      if(goods !== null) {
+        data.goods = JSON.stringify(goods);
+      };
+
       createdOrder = await axios({
         method: 'POST',
         url: `https://callcenter-krg.leadvertex.ru/api/admin/addOrder.html?token=MedgfsaktuiddfuvhKg`,
         headers: {
           "Content-Type": 'application/x-www-form-urlencoded'
         },
-        data: {
-          webmasterID: order?.webmaster?.id || null,
-          operatorID: order.operatorID,
-          externalID: order.externalID,
-          externalWebmaster: order.externalWebmaster,
-          country: order.country,
-          region: order.region,
-          city: order.city,
-          postIndex: order.postIndex,
-          address: order.address,
-          house: order.house,
-          flat: order.flat,
-          fio: order.fio,
-          phone: order.phone,
-          email: order.email,
-          price: order.price,
-          total: order.total,
-          quantity: order.quantity,
-          additional1: order.additional1,
-          additional2: order.additional2,
-          additional3: order.additional3,
-          additional4: order.additional4,
-          additional5: order.additional5,
-          additional6: order.additional6,
-          additional7: order.additional7,
-          additional8: order.additional8,
-          additional9: order.additional9,
-          additional10: order.additional10,
-          additional11: order.additional11,
-          additional12: order.additional12,
-          additional13: order.additional13,
-          additional14: order.additional14,
-          additional15: order.additional15,
-          additional16: order.additional16,
-          additional17: order.additional17,
-          additional18: order.additional18,
-          additional19: order.additional19,
-          additional20: order.additional20,
-          additional21: order.additional21,
-          additional22: order.additional22,
-          additional23: order.additional23,
-          additional24: order.additional24,
-          additional25: order.additional25,
-          comment: order.comment,
-          russianpostTrack: order.russianpostTrack,
-          novaposhtaTrack: order.novaposhtaTrack,
-          kazpostTrack: order.kazpostTrack,
-          belpostTrack: order.belpostTrack,
-          timezone: order.timezone,
-          utm_source: order.utm_source,
-          utm_medium: order.utm_medium,
-          utm_campaign: order.utm_campaign,
-          utm_term: order.utm_term,
-          utm_content: order.utm_content,
-          domain: order.domain,
-          timeSpent: order.timeSpent,
-          ip: order.ip,
-          referer: order.referer,
-          goods: JSON.stringify(goods),
-        },
+        data,
       });
     } catch (error) {
       console.log(error.response.data);
@@ -843,6 +849,7 @@ export const sync = async (req, res) => {
     };
 
     console.log(`Заказ №${Object.keys(createdOrder.data)[0]} успешно обработан!`)
+
     break
   };
 
