@@ -738,8 +738,6 @@ export const sync = async (req, res) => {
       }));
     };
 
-    console.log(goods)
-    break
     let createdOrder = null;
     try {
       const data = {
@@ -803,7 +801,7 @@ export const sync = async (req, res) => {
       };
 
       if(goods !== null) {
-        data.goods = JSON.stringify(goods);
+        data.goods = goods;
       };
 
       createdOrder = await axios({
@@ -858,24 +856,24 @@ export const sync = async (req, res) => {
   return res.status(200);
 };
 
-const findProductId = (lastPrice) => {
-  let newPrice = null;
-  switch(lastPrice) {
+const findProductId = (lastProductId) => {
+  let newProductId = null;
+  switch(lastProductId) {
     // alco:
     case 204118:
-      newPrice = 212253;
+      newProductId = 212253;
       break;
     // flex
     case 202914:
-      newPrice = 212256;
+      newProductId = 212256;
       break;
     // man
     case 202619:
-      newPrice = 212257;
+      newProductId = 212257;
       break
     default:
-      newPrice = 212256;
+      newProductId = 212256;
   }
 
-  return newPrice;
+  return newProductId;
 };
