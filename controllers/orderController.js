@@ -774,7 +774,7 @@ export const sync = async (req, res) => {
         additional16: order.additional16,
         additional17: order.additional17,
         additional18: order.additional18,
-        additional19: order.additional19,
+        additional19: i,
         additional20: order.additional20,
         additional21: order.additional21,
         additional22: order.additional22,
@@ -843,6 +843,11 @@ export const sync = async (req, res) => {
     // Если не обновил в новом leadvertex, то останавливаю
     if(!updatedOrder.data) {
       console.error(`Заказа с id - ${Object.keys(createdOrder.data)[0]} не обновился в leadvertex, завершаю цикл!`);
+      break;
+    };
+
+    if(+Object.keys(createdOrder.data)[0] !== +i) {
+      console.log(+Object.keys(createdOrder.data)[0], i, "Несовпали");
       break;
     };
 
